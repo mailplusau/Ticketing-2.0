@@ -3,13 +3,12 @@
  * @NApiVersion 2.0
  * @NScriptType Suitelet
  * 
- * Description: 
+ * Description: A ticketing system for the Customer Service.
  * @Last Modified by: Sruti Desai
  * 
  */
 
-
- define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/http', 'N/log', 'N/redirect', 'N/format'], 
+define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/http', 'N/log', 'N/redirect', 'N/format'], 
  function(ui, email, runtime, search, record, http, log, redirect, format) {
      var baseURL = 'https://1048144.app.netsuite.com';
      if (runtime.EnvType == "SANDBOX") {

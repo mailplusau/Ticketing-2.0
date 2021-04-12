@@ -8,7 +8,6 @@
  * 
  */
 
-
  define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/http', 'N/log', 'N/redirect', 'N/format'], 
     function(ui, email, runtime, search, record, http, log, redirect, format) {
         var baseURL = 'https://1048144.app.netsuite.com';
@@ -157,7 +156,7 @@
             inlineQty += '<span class="input-group-addon" id="date_from_text">DATE CREATED FROM</span>';
             inlineQty += '<input id="date_from" class="form-control date_from" type="date"/>';
             inlineQty += '</div></div>';
-            // Date to field
+            // Date to field 
             inlineQty += '<div class="col-xs-6 date_to">';
             inlineQty += '<div class="input-group">';
             inlineQty += '<span class="input-group-addon" id="date_to_text">DATE CREATED TO</span>';

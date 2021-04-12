@@ -3,7 +3,7 @@
  * @NApiVersion 2.0
  * @NScriptType ClientScript
  * 
- * Description: A ticketing system for the Customer Service.
+ * Description: A ticketing system for the Customer Service
  * @Last Modified by: Sruti Desai
  * 
  */
