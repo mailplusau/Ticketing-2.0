@@ -8,8 +8,8 @@
  * 
  */
 
-define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/email', 'N/currentRecord'],
-    function(error, runtime, search, url, record, format, email, currentRecord) {
+define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/email', 'N/currentRecord', 'N/http'],
+    function(error, runtime, search, url, record, format, email, currentRecord, http) {
         var baseURL = 'https://1048144.app.netsuite.com';
         if (runtime.EnvType == "SANDBOX") {
             baseURL = 'https://1048144-sb3.app.netsuite.com';
@@ -84,7 +84,13 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     // If the ticket status is "Open, the acknoledgement template shall be selected.
                     if (status_value == 1) {
                         $('#template option:selected').attr('selected', false);
-                        $('#template option[value="66"]').attr('selected', true); // Select the acknoledgement template
+                        //$('#template option[value="66"]').attr('selected', true); // Select the acknoledgement template
+                        $('#template option[value="66"]').prop('selected', true);
+                        $('#template option:selected').val("66");
+                        //$('#enquiry_medium_status option[value="3"]').prop('selected', true);
+
+                        console.log("TEMPLATEEE CHOSEN2", $('#template option:selected').val());
+
                         loadTemplate();
                     }
 
@@ -712,9 +718,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 ticket_id = parseInt(ticket_id);
                 try {
                     var ticketRecord = record.load({ type: 'customrecord_mp_ticket', id: ticket_id });
-                } catch (error) {
-                    if (error instanceof error.SuiteScriptError) {
-                        if (error.name == "SSS_MISSING_REQD_ARGUMENT") {
+                } catch (e) {
+                    if (e instanceof error.SuiteScriptError) {
+                        if (e.name == "SSS_MISSING_REQD_ARGUMENT") {
                             console.log('Error to load the ticket record with ticket_id : ' + ticket_id);
                         }
                     }
@@ -1016,9 +1022,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                         enableSourcing: true,
                     });
 
-                } catch (error) {
-                    if (error instanceof error.SuiteScriptError) {
-                        if (error.name == "SSS_MISSING_REQD_ARGUMENT") {
+                } catch (e) {
+                    if (e instanceof error.SuiteScriptError) {
+                        if (e.name == "SSS_MISSING_REQD_ARGUMENT") {
                             console.log('Error to load the barcode record with barcode_id : ' + selector_id);
                         }
                     }
@@ -1732,8 +1738,8 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 };
                 params = JSON.stringify(params);
                 var output = url.resolveScript({
-                    deploymentId: 'customdeploy_sl_open_ticket',
-                    scriptId: 'customscript_sl_open_ticket',
+                    deploymentId: 'customdeploy_sl_open_ticket_2',
+                    scriptId: 'customscript_sl_open_ticket_2',
                 });
                 var upload_url = baseURL + output + '&custparam_params=' + params;
                 window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
@@ -2098,8 +2104,8 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 $('#zee_main_contact_name').val(zee_main_contact_name);
                 $('#zee_email').val(zee_email);
                 $('#zee_main_contact_phone').val(zee_main_contact_phone);
-            } catch (error) {
-                if (error instanceof error.SuiteScriptError) {
+            } catch (e) {
+                if (e instanceof error.SuiteScriptError) {
                     if (error.name == "SSS_MISSING_REQD_ARGUMENT") {
                         console.log('Error to load the customer record with customer_id : ' + customer_id);
                     }
@@ -2200,9 +2206,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                         $('#info').text('No open invoice exists for the customer ' + customer_name);
                         $('#info').parent().show();
                         return true;
-                    } catch (error) {
-                        if (error instanceof error.SuiteScriptError) {
-                            if (error.name == "SSS_MISSING_REQD_ARGUMENT") {
+                    } catch (e) {
+                        if (e instanceof error.SuiteScriptError) {
+                            if (e.name == "SSS_MISSING_REQD_ARGUMENT") {
                                 console.log('Error to load the customer record with customer_id : ' + customer_id);
                             }
                         }
@@ -2342,9 +2348,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                         $('#info').text('No ticket exists for the customer ' + customer_name);
                         $('#info').parent().show();
                         return true;
-                    } catch (error) {
-                        if (error instanceof error.SuiteScriptError) {
-                            if (error.name == "SSS_MISSING_REQD_ARGUMENT") {
+                    } catch (e) {
+                        if (e instanceof error.SuiteScriptError) {
+                            if (e.name == "SSS_MISSING_REQD_ARGUMENT") {
                                 console.log('Error to load the customer record with customer_id : ' + customer_id);
                             }
                         }
@@ -2509,6 +2515,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          * @returns {nlobjSearchResultSet}  contactsResultSet
          */
         function loadContactsList() {
+            var currRec = currentRecord.get();
             var customer_id = currRec.getValue({ fieldId: 'custpage_customer_id' });
             var contactsResultSet = [];
             // If a ticket is opened for a barcode that is not allocated to a customer,
@@ -2727,22 +2734,24 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          * Load the subject of the email and the body of the template.
          */
         function loadTemplate() {
+            var currRec = currentRecord.get();
             var template_id = $('#template option:selected').val();
             console.log('template_id : ', template_id);
             try {
                 var templateRecord = record.load({ type: 'customrecord_camp_comm_template', id: template_id });
                 var template_subject = templateRecord.getValue({ fieldId: 'custrecord_camp_comm_subject' });
-            } catch (error) {
-                if (error instanceof error.SuiteScriptError) {
-                    if (error.name == "SSS_MISSING_REQD_ARGUMENT") {
+            } catch (e) {
+                //if (e instanceof error.SuiteScriptError) {
+                    if (e.name == "SSS_MISSING_REQD_ARGUMENT") {
                         console.log('Error to load the template with template_id : ' + template_id);
                     }
-                }
+                //}
             }
 
             var customer_id = currRec.getValue({ fieldId: 'custpage_customer_id' });
-            var sales_rep = encodeURIComponent(runtime.getCurrentScript().getName());
+            var sales_rep = encodeURIComponent(runtime.getCurrentUser().name);
             var first_name = $('#send_to').data("firstname");
+            console.log(first_name)
             var dear = encodeURIComponent(first_name);
 
             var contact_id = '';
@@ -2757,7 +2766,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 }
             }
             console.log('contact_id : ', contact_id);
-            var userid = encodeURIComponent(runtime.getCurrentUser());
+            var userid = encodeURIComponent(runtime.getCurrentUser().id);
 
             var url = 'https://1048144.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=395&deploy=1&compid=1048144&h=6d4293eecb3cb3f4353e&rectype=customer&template=';
             if (runtime.EnvType == "SANDBOX") {
@@ -2765,6 +2774,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             }
             url += template_id + '&recid=' + customer_id + '&salesrep=' + sales_rep + '&dear=' + dear + '&contactid=' + contact_id + '&userid=' + userid;
 
+            console.log("URL", url);
             urlCall = http.get({
                 url: url,
             });
@@ -3073,9 +3083,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                         enableSourcing: true,
                     })
                 }
-            } catch (error) {
-                if (error instanceof error.SuiteScriptError) {
-                    if (error.name == "SSS_MISSING_REQD_ARGUMENT") {
+            } catch (e) {
+                if (e instanceof error.SuiteScriptError) {
+                    if (e.name == "SSS_MISSING_REQD_ARGUMENT") {
                         console.log('Error to Set record status to In Progress with ticket_id : ' + ticket_id);
                     }
                 }
@@ -3460,7 +3470,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             if (!isNullorEmpty(reminder_date)) {
                 reminder_date = new Date(reminder_date);
                 reminder_date = format.format({ value: reminder_date, type: format.Type.DATE});
-                ticketRecord.setFieldValue({ fieldId: 'custrecord_reminder', reminder_date });
+                ticketRecord.setFieldValue({ fieldId: 'custrecord_reminder', value: reminder_date });
             }
 
             // Set new Creator and new Owner

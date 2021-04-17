@@ -116,7 +116,7 @@ function(ui, email, runtime, search, record, http, log, redirect, format) {
                 functionName: 'onSendBulkEmails()'
             });
             
-            form.clientScriptFileId = //SB=?? PROD = ??
+            form.clientScriptFileId = 4796342;//SB=4796342 PROD = ??
             context.response.writePage(form);
 
         } else {

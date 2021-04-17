@@ -16,6 +16,8 @@
         }
         var zee = 0;
         var role = runtime.getCurrentUser().role;
+
+        var userRole = runtime.getCurrentUser().role;
         if (role == 1000) {
             //Franchisee
             zee = runtime.getCurrentUser();
@@ -101,7 +103,7 @@
                 functionName: 'viewLostTickets()'
             });
 
-            form.clientScriptFileId =  //SB cl_id =, PROD cl_id = 4686408
+            form.clientScriptFileId = 4796346; //SB =4796346, PROD cl_id = 
             context.response.writePage(form);
                 
             } else {

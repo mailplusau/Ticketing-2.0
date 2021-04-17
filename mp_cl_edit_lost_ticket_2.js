@@ -15,75 +15,14 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             baseURL = 'https://1048144-sb3.app.netsuite.com';
         }
         var role = runtime.getCurrentUser().role;
+        var userRole = runtime.getCurrentUser().role;
+
         var selector_list = ['barcodes', 'invoices'];
 
         /**
          * On page initialisation
          */
         function pageInit() {
-            loadTicketsTable(selector_list);
-
-            // Initialize all tooltips : https://getbootstrap.com/docs/4.0/components/tooltips/
-            $('[data-toggle="tooltip"]').tooltip();
-        
-            $('.table').each(function () {
-                var table = $(this).DataTable();
-        
-                table.on('draw.dt', function () {
-                    // Each time the table is redrawn, we trigger tooltip for the new cells.
-                    $('[data-toggle="tooltip"]').tooltip();
-                });
-        
-                table.on('click', '.edit_class', function () {
-                    var selector = $('div.tab-pane.active').attr('id');
-                    switch (selector) {
-                        case 'barcodes':
-                            var selector_type = 'barcode_number';
-                            break;
-        
-                        case 'invoices':
-                            var selector_type = 'invoice_number';
-                            break;
-                    }
-                    var ticket_id = $(this).parent().siblings().eq(0).text().split('MPSD')[1];
-                    var selector_number = $(this).parent().siblings().eq(3).text();
-        
-                    if (isNullorEmpty(selector_number.trim())) {
-                        var ticketRecord = nlapiLoadRecord('customrecord_mp_ticket', ticket_id);
-                        selector_number = ticketRecord.getFieldValue('altname');
-                    }
-                    editTicket(ticket_id, selector_number, selector_type);
-                });
-            });
-        
-            // Date filtering
-            /* Custom filtering function which will search data in column two between two values */
-            $.fn.dataTable.ext.search.push(
-                function (settings, data, dataIndex) {
-        
-                    // Get value of the "Date created from" field
-                    var date_from_val = $('#date_from').val();
-                    if (isNullorEmpty(date_from_val)) {
-                        // The minimum date value is set to the 1st January 1970
-                        var date_from = new Date(0);
-                    } else {
-                        var date_from = new Date(dateSelected2Date(date_from_val));
-                    }
-        
-                    // Get value of the "Date created to" field
-                    var date_to_val = $('#date_to').val();
-                    if (isNullorEmpty(date_to_val)) {
-                        // The maximum value is set to the 1st January 3000
-                        var date_to = new Date(3000, 0);
-                    } else {
-                        var date_to = new Date(dateSelected2Date(date_to_val));
-                    }
-        
-                    var date_created = dateSelected2Date(data[1]);
-        
-                    return (date_from <= date_created && date_created <= date_to);
-                }
-            );
             var ticketsDataSet = [];
             $(document).ready(function () {
 
@@ -190,7 +129,75 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                         table.draw();
                     });
                 });
-            })
+            });
+
+            loadTicketsTable(selector_list);
+
+            // Initialize all tooltips : https://getbootstrap.com/docs/4.0/components/tooltips/
+            $('[data-toggle="tooltip"]').tooltip();
+        
+            $('.table').each(function () {
+                var table = $(this).DataTable();
+        
+                table.on('draw.dt', function () {
+                    // Each time the table is redrawn, we trigger tooltip for the new cells.
+                    $('[data-toggle="tooltip"]').tooltip();
+                });
+        
+                table.on('click', '.edit_class', function () {
+                    var selector = $('div.tab-pane.active').attr('id');
+                    switch (selector) {
+                        case 'barcodes':
+                            var selector_type = 'barcode_number';
+                            break;
+        
+                        case 'invoices':
+                            var selector_type = 'invoice_number';
+                            break;
+                    }
+                    var ticket_id = $(this).parent().siblings().eq(0).text().split('MPSD')[1];
+                    var selector_number = $(this).parent().siblings().eq(3).text();
+        
+                    if (isNullorEmpty(selector_number.trim())) {
+                        var ticketRecord = record.load({
+                            type: 'customrecord_mp_ticket',
+                            id: ticket_id,
+                        });
+                        selector_number = ticketRecord.getValue({ fieldId: 'altname' });
+                    }
+                    editTicket(ticket_id, selector_number, selector_type);
+                });
+            });
+        
+            // Date filtering
+            /* Custom filtering function which will search data in column two between two values */
+            $.fn.dataTable.ext.search.push(
+                function (settings, data, dataIndex) {
+        
+                    // Get value of the "Date created from" field
+                    var date_from_val = $('#date_from').val();
+                    if (isNullorEmpty(date_from_val)) {
+                        // The minimum date value is set to the 1st January 1970
+                        var date_from = new Date(0);
+                    } else {
+                        var date_from = new Date(dateSelected2Date(date_from_val));
+                    }
+        
+                    // Get value of the "Date created to" field
+                    var date_to_val = $('#date_to').val();
+                    if (isNullorEmpty(date_to_val)) {
+                        // The maximum value is set to the 1st January 3000
+                        var date_to = new Date(3000, 0);
+                    } else {
+                        var date_to = new Date(dateSelected2Date(date_to_val));
+                    }
+        
+                    var date_created = dateSelected2Date(data[1]);
+        
+                    return (date_from <= date_created && date_created <= date_to);
+                }
+            );
+            
         }
         function saveRecord(context) {
             var selector = $('div.tab-pane.active').attr('id');
@@ -267,7 +274,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             var ticketResultSet = ticketSearch.run();
 
             var ticketsDataSetArrays = [];
-            selector_list.each(function (selector) {
+            selector_list.forEach(function (selector) {
                 var tbody_id = '#result_tickets_' + selector;
                 $(tbody_id).empty();
 
@@ -280,9 +287,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             if (!isNullorEmpty(resultTicketSlice)) {
                 do {
                     resultTicketSlice = ticketResultSet.getRange({ start: slice_index * 1000, end: (slice_index + 1) * 1000 });
-                    resultTicketSlice.each(function (ticketResult) {
+                    resultTicketSlice.forEach(function (ticketResult) {
 
-                        var ticket_id = ticketResult.searchId;
+                        var ticket_id = ticketResult.getValue('internalid');
                         ticket_id = 'MPSD' + ticket_id;
 
                         var date_created = ticketResult.getValue('created');
@@ -372,7 +379,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             // Update datatable rows.
             selector_list.forEach(function (selector, index) {
                 var table_id = '#tickets-preview-' + selector;
-                var datatable = $(table_id).dataTable().api();
+                var datatable = $(table_id).DataTable();
                 datatable.clear();
                 datatable.rows.add(ticketsDataSetArrays[index]);
                 datatable.draw();
@@ -439,12 +446,12 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          * @returns {String}            type of the ticket
          */
         function getTicketType(ticketResult) {
-            var barcode_number = ticketResult.getText({ fieldId: 'custrecord_barcode_number' });
+            var barcode_number = ticketResult.getText('custrecord_barcode_number');
             if (!isNullorEmpty(barcode_number)) {
                 barcode_number = barcode_number.trim();
             }
 
-            var invoice_number = ticketResult.getText({ fieldId: 'custrecord_invoice_number' });
+            var invoice_number = ticketResult.getText('custrecord_invoice_number');
             if (!isNullorEmpty(invoice_number)) {
                 invoice_number = invoice_number.trim();
             }
@@ -488,6 +495,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
         return {
             pageInit: pageInit,
             saveRecord: saveRecord,
+            viewOpenTickets: viewOpenTickets,
+            viewClosedTickets: viewClosedTickets
+
             
         };  
     }

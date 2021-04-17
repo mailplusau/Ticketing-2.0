@@ -275,7 +275,7 @@
         var ticketResultSet = ticketSearch.run();
 
         var ticketsDataSetArrays = [];
-        selector_list.each(function (selector) {
+        selector_list.forEach(function (selector) {
             var tbody_id = '#result_tickets_' + selector;
             $(tbody_id).empty();
 
@@ -288,7 +288,7 @@
         if (!isNullorEmpty(resultTicketSlice)) {
             do {
                 resultTicketSlice = ticketResultSet.getRange({ start: slice_index * 1000, end: (slice_index + 1) * 1000 });
-                resultTicketSlice.each(function (ticketResult) {
+                resultTicketSlice.forEach(function (ticketResult) {
 
                     var ticket_id = ticketResult.scriptId;
                     ticket_id = 'MPSD' + ticket_id;

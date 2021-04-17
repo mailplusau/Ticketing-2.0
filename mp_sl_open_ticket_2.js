@@ -9,16 +9,18 @@
  */
 
 
- define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/http', 'N/log', 'N/redirect', 'N/format'], 
- function(ui, email, runtime, search, record, http, log, redirect, format) {
+ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/http', 'N/log', 'N/redirect', 'N/format', 'N/file'], 
+ function(ui, email, runtime, search, record, http, log, redirect, format, file) {
      var baseURL = 'https://1048144.app.netsuite.com';
      if (runtime.EnvType == "SANDBOX") {
          baseURL = 'https://1048144-sb3.app.netsuite.com';
      }
      var zee = 0;
      var role = runtime.getCurrentUser().role;
+     var userRole = runtime.getCurrentUser().role;
+
      var ctx = runtime.getCurrentScript();
-     var userId = ctx.getCurrentUser();
+     var userId = runtime.getCurrentUser();
      if (role == 1000) {
          //Franchisee
          zee = runtime.getCurrentUser();
@@ -155,7 +157,7 @@
                         selected_enquiry_status_id = ticketRecord.getValue({ fieldId: 'custrecord_enquiry_status' });
                         attachments_hyperlink = ticketRecord.getValue({ fieldId: 'custrecord_mp_ticket_attachments' });
                         selected_label_id = ticketRecord.getValue({ fieldId: 'custrecord_ticket_label' });
-                        list_enquiry_mediums = ticketRecord.getValues({ fieldId: 'custrecord_enquiry_medium' });
+                        list_enquiry_mediums = ticketRecord.getValue({ fieldId: 'custrecord_enquiry_medium' });
                         list_enquiry_mediums = java2jsArray(list_enquiry_mediums);
                         total_enquiry_count = ticketRecord.getValue({ fieldId: 'custrecord_enquiry_count' });
                         chat_enquiry_count = ticketRecord.getValue({ fieldId: 'custrecord_chat_enquiry_count' });
@@ -249,13 +251,13 @@
                                     time_stock_used = stock_used.custrecord_cust_time_stock_used;
                                 }
 
-                                list_toll_issues = ticketRecord.getValues({ fieldId: 'custrecord_toll_issues' });
+                                list_toll_issues = ticketRecord.getValue({ fieldId: 'custrecord_toll_issues' });
                                 list_toll_issues = java2jsArray(list_toll_issues);
 
-                                list_resolved_toll_issues = ticketRecord.getValues({ fieldId: 'custrecord_resolved_toll_issues' });
+                                list_resolved_toll_issues = ticketRecord.getValue({ fieldId: 'custrecord_resolved_toll_issues' });
                                 list_resolved_toll_issues = java2jsArray(list_resolved_toll_issues);
 
-                                list_toll_emails = ticketRecord.getValues({ fieldId: 'custrecord_toll_emails' });
+                                list_toll_emails = ticketRecord.getValue({ fieldId: 'custrecord_toll_emails' });
                                 list_toll_emails = java2jsArray(list_toll_emails);
                                 break;
 
@@ -281,7 +283,7 @@
                                 usage_report_id_4 = invoiceRecord.getValue({ fieldId: 'custbody_mpex_usage_report_4' });
                                 var usage_report_id_array = [usage_report_id_1, usage_report_id_2, usage_report_id_3, usage_report_id_4];
 
-                                usage_report_id_array.each(function (usage_report_id) {
+                                usage_report_id_array.forEach(function (usage_report_id) {
                                     if (!isNullorEmpty(usage_report_id)) {
                                         var usage_report_file = file.load({
                                             id: usage_report_id
@@ -298,21 +300,21 @@
                                     }
                                 });
 
-                                list_invoice_issues = ticketRecord.getValues({ fieldId: 'custrecord_invoice_issues' });
+                                list_invoice_issues = ticketRecord.getValue({ fieldId: 'custrecord_invoice_issues' });
                                 list_invoice_issues = java2jsArray(list_invoice_issues);
 
-                                list_resolved_invoice_issues = ticketRecord.getValues({ fieldId: 'custrecord_resolved_invoice_issues'  });
+                                list_resolved_invoice_issues = ticketRecord.getValue({ fieldId: 'custrecord_resolved_invoice_issues'  });
                                 list_resolved_invoice_issues = java2jsArray(list_resolved_invoice_issues);
                                 break;
                         }
 
-                        list_mp_ticket_issues = ticketRecord.getValues({ fieldId: 'custrecord_mp_ticket_issue'  });
+                        list_mp_ticket_issues = ticketRecord.getValue({ fieldId: 'custrecord_mp_ticket_issue'  });
                         list_mp_ticket_issues = java2jsArray(list_mp_ticket_issues);
 
-                        list_resolved_mp_ticket_issues = ticketRecord.getValues({ fieldId: 'custrecord_resolved_mp_ticket_issue'  });
+                        list_resolved_mp_ticket_issues = ticketRecord.getValue({ fieldId: 'custrecord_resolved_mp_ticket_issue'  });
                         list_resolved_mp_ticket_issues = java2jsArray(list_resolved_mp_ticket_issues);
 
-                        owner_list = ticketRecord.getValues({ fieldId: 'custrecord_owner'  });
+                        owner_list = ticketRecord.getValue({ fieldId: 'custrecord_owner'  });
                         owner_list = java2jsArray(owner_list);
 
                         comment = ticketRecord.getValue({ fieldId: 'custrecord_comment' });
@@ -433,10 +435,6 @@
                 id: 'preview_table',
                 type: ui.FieldType.INLINEHTML,
                 label: 'preview_table'
-            }).updateLayoutType({
-                layoutType: ui.FieldLayoutType.OUTSIDEBELOW
-            }).updateBreakType({
-                breakType: ui.FieldBreakType.STARTROW
             }).defaultValue = inlineHtml;
 
 
@@ -486,17 +484,17 @@
                 });
             }
 
-            form.addField({ id: 'custpage_selector_id', type: ui.FieldType.TEXT, label: 'Selector ID' }).updateDisplayType({ displayType: ui.FieldType.HIDDEN }).defaultValue = selector_id;
-            form.addField({ id: 'custpage_selector_issue', type: ui.FieldType.TEXT, label: 'Barcode issue' }).updateDisplayType({ displayType: ui.FieldType.HIDDEN }).defaultValue = 'F';
-            form.addField({ id: 'custpage_customer_id', type: ui.FieldType.TEXT, label: 'Customer ID' }).updateDisplayType({ displayType: ui.FieldType.HIDDEN }).defaultValue = customer_id;
-            form.addField({ id: 'custpage_customer_number', type: ui.FieldType.TEXT, label: 'Customer Number' }).updateDisplayType({ displayType: ui.FieldType.HIDDEN }).defaultValue = customer_number;
-            form.addField({ id: 'custpage_zee_id', type: ui.FieldType.TEXT, label: 'Franchisee ID' }).updateDisplayType({ displayType: ui.FieldType.HIDDEN }).defaultValue = zee_id;
-            form.addField({ id: 'custpage_ticket_status_value', type: ui.FieldType.TEXT, label: 'Status Value' }).updateDisplayType({ displayType: ui.FieldType.HIDDEN }).defaultValue = status_value;
-            form.addField({ id: 'custpage_created_ticket', type: ui.FieldType.TEXT, label: 'Created Ticket' }).updateDisplayType({ displayType: ui.FieldType.HIDDEN }).defaultValue = 'F';
-            form.addField({ id: 'custpage_usage_report_array', type: ui.FieldType.TEXT, label: 'Usage Reports' }).updateDisplayType({ displayType: ui.FieldType.HIDDEN }).defaultValue = JSON.stringify(usage_report_array);
-            form.addField({ id: 'custpage_param_email', type: ui.FieldType.TEXT, label: 'Email parameters' }).updateDisplayType({ displayType: ui.FieldType.HIDDEN }).defaultValue = JSON.stringify(params_email);
-            form.addField({ id: 'custpage_ss_image', type: ui.FieldType.TEXT, label: 'Screenshot Image' }).updateDisplayType({ displayType: ui.FieldType.HIDDEN }).defaultValue = screenshot_file;
-            form.addField({ id: 'custpage_customer_number_email_sent', type: ui.FieldType.TEXT, label: 'Customer Email Sent' }).updateDisplayType({ displayType: ui.FieldType.HIDDEN }).defaultValue = customer_number_email_sent;
+            form.addField({ id: 'custpage_selector_id', type: ui.FieldType.TEXT, label: 'Selector ID' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = selector_id;
+            form.addField({ id: 'custpage_selector_issue', type: ui.FieldType.TEXT, label: 'Barcode issue' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = 'F';
+            form.addField({ id: 'custpage_customer_id', type: ui.FieldType.TEXT, label: 'Customer ID' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = customer_id;
+            form.addField({ id: 'custpage_customer_number', type: ui.FieldType.TEXT, label: 'Customer Number' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = customer_number;
+            form.addField({ id: 'custpage_zee_id', type: ui.FieldType.TEXT, label: 'Franchisee ID' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = zee_id;
+            form.addField({ id: 'custpage_ticket_status_value', type: ui.FieldType.TEXT, label: 'Status Value' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = status_value;
+            form.addField({ id: 'custpage_created_ticket', type: ui.FieldType.TEXT, label: 'Created Ticket' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = 'F';
+            form.addField({ id: 'custpage_usage_report_array', type: ui.FieldType.TEXT, label: 'Usage Reports' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = JSON.stringify(usage_report_array);
+            form.addField({ id: 'custpage_param_email', type: ui.FieldType.TEXT, label: 'Email parameters' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = JSON.stringify(params_email);
+            form.addField({ id: 'custpage_ss_image', type: ui.FieldType.TEXT, label: 'Screenshot Image' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = screenshot_file;
+            form.addField({ id: 'custpage_customer_number_email_sent', type: ui.FieldType.TEXT, label: 'Customer Email Sent' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = customer_number_email_sent;
 
             if (!isNullorEmpty(ticket_id)) {
                 if (isTicketNotClosed(status_value)) {
@@ -514,7 +512,7 @@
             }
             
             form.addButton({ id: 'custpage_cancel', label: 'Cancel', functionName: 'onCancel()' });
-            form.clientScriptFileId = //SB=?? PROD=??
+            form.clientScriptFileId = 4796340;//SB=4796340 PROD=??
             context.response.writePage(form);
             
 
@@ -551,7 +549,7 @@
                     }
 
                     custparam_params = JSON.stringify(custparam_params);
-                    log.debug({ title: "custparams", custparam_params });
+                    log.debug({ title: "custparams", details: custparam_params });
                     var params2 = {
                         custparam_params: custparam_params
                     };
@@ -640,8 +638,8 @@
 
                 // If the ticket was updated, the user is redirected to the "View MP Tickets" page
                 redirect.toSuitelet({
-                    scriptId: 'customscript_sl_edit_ticket',
-                    deploymentId: 'customdeploy_sl_edit_ticket',
+                    scriptId: 'customscript_sl_edit_ticket_2',
+                    deploymentId: 'customdeploy_sl_edit_ticket_2',
                 });
             }
             
@@ -649,7 +647,55 @@
      }
  
      
+    /**
+     * The "Customer number" input field. If there is a Ticket ID, then we are on the Edit Ticket page and
+     * this field is pre-filled.
+     * @param {*} customer_number 
+     */
+    function customerNumberSection(customer_number, ticket_id){
+        if(isNullorEmpty(customer_number)){
+            customer_number = '';
+        }
 
+        // var disable = isNullorEmpty(ticket_id) ? '': 'disabled';
+
+        // Ticket details header
+        var inlineQty = '<div class="form-group container tickets_details_header_section">';
+        inlineQty += '<div class="row">';
+        inlineQty += '<div class="col-xs-12 heading2">';
+        inlineQty += '<h4><span class="label label-default col-xs-12">TICKET DETAILS</span></h4>';
+        inlineQty += '</div></div></div>';
+
+        // Customer number section
+        inlineQty += '<div class="form-group container customer_number_section">';
+        inlineQty += '<div class="row">';
+
+        //Customer number field
+        inlineQty += '<div class="col-xs-12 customer_number">';
+        inlineQty += '<div class="input-group">';
+        inlineQty += '<span class="input-group-addon" id="customer_number_text">CUSTOMER NUMBER</span>';
+
+        if(customer_number == '' && isNullorEmpty(ticket_id)){
+            inlineQty += '<input id="customer_number_value" value=" '+ customer_number +' " class="form-control customer_number">';
+        }else{
+            inlineQty += '<input id="customer_number_value" value=" '+ customer_number +' " class="form-control customer_number" disabled>';
+        }
+        inlineQty += '</div></div></div></div>';
+
+        //Datatable for all tickets asscoiated to current customer number
+        inlineQty += '<div class="row">';
+        inlineQty += '<div class="form-group container customer_number_tickets">';
+        inlineQty += '<style> table {font-size: 12px;text-align: center;border: none;} {font-size: 14px;} table th{text-align: center;} .dataTables_wrapper{width:78%; margin-bottom:40px; margin-left: auto; margin-right: auto; margin-top: auto;} </style>';
+        inlineQty += '<table cellpadding="15" id="customer_number_tickets_preview" class="table table-responsive table-striped customer tablesorter" cellspacing="0" style="width: 100%;">';
+        inlineQty += '<thead style="color: white;background-color: #607799;">';
+        inlineQty += '<tr class="text-center">';
+        inlineQty += '</tr>';
+        inlineQty += '</thead></table>';
+        inlineQty += '</div></div>';
+
+        return inlineQty;
+    }
+    
     /**
      * The "Barcode number" OR "Invoice Number" input field.
      * If there is a TICKET ID, we are in the "Edit Ticket", so we display the Ticket ID field and the selector field is disabled.
@@ -1159,7 +1205,7 @@
             columns: labelColumns,
         });
 
-        labelResultSet.each(function (labelResult) {
+        labelResultSet.run().each(function (labelResult) {
             var labelName = labelResult.getValue('name');
             var labelId = labelResult.getValue('internalId');
 
@@ -1215,7 +1261,7 @@
         inlineQty += '<span class="input-group-addon" id="enquiry_medium_text">ENQUIRY MEDIUM</span>';
         inlineQty += '<select multiple id="enquiry_medium_status" class="form-control enquiry_medium_status" size="'+ enquiryMediumResultSet.length + '" disabled>';
 
-        enquiryMediumResultSet.each(function (enquiryMediumResult) {
+        enquiryMediumResultSet.run().each(function (enquiryMediumResult) {
             var enquiryMediumName = enquiryMediumResult.getValue('name');
             var enquiryMediumId = enquiryMediumResult.getValue('internalId');
             var selected = false;
@@ -1250,7 +1296,7 @@
         inlineQty += '<select id="enquiry_status" class="form-control enquiry_status">';
         inlineQty += '<option></option>';
 
-        enquiryStatusResultSet.each(function (enquiryStatusResult) {
+        enquiryStatusResultSet.run().each(function (enquiryStatusResult) {
             var enquiry_status_name = enquiryStatusResult.getValue('name');
             var enquiry_status_id = enquiryStatusResult.getValue('internalId');
 
@@ -1368,7 +1414,7 @@
         var invoiceMethodResultSet = search.create({
             type: 'customlist_invoice_method',
             columns: invoice_method_columns,
-        });;
+        });
 
         switch (selector_type) {
             case 'barcode_number':
@@ -1395,7 +1441,8 @@
         inlineQty += '<select id="invoice_method" class="form-control" ' + disabled + '>';
         inlineQty += '<option></option>';
 
-        invoiceMethodResultSet.each(function(invoiceMethodResult) {
+        
+        invoiceMethodResultSet.run().each(function(invoiceMethodResult) {
             var invoice_method_name = invoiceMethodResult.getValue('name');
             var invoice_method_id = invoiceMethodResult.getValue('internalId');
 
@@ -1527,7 +1574,7 @@
         inlineQty += '<select id="mpex_invoicing_cycle" class="form-control mpex_invoicing_cycle" ' + disabled + '>';
         inlineQty += '<option></option>';
 
-        invoiceCycleResultSet.each(function (invoiceCycleResult) {
+        invoiceCycleResultSet.run().each(function (invoiceCycleResult) {
             var invoice_cycle_name = invoiceCycleResult.getValue('name');
             var invoice_cycle_id = invoiceCycleResult.getValue('internalId');
 
@@ -1746,7 +1793,7 @@
         inlineQty += '<span class="input-group-addon">TOLL EMAILS</span>';
         inlineQty += '<select multiple id="send_toll" class="form-control" size="' + tollEmailsResultSet.length + '"/>';
 
-        tollEmailsResultSet.each(function (tollEmailsResultSet){
+        tollEmailsResultSet.run().each(function (tollEmailsResultSet){
             var tollEmailName = tollEmailsResultSet.getValue('name');
             var tollEmailId = tollEmailsResultSet.getValue('internalId');
             var selected = false;
@@ -1899,7 +1946,7 @@
         inlineQty += '</thead>';
         inlineQty += '<tbody>';
 
-        allEmails.each(function (email) {
+        allEmails.forEach(function (email) {
             var messageid = email.searchId;
             var date = email.getValue('messagedate');
             var author = email.getValue('authoremail');
@@ -2082,7 +2129,7 @@
         browserColumns[1] = search.createColumn({ name: 'internalId' });
         var browserResultSet = search.create({ type: 'customlist_common_browsers', columns: browserColumns });
 
-        browserResultSet.each(function (browserResult) {
+        browserResultSet.run().each(function (browserResult) {
             var browserName = browserResult.getValue('name');
             var browserId = browserResult.getValue('internalId');
 
@@ -2106,7 +2153,7 @@
         osColumns[1] = search.createColumn({ name: 'internalId' });
         var osResultSet = search.create({ type: 'customlist_common_os', columns: osColumns });
 
-        osResultSet.forEach(function (osResult) {
+        osResultSet.run().each(function (osResult) {
             var osName = osResult.getValue('name');
             var osId = osResult.getValue('internalId');
 
@@ -2187,7 +2234,7 @@
         inlineQty += '<div class="input-group"><span class="input-group-addon" id="toll_issues_text">TOLL ISSUES<span class="mandatory">*</span></span>';
         inlineQty += '<select multiple id="toll_issues" class="form-control toll_issues" size="' + tollIssuesResultSet.length + '">';
 
-        tollIssuesResultSet.each(function(tollIssueResult) {
+        tollIssuesResultSet.run().each(function(tollIssueResult) {
             var issue_name = tollIssueResult.getValue('name');
             var issue_id = tollIssueResult.getValue('internalId');
             var selected = false;
@@ -2210,7 +2257,7 @@
         var has_resolved_toll_issues = (!isNullorEmpty(list_resolved_toll_issues));
         if (has_resolved_toll_issues) {
             var text_resolved_toll_issues = '';
-            tollIssuesResultSet.each(function(tollIssueResult) {
+            tollIssuesResultSet.run().each(function(tollIssueResult) {
                 var issue_name = tollIssueResult.getValue('name');
                 var issue_id = tollIssueResult.getValue('internalId');
                 if (list_resolved_toll_issues.indexOf(issue_id) !== -1) {
@@ -2262,7 +2309,7 @@
         inlineQty += '<span class="input-group-addon" id="mp_issues_text">MP ISSUES<span class="mandatory hide">*</span></span>';
         inlineQty += '<select multiple id="mp_issues" class="form-control mp_issues" size="' + mpTicketIssuesResultSet.length + '" ' + disabled_mp_issue_field + '>';
 
-        mpTicketIssuesResultSet.each(function(mpTicketIssueResult) {
+        mpTicketIssuesResultSet.run().each(function(mpTicketIssueResult) {
             var mp_issue_name = mpTicketIssueResult.getValue('name');
             var mp_issue_id = mpTicketIssueResult.getValue('internalId');
             var selected = false;
@@ -2286,7 +2333,7 @@
         var has_resolved_mp_ticket_issues = !isNullorEmpty(list_resolved_mp_ticket_issues);
         if (has_resolved_mp_ticket_issues && selector_type != "customer_issue") {
             var text_resolved_mp_ticket_issues = '';
-            mpTicketIssuesResultSet.each(function(mpTicketIssueResult) {
+            mpTicketIssuesResultSet.run().each(function(mpTicketIssueResult) {
                 var mp_issue_name = mpTicketIssueResult.getValue('name');
                 var mp_issue_id = mpTicketIssueResult.getValue('internalId');
                 if (list_resolved_mp_ticket_issues.indexOf(mp_issue_id) !== -1) {
@@ -2330,7 +2377,7 @@
         inlineQty += '<div class="input-group"><span class="input-group-addon" id="invoice_issues_text">INVOICE ISSUES<span class="mandatory">*</span></span>';
         inlineQty += '<select multiple id="invoice_issues" class="form-control invoice_issues">';
 
-        invoiceIssuesResultSet.each(function(invoiceIssueResult) {
+        invoiceIssuesResultSet.run().each(function(invoiceIssueResult) {
             var issue_name = invoiceIssueResult.getValue('name'); // Might need to be changed
             var issue_id = invoiceIssueResult.getValue('internalId'); // Might need to be changed
             var selected = false;
@@ -2353,7 +2400,7 @@
         var has_resolved_invoice_issues = (!isNullorEmpty(list_resolved_invoice_issues));
         if (has_resolved_invoice_issues) {
             var text_resolved_invoice_issues = '';
-            invoiceIssuesResultSet.each(function(invoiceIssueResult) {
+            invoiceIssuesResultSet.run().each(function(invoiceIssueResult) {
                 var issue_name = invoiceIssueResult.getValue('name'); // Might need to be changed
                 var issue_id = invoiceIssueResult.getValue('internalId'); // Might need to be changed
                 if (list_resolved_invoice_issues.indexOf(issue_id) !== -1) {
@@ -2396,7 +2443,7 @@
         inlineQty += '<span class="input-group-addon">TITLE<span class="mandatory">*</span></span>';
         inlineQty += '<select id="user_note_title" class="form-control">';
 
-        usernoteTitlesResultSet.each(function(usernoteTitleResult) {
+        usernoteTitlesResultSet.run().each(function(usernoteTitleResult) {
             var title_name = usernoteTitleResult.getValue('name');
             var title_id = usernoteTitleResult.getValue('internalId');
 
@@ -2565,7 +2612,7 @@
     function java2jsArray(javaArray) {
         var jsArray = new Array;
         if (!isNullorEmpty(javaArray)) {
-            javaArray.each(function(javaValue) {
+            javaArray.forEach(function(javaValue) {
                 var jsValue = javaValue.toString();
                 jsArray.push(jsValue);
             })

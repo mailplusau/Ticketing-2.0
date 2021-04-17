@@ -15,121 +15,18 @@
           baseURL = 'https://1048144-sb3.app.netsuite.com';
       }
       var role = runtime.getCurrentUser().role;
+      var userRole = runtime.getCurrentUser().role;
+
       var selector_list = ['barcodes', 'invoices', 'customers'];
 
       /**
        * On page initialisation
        */
       function pageInit() {
-        // For the moment, the search "customsearch_customer_mpex_contacts" doesn't exist on Sandbox
-        // because the field "Contact : MPEX Contact (Custom)" doesn't exist on the contact records.
-        var customer_has_mpex_contact_set = new Set;
-        if (runtime.EnvType != "SANDBOX") {
-            var customer_has_mpex_contact_set = loadMpexContactSet();
-        }
-        loadTicketsTable(selector_list, customer_has_mpex_contact_set);
-    
-        // Initialize all tooltips : https://getbootstrap.com/docs/4.0/components/tooltips/
-        $('[data-toggle="tooltip"]').tooltip();
-
-        
-        var table_barcodes = $('#tickets-preview-barcodes').DataTable();
-        var rows = table_barcodes.rows().nodes().to$();
-        var status = table_barcodes.column(7).data().toArray();
-        var has_mpex_contact = table_barcodes.column(10).data().toArray(); //this value is ALWAYS false in sandbox
-
-        //Mark all tickets that are Closed with class 'ignoreme'
-        $.each(rows, function(index) {
-            if (status[index] == "Closed" || status[index] == "In progress - IT" || !has_mpex_contact[index] ) {
-                $(this).addClass('ignoreme');
-            };
-        });
-
-        $('.table').each(function() {
-            var table = $(this).DataTable();
-    
-            table.on('draw.dt', function() {
-                // Each time the table is redrawn, we trigger tooltip for the new cells.
-                $('[data-toggle="tooltip"]').tooltip();
-            });
-    
-            table.on('click', '.edit_class', function() {
-                var selector = $('div.tab-pane.active').attr('id');
-                switch (selector) {
-                    case 'barcodes':
-                        var ticket_id = $(this).parent().siblings().eq(1).text().split('MPSD')[1];
-                        var selector_number = $(this).parent().siblings().eq(3).text();
-                        var selector_type = 'barcode_number';
-                        break;
-    
-                    case 'invoices':
-                        var ticket_id = $(this).parent().siblings().eq(0).text().split('MPSD')[1];
-                        var selector_number = $(this).parent().siblings().eq(2).text();
-                        var selector_type = 'invoice_number';
-                        break;
-                    case 'customers':
-                        var ticket_id = $(this).parent().siblings().eq(0).text().split('MPSD')[1];
-                        var selector_number = $(this).parent().siblings().eq(2).text();
-                        var selector_type = 'customer_issue';
-                        console.log(ticket_id + "," + selector_number + "," + selector_type);
-                        break;
-                }
-    
-                if (isNullorEmpty(selector_number.trim())) {
-                    var ticketRecord = record.load({
-                        type: 'customrecord_mp_ticket',
-                        id: ticket_id
-                    });
-
-                    selector_number = ticketRecord.getValue({ fieldId: 'altname' });
-                }
-                editTicket(ticket_id, selector_number, selector_type);
-            });
-        });
-
-        // Date filtering
-        /* Custom filtering function which will search data in column two between two values */
-        $.fn.dataTable.ext.search.push(
-            function(settings, data, dataIndex) {
-
-                // Get value of the "Date created from" field
-                var date_from_val = $('#date_from').val();
-                if (isNullorEmpty(date_from_val)) {
-                    // The minimum date value is set to the 1st January 1970
-                    var date_from = new Date(0);
-                } else {
-                    var date_from = new Date(dateSelected2Date(date_from_val));
-                }
-
-                // Get value of the "Date created to" field
-                var date_to_val = $('#date_to').val();
-                if (isNullorEmpty(date_to_val)) {
-                    // The maximum value is set to the 1st January 3000
-                    var date_to = new Date(3000, 0);
-                } else {
-                    var date_to = new Date(dateSelected2Date(date_to_val));
-                }
-
-                // select the index of the date_created column
-                switch (settings.nTable.id) {
-                    case 'tickets-preview-barcodes':
-                        var date_created_column_nb = 2;
-                        break;
-
-                    case 'tickets-preview-invoices':
-                        var date_created_column_nb = 1;
-                        break;
-
-                }
-                var date_created = dateSelected2Date(data[date_created_column_nb]);
-
-                return (date_from <= date_created && date_created <= date_to);
-            }
-        );
         var ticketsDataSet = [];
         $(document).ready(function() {
 
-            selector_list.each(function(selector) {
+            selector_list.forEach(function(selector) {
                 // The inline html of the <table> tag is not correctly displayed inside 'div#' + selector when added with Suitelet.
                 // Hence, the html code is added using jQuery when the page loads.
                 if ((selector != 'invoices') || isFinanceRole(userRole)) {
@@ -368,6 +265,118 @@
             });
         })
 
+        // For the moment, the search "customsearch_customer_mpex_contacts" doesn't exist on Sandbox
+        // because the field "Contact : MPEX Contact (Custom)" doesn't exist on the contact records.
+        var customer_has_mpex_contact_set = new Set;
+        if (runtime.EnvType != "SANDBOX") {
+            var customer_has_mpex_contact_set = loadMpexContactSet();
+        }
+        loadTicketsTable(selector_list, customer_has_mpex_contact_set);
+    
+        // Initialize all tooltips : https://getbootstrap.com/docs/4.0/components/tooltips/
+        $('[data-toggle="tooltip"]').tooltip();
+
+        
+        var table_barcodes = $('#tickets-preview-barcodes').DataTable();
+        console.log("table2", table_barcodes)
+        var rows = table_barcodes.rows().nodes().to$();
+        var status = table_barcodes.column(7).data().toArray();;
+        var has_mpex_contact = table_barcodes.column(10).data().toArray()        
+       
+        // var status = [];
+        // var has_mpex_contact = [];
+        
+
+        //Mark all tickets that are Closed with class 'ignoreme'
+        $.each(rows, function(index) {
+            if (status[index] == "Closed" || status[index] == "In progress - IT" || !has_mpex_contact[index] ) {
+                $(this).addClass('ignoreme');
+            };
+        });
+
+        $('.table').each(function() {
+            var table = $(this).DataTable();
+    
+            table.on('draw.dt', function() {
+                // Each time the table is redrawn, we trigger tooltip for the new cells.
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+    
+            table.on('click', '.edit_class', function() {
+                var selector = $('div.tab-pane.active').attr('id');
+                switch (selector) {
+                    case 'barcodes':
+                        var ticket_id = $(this).parent().siblings().eq(1).text().split('MPSD')[1];
+                        var selector_number = $(this).parent().siblings().eq(3).text();
+                        var selector_type = 'barcode_number';
+                        break;
+    
+                    case 'invoices':
+                        var ticket_id = $(this).parent().siblings().eq(0).text().split('MPSD')[1];
+                        var selector_number = $(this).parent().siblings().eq(2).text();
+                        var selector_type = 'invoice_number';
+                        break;
+                    case 'customers':
+                        var ticket_id = $(this).parent().siblings().eq(0).text().split('MPSD')[1];
+                        var selector_number = $(this).parent().siblings().eq(2).text();
+                        var selector_type = 'customer_issue';
+                        console.log(ticket_id + "," + selector_number + "," + selector_type);
+                        break;
+                }
+    
+                if (isNullorEmpty(selector_number.trim())) {
+                    var ticketRecord = record.load({
+                        type: 'customrecord_mp_ticket',
+                        id: ticket_id
+                    });
+
+                    selector_number = ticketRecord.getValue({ fieldId: 'altname' });
+                }
+                editTicket(ticket_id, selector_number, selector_type);
+            });
+        });
+
+        // Date filtering
+        /* Custom filtering function which will search data in column two between two values */
+        $.fn.dataTable.ext.search.push(
+            function(settings, data, dataIndex) {
+
+                // Get value of the "Date created from" field
+                var date_from_val = $('#date_from').val();
+                if (isNullorEmpty(date_from_val)) {
+                    // The minimum date value is set to the 1st January 1970
+                    var date_from = new Date(0);
+                } else {
+                    var date_from = new Date(dateSelected2Date(date_from_val));
+                }
+
+                // Get value of the "Date created to" field
+                var date_to_val = $('#date_to').val();
+                if (isNullorEmpty(date_to_val)) {
+                    // The maximum value is set to the 1st January 3000
+                    var date_to = new Date(3000, 0);
+                } else {
+                    var date_to = new Date(dateSelected2Date(date_to_val));
+                }
+
+                // select the index of the date_created column
+                switch (settings.nTable.id) {
+                    case 'tickets-preview-barcodes':
+                        var date_created_column_nb = 2;
+                        break;
+
+                    case 'tickets-preview-invoices':
+                        var date_created_column_nb = 1;
+                        break;
+
+                }
+                var date_created = dateSelected2Date(data[date_created_column_nb]);
+
+                return (date_from <= date_created && date_created <= date_to);
+            }
+        );
+       
+
         
       }
       function saveRecord(context) {
@@ -423,8 +432,8 @@
      */
     function viewLostTickets() {
         var upload_url = url.resolveScript({
-            deploymentId: 'customdeploy_mp_sl_edit_lost_ticket_2',
-            scriptId: 'customscript_mp_sl_edit_lost_ticket_2',
+            deploymentId: 'customdeploy_sl_edit_lost_ticket_2',
+            scriptId: 'customscript_sl_edit_lost_ticket_2',
         });
         var upload_url = baseURL + upload_url;
         window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
@@ -470,14 +479,14 @@
 
         // For each ticket, add the customer_id to the set 'tickets_customer_id_set'
         var slice_index = 0;
-        var resultTicketSlice = ticketResultSetResultSet.getRange({
+        var resultTicketSlice = ticketResultSet.getRange({
             start: slice_index * 1000,
             end: (slice_index + 1) * 1000
         })
         if (!isNullorEmpty(resultTicketSlice)) {
             do {
                 resultTicketSlice = ticketResultSet.getRange({ start: slice_index * 1000, end: (slice_index + 1) * 1000 });
-                resultTicketSlice.each(function(ticketResult) {
+                resultTicketSlice.forEach(function(ticketResult) {
                     var customer_id = ticketResult.getValue('custrecord_customer1');
                     tickets_customer_id_set.add(customer_id);
                 });
@@ -525,7 +534,7 @@
         var ticketResultSet = ticketSearch.run();
 
         var ticketsDataSetArrays = [];
-        selector_list.each(function(selector) {
+        selector_list.forEach(function(selector) {
             var tbody_id = '#result_tickets_' + selector;
             $(tbody_id).empty();
 
@@ -538,9 +547,8 @@
         if (!isNullorEmpty(resultTicketSlice)) {
             do {
                 resultTicketSlice = ticketResultSet.getRange({ start: slice_index * 1000, end: (slice_index + 1) * 1000 });
-                resultTicketSlice.each(function(ticketResult) {
-
-                    var ticket_id = ticketResult.getId();
+                resultTicketSlice.forEach(function(ticketResult) {
+                    var ticket_id = ticketResult.getValue('internalid');
                     ticket_id = 'MPSD' + ticket_id;
 
                     var date_created = ticketResult.getValue('created');
@@ -672,15 +680,15 @@
         }
 
         console.log('ticketsDataSet : ', ticketsDataSetArrays);
-
         // Update datatable rows.
-        selector_list.each(function(selector, index) {
+        selector_list.forEach(function(selector, index) {
             var table_id = '#tickets-preview-' + selector;
-            var datatable = $(table_id).dataTable().api();
+            var datatable = $(table_id).DataTable();
             datatable.clear();
             datatable.rows.add(ticketsDataSetArrays[index]);
             datatable.draw();
         });
+
     }
 
     /**
@@ -794,6 +802,10 @@
       return {
           pageInit: pageInit,
           saveRecord: saveRecord,
+          viewClosedTickets: viewClosedTickets,
+          viewLostTickets: viewLostTickets,
+          onSendBulkEmails: onSendBulkEmails
+
           
       };  
   }

@@ -99,7 +99,7 @@
             form.addSubmitButton({
                 label: 'Submit'
             })
-            form.clientScriptFileId = //SB=?? PROD=???
+            form.clientScriptFileId = 4796338;//SB=4796338 PROD=???
 
             context.response.writePage(form);
 
