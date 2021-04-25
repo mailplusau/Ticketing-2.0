@@ -212,7 +212,7 @@
                                 if (!isNullorEmpty(account_manager_value)) {
                                     var account_manager_email = search.lookupFields({
                                         type: 'employee',
-                                        id: 'account_manager_value',
+                                        id: account_manager_value,
                                         columns: 'email'
                                     });
 
@@ -246,7 +246,8 @@
                                 if(!isNullorEmpty(selector_id)){
                                     //Come in here only if selector_id is not null
                                     stock_used = search.lookupFields({ type: 'customrecord_customer_product_stock', id: selector_id, columns: ['custrecord_cust_date_stock_used', 'custrecord_cust_time_stock_used'] });
-                                    final_delivery_text = search.lookupFields({ type: 'customrecord_customer_product_stock', id: selector_id, columns: 'custrecord_cust_prod_stock_final_del' });
+                                    final_delivery_text = search.lookupFields({ type: 'customrecord_customer_product_stock', id: selector_id, columns: 'custrecord_cust_prod_stock_final_del' })["custrecord_cust_prod_stock_final_del"][0]["text"];
+                                   
                                     date_stock_used = stock_used.custrecord_cust_date_stock_used;
                                     time_stock_used = stock_used.custrecord_cust_time_stock_used;
                                 }
@@ -366,11 +367,14 @@
             // Define information window.
             inlineHtml += '<div class="container" hidden><p id="info" class="alert alert-info"></p></div>';
     
+            inlineHtml += tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment);
             inlineHtml += customerNumberSection(customer_number, ticket_id);
-            inlineHtml += selectorSection(ticket_id, selector_number, selector_id, selector_type);
+            inlineHtml += selectorSection(ticket_id, selector_number, selector_id, selector_type, status_value);
     
             if (!isNullorEmpty(ticket_id)) {
-                inlineHtml += ticketSection(date_created, creator_id, creator_name, status);
+                
+                
+                inlineHtml += ticketSection(dateISOToNetsuite(date_created), creator_id, creator_name, status);
             }
             
             if (isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && !isNullorEmpty(customer_id)) || !isNullorEmpty(customer_number)) {
@@ -645,7 +649,61 @@
             
          }
      }
- 
+    //  img {
+    //     display: block;
+    //     margin-left: auto;
+    //     margin-right: auto;
+    //     width: 40%;
+    //   }
+     
+     function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment) {
+        
+        var inlineQty = '<div class="container">';
+    
+        // Tabs headers
+        inlineQty += '<div style="width: 95%; margin-left: 0px; padding-left: 0px; margin-top: 30px;  margin-bottom: 20px"><ul class="nav nav-pills nav-justified">';
+        inlineQty += '<li role="presentation" class="active"><a data-toggle="tab" href="#ticketdetails"><b>TICKET DETAILS</b></a></li>';
+        inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#contactdetails"><b>CONTACT DETAILS</b></a></li>';
+        inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#issues"><b>ISSUES</b></a></li>';
+        inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#prevtickets"><b>PREVIOUS TICKETS</b></a></li>';
+
+        
+        inlineQty += '</ul></div>';
+        
+        // Tabs content
+        inlineQty += '<div class="tab-content">';
+        inlineQty += '<div role="tabpanel" class="tab-pane active" id="ticketdetails">';
+        inlineQty += customerNumberSection(customer_number, ticket_id);
+        inlineQty += selectorSection(ticket_id, selector_number, selector_id, selector_type, status_value);
+        inlineQty += customerSection(customer_name);
+        inlineQty += daytodayContactSection(daytodayphone, daytodayemail, status_value, selector_type);
+        inlineQty += franchiseeMainContactSection(franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn);
+        inlineQty += mpexStockUsedSection(selector_type, date_stock_used, time_stock_used);
+        inlineQty += finalDeliveryEnquirySection(status_value, selector_type, final_delivery_text, selected_enquiry_status_id);
+        inlineQty += attachmentsSection(attachments_hyperlink, status_value);
+        inlineQty += 'TEST1';
+        inlineQty += '</div>';
+    
+        inlineQty += '<div role="tabpanel" class="tab-pane" id="contactdetails">';
+        inlineQty += mpexContactSection();
+        inlineQty += '</div>';
+            
+        inlineQty += '<div role="tabpanel" class="tab-pane" id="issues">';
+        inlineQty += issuesHeader();
+        inlineQty += reminderSection(status_value);
+        inlineQty += ownerSection(ticket_id, owner_list, status_value);
+        inlineQty += tollIssuesSection(list_toll_issues, list_resolved_toll_issues, status_value, selector_type);
+        inlineQty += commentSection(comment, selector_type, status_value);
+        inlineQty += '</div>';
+
+        inlineQty += '<div role="tabpanel" class="tab-pane" id="prevtickets">';
+        inlineQty += dataTablePreview();
+        inlineQty += '</div>';
+
+        inlineQty += '</div></div>';
+    
+        return inlineQty;
+    }
      
     /**
      * The "Customer number" input field. If there is a Ticket ID, then we are on the Edit Ticket page and
@@ -662,8 +720,8 @@
         // Ticket details header
         var inlineQty = '<div class="form-group container tickets_details_header_section">';
         inlineQty += '<div class="row">';
-        inlineQty += '<div class="col-xs-12 heading2">';
-        inlineQty += '<h4><span class="label label-default col-xs-12">TICKET DETAILS</span></h4>';
+        inlineQty += '<div class="col-xs-12 heading2"  >';
+        inlineQty += '<h4><span style="background-color: #CFE0CE" class="label label-default col-xs-12">TICKET DETAILS</span></h4>';
         inlineQty += '</div></div></div>';
 
         // Customer number section
@@ -1451,6 +1509,7 @@
             } else {
                 inlineQty += '<option value="' + invoice_method_id + '">' + invoice_method_name + '</option>';
             }
+            return true;
         });
         inlineQty += '</select>';
         inlineQty += '</div></div>';
@@ -1583,6 +1642,7 @@
             } else {
                 inlineQty += '<option value="' + invoice_cycle_id + '">' + invoice_cycle_name + '</option>';
             }
+            return true;
         });
         inlineQty += '</select>';
         inlineQty += '</div></div></div></div>';
@@ -1683,15 +1743,31 @@
         inlineQty += '</div></div></div></div>';
 
         // Open Invoices Datatable
-        inlineQty += '<div class="form-group container open_invoices open_invoices_table ' + hide_class_section + '">';
-        inlineQty += '<div class="row">';
-        inlineQty += '<div class="col-xs-12" id="open_invoice_dt_div">';
-        // It is inserted as inline html in the script mp_cl_open_ticket
-        inlineQty += '</div></div></div>';
+        //inlineQty += '<div class="form-group container open_invoices open_invoices_datatable>';
+        inlineQty += dataTable();
+        //inlineQty += '</div>';
+        // inlineQty += '<div class="form-group open_invoices open_invoices_table ' + hide_class_section + '">';
+        // inlineQty += '<div class="row">';
+        // inlineQty += '<div class="col-xs-18" id="open_invoice_dt_div">';
+        // // It is inserted as inline html in the script mp_cl_open_ticket
+        // inlineQty += '</div></div></div>';
 
         return inlineQty;
     }
 
+    function dataTable() {
+        var inlineQty = '<style>table#invoices-preview {font-size: 12px;text-align: center;border: none;}.dataTables_wrapper {font-size: 14px;}table#invoices-preview th{text-align: center;} .bolded{font-weight: bold;}</style>';
+        inlineQty += '<table id="invoices-preview" class="table table-responsive table-striped customer tablesorter" style="width: 100%; table-layout: fixed">';
+        inlineQty += '<thead style="color: white;background-color: #607799;">';
+        inlineQty += '<tr class="text-center">';
+        inlineQty += '</tr>';
+        inlineQty += '</thead>';
+
+        inlineQty += '<tbody id="result_invoices"></tbody>';
+
+        inlineQty += '</table>';
+        return inlineQty;
+    }
         
     /**
      * The Credit Memo Section.
@@ -1807,6 +1883,7 @@
             } else {
                 inlineQty += '<option value="' + tollEmailId + '">' + tollEmailName + '</option>';
             }
+            return true;
         });
 
         inlineQty += '</select>';
@@ -1836,14 +1913,13 @@
             account_manager.email = ''
         }
 
-        if (!isNullorEmpty(account_manager.email)) {
-
+        if (!isNullorEmpty(account_manager.email.email)) {
             inlineQty += '<div class="form-group container send_email acc_manager_section">';
             inlineQty += '<div class="row">';
             inlineQty += '<div class="col-xs-10 acc_manager_name_section">';
             inlineQty += '<div class="input-group">';
             inlineQty += '<span class="input-group-addon">ACCOUNT MANAGER</span>';
-            inlineQty += '<input id="acc_manager" class="form-control" data-email="' + account_manager.email + '" value="' + account_manager.name + ' - ' + account_manager.email + '" disabled/>';
+            inlineQty += '<input id="acc_manager" class="form-control" data-email="' + account_manager.email.email + '" value="' + account_manager.name + ' - ' + account_manager.email.email + '" disabled/>';
             inlineQty += '</div></div>';
             inlineQty += '<div class="col-xs-2 acc_manager_button_section">';
             inlineQty += '<button id="acc_manager_button" type="button" class="btn btn-success btn-block">ADD TO CC</button>';
@@ -1868,7 +1944,8 @@
         var templatesSearchResults = templatesSearch.run();
         templatesSearchResults.each(function(templatesSearchResult) {
             // var tempId = templatesSearchResult.getValue('internalid');
-            var tempId = templatesSearchResult.searchId;
+            
+            var tempId = templatesSearchResult["id"];
             var tempName = templatesSearchResult.getValue('name');
             inlineQty += '<option value="' + tempId + '">' + tempName + '</option>';
             return true;
@@ -2485,6 +2562,26 @@
 
         return inlineQty;
     }
+
+    /**
+     * Used to pass the values of `date_from` and `date_to` between the scripts and to Netsuite for the records and the search.
+     * @param   {String} date_iso       "2020-06-01"
+     * @returns {String} date_netsuite  "1/6/2020"
+     */
+    function dateISOToNetsuite(date_iso) {
+        var date_netsuite = '';
+        if (!isNullorEmpty(date_iso)) {
+            var date_netsuite = format.format({
+                value: date_iso,
+                type: format.Type.DATETIME
+            });
+
+        }
+        return date_netsuite;
+    }
+    
+
+    
 
     /**
      * The free-from text area for comments.

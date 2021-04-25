@@ -24,23 +24,16 @@
        */
       function pageInit() {
         var ticketsDataSet = [];
+        var tableSet = [];
         $(document).ready(function() {
-
             selector_list.forEach(function(selector) {
-                // The inline html of the <table> tag is not correctly displayed inside 'div#' + selector when added with Suitelet.
-                // Hence, the html code is added using jQuery when the page loads.
-                if ((selector != 'invoices') || isFinanceRole(userRole)) {
-                    var inline_html_tickets_table = dataTablePreview(selector);
-                    // console.log(inline_html_tickets_table);
-                    $('div#' + selector).html(inline_html_tickets_table);
-                }
 
                 var table_id = '#tickets-preview-' + selector;
                 console.log('Selector = ' + selector);
                 switch (selector) {
                     case 'barcodes':
                         var columns = [{
-                            title: ""
+                            title: ''
                         }, {
                             title: "Ticket ID",
                             type: "num-fmt"
@@ -69,8 +62,11 @@
 
                         ];
 
+                        
+
                         var columnDefs = [{
                             targets: 0,
+                            "width": "20%",
                             render: function(data, type, row, meta) {
                                 var status = row[7];
                                 var has_mpex_contact = row[10];
@@ -227,20 +223,20 @@
                     columns: columns,
                     columnDefs: columnDefs,
                     select: select,
-                    pageLength: 100
+                    pageLength: 100,
                 });
+
                 $(table_id + ' thead tr').addClass('text-center');
 
                 // Adapted from https://datatables.net/extensions/fixedheader/examples/options/columnFiltering.html
                 // Adds a row to the table head row, and adds search filters to each column.
                 $(table_id + ' thead tr').clone(true).appendTo(table_id + ' thead');
-                $(table_id + ' thead tr:eq(1) th').each(function(i) {
+                $(table_id + ' thead tr:eq(3) th').each(function(i) {
                     var title = $(this).text();
                     if (title == '') {
                         $(this).html('');
                     } else {
-                        $(this).html('<input type="text" placeholder="Search ' + title + '" />');
-
+                        $(this).html('<input style="width: 90%" type="text" placeholder="Search ' + title + '" />');
                         $('input', this).on('keyup change', function() {
                             if (table.column(i).search() !== this.value) {
                                 table
@@ -252,7 +248,12 @@
                     }
 
                 });
+
+
+                
             });
+
+           
 
             console.log('Datatables created');
 
@@ -282,10 +283,6 @@
         var rows = table_barcodes.rows().nodes().to$();
         var status = table_barcodes.column(7).data().toArray();;
         var has_mpex_contact = table_barcodes.column(10).data().toArray()        
-       
-        // var status = [];
-        // var has_mpex_contact = [];
-        
 
         //Mark all tickets that are Closed with class 'ignoreme'
         $.each(rows, function(index) {
@@ -378,8 +375,9 @@
        
 
         
-      }
-      function saveRecord(context) {
+    }
+    
+    function saveRecord(context) {
         var selector = $('div.tab-pane.active').attr('id');
         switch (selector) {
             case 'barcodes':
@@ -692,14 +690,16 @@
     }
 
     /**
-     * The table that will display the tickets, based on their type.
-     * @param   {String}    selector
-     * @return  {String}    inlineQty
-     */
-    function dataTablePreview(selector) {
-        var inlineQty = '<style>table#tickets-preview-' + selector + ' {font-size: 12px;text-align: center;border: none;}.dataTables_wrapper {font-size: 14px;}table#tickets-preview-' + selector + ' th{text-align: center;}</style>';
-        inlineQty += '<table cellpadding="15" id="tickets-preview-' + selector + '" class="table table-responsive table-striped customer tablesorter" cellspacing="0" style="width: 100%;">';
+      * The table that will display the tickets, based on their type.
+      * @param   {String}    selector
+      * @return  {String}    inlineQty
+      */
+     function dataTablePreview(selector) {
+        var inlineQty = '<style>table#tickets-preview-' + selector + ' {font-size: 12px;text-align: center;border: none;}.dataTables_wrapper {font-size: 14px;}table#tickets-preview-' + selector + ' th{text-align: center;} .bolded{font-weight: bold;}</style>';
+        inlineQty += '<table id="tickets-preview-' + selector + '" class="table table-responsive table-striped customer tablesorter" style="width: 100%; table-layout: fixed">';
         inlineQty += '<thead style="color: white;background-color: #607799;">';
+        inlineQty += '<tr class="text-center">';
+        inlineQty += '</tr>';
         inlineQty += '</thead>';
 
         inlineQty += '<tbody id="result_tickets_' + selector + '"></tbody>';
@@ -707,6 +707,8 @@
         inlineQty += '</table>';
         return inlineQty;
     }
+
+
 
     /**
      * Converts the date string in the "date_to" and "date_from" fields to Javascript Date objects.

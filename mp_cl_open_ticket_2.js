@@ -8,21 +8,121 @@
  * 
  */
 
-define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/email', 'N/currentRecord', 'N/http'],
-    function(error, runtime, search, url, record, format, email, currentRecord, http) {
+define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/email', 'N/currentRecord', 'N/https'],
+    function(error, runtime, search, url, record, format, email, currentRecord, https) {
         var baseURL = 'https://1048144.app.netsuite.com';
-        if (runtime.EnvType == "SANDBOX") {
+        if (runtime.envType == "SANDBOX") {
             baseURL = 'https://1048144-sb3.app.netsuite.com';
         }
         var role = runtime.getCurrentUser().role;
-
+        var userId = runtime.getCurrentUser().id;
         /**
          * On page initialisation
          */
+        var currRec = currentRecord.get();
         function pageInit() {
             var currRec = currentRecord.get();
             //Remove Chrome's incessant "Leave Site" warning
             window.onbeforeunload = null;
+
+            var ticketsDataSet = [];
+            var invoicesDataSet = [];
+            $(document).ready(function() {
+                console.log('doc ready');
+        
+                $('#email_body').summernote();
+        
+                $('#owner, #toll_issues, #mp_issues, #invoice_issues, #enquiry_medium_status, #send_toll').selectpicker();
+        
+                $('#tickets-preview').DataTable({
+                    data: ticketsDataSet,
+                    columns: [{
+                        title: "ID"
+                    }, {
+                        title: "Date created"
+                    }, {
+                        title: "Date closed"
+                    }, {
+                        title: "Barcode Number"
+                    }, {
+                        title: "Status"
+                    }, {
+                        title: "TOLL Issues"
+                    }, {
+                        title: "Resolved TOLL Issues"
+                    }, {
+                        title: "Comment"
+                    }]
+                });
+        
+                $('#emails-preview').DataTable();
+        
+                
+        
+                var invoice_table = $('#invoices-preview').DataTable({
+                    data: invoicesDataSet,
+                    columns: [{
+                        title: "Invoice Date",
+                        type: "date"
+                    }, {
+                        title: "Invoice #"
+                    }, {
+                        title: "Status"
+                    }, {
+                        title: "Invoice Type"
+                    }, {
+                        title: "Amount Due",
+                        type: "num-fmt"
+                    }, {
+                        title: "Total Amount",
+                        type: "num-fmt"
+                    }, {
+                        title: "Overdue"
+                    }, {
+                        title: "Invoice ID"
+                    }, {
+                        title: "Action"
+                    }],
+                    columnDefs: [{
+                        visible: false,
+                        targets: -2,
+                    }, {
+                        targets: -1,
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            var selector_id = currRec.getValue({ fieldId: 'custpage_selector_id' });
+                            var disabled = (data[7] == selector_id) ? 'disabled' : '';
+                            return '<button class="btn btn-success add_inv glyphicon glyphicon-plus" type="button" data-inv-id="' + data[7] + '" data-toggle="tooltip" data-placement="right" title="Attach to email" ' + disabled + '></button>';
+                        }
+                    }]
+                });
+        
+        
+        
+                $('#invoices-preview thead tr').addClass('text-center');
+        
+                // Adapted from https://datatables.net/extensions/fixedheader/examples/options/columnFiltering.html
+                // Adds a row to the table head row, and adds search filters to each column.
+                $('#invoices-preview thead tr').clone(true).appendTo('#invoices-preview thead');
+                $('#invoices-preview thead tr:eq(3) th').each(function(i) {
+                    var title = $(this).text();
+                    $(this).html('<input style="width: 80%" type="text" placeholder="Search ' + title + '" />');
+        
+                    $('input', this).on('keyup change', function() {
+                        if (invoice_table.column(i).search() !== this.value) {
+                            invoice_table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                });
+
+                //var invoice_table = $('#invoices-preview').DataTable();
+                invoice_table.on('click', 'button.add_inv', function() {
+                    attachFileButton.call(this)
+                });
+            });
 
             console.log('Page init');
 
@@ -83,15 +183,19 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     createContactsRows();
                     // If the ticket status is "Open, the acknoledgement template shall be selected.
                     if (status_value == 1) {
+                        // $('#template option:selected').attr('selected', false);
+                        // //$('#template option[value="66"]').attr('selected', true); // Select the acknoledgement template
+                        // $('#template option[value="66"]').prop('selected', true);
+                        // $('#template option:selected').val("66");
+                        // //$('#enquiry_medium_status option[value="3"]').prop('selected', true);
+
+                        // console.log("TEMPLATEEE CHOSEN2", $('#template option:selected').val());
+
                         $('#template option:selected').attr('selected', false);
-                        //$('#template option[value="66"]').attr('selected', true); // Select the acknoledgement template
-                        $('#template option[value="66"]').prop('selected', true);
-                        $('#template option:selected').val("66");
-                        //$('#enquiry_medium_status option[value="3"]').prop('selected', true);
-
-                        console.log("TEMPLATEEE CHOSEN2", $('#template option:selected').val());
-
+                        $('#template option[value="66"]').attr('selected', true); // Select the acknoledgement template
                         loadTemplate();
+
+                        //loadTemplate();
                     }
 
                     if (selector_type == 'invoice_number') {
@@ -364,9 +468,11 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             });
 
             $('#open_inv').click(function() {
+                
                 var invoice_id = $(this).data('inv-id');
-                var compid = (runtime.EnvType == "SANDBOX") ? '1048144_SB3' : '1048144';
+                var compid = (runtime.envType == "SANDBOX") ? '1048144_SB3' : '1048144';
                 var invoice_link = baseURL + '/app/accounting/transactions/custinvc.nl?id=' + invoice_id + '&compid=' + compid + '&cf=116&whence=';
+                console.log("invoice_link", invoice_link);
                 window.open(invoice_link, "_blank", "height=750,width=650,modal=yes,alwaysRaised=yes");
             })
 
@@ -401,6 +507,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     $('[data-toggle="tooltip"]').tooltip();
 
                     // Convert "TO" text field to email adresses array
+                    console.log($('#send_to'));
                     var send_to_values = $('#send_to').val().split(',');
                     var send_to_array = [];
                     send_to_values.forEach(function(email_address_in_send_to) {
@@ -465,10 +572,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 attachFileButton.call(this)
             });
 
-            var invoice_table = $('#invoices-preview').DataTable();
-            invoice_table.on('click', 'button.add_inv', function() {
-                attachFileButton.call(this)
-            });
+            
 
             $('#acc_manager_button').click(function() {
                 var account_manager_email = $('#acc_manager').data('email');
@@ -533,110 +637,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 checkMandatoryFields();
             });
 
-            var ticketsDataSet = [];
-            var invoicesDataSet = [];
-            $(document).ready(function() {
-                console.log('doc ready');
-        
-                $('#email_body').summernote();
-        
-                $('#owner, #toll_issues, #mp_issues, #invoice_issues, #enquiry_medium_status, #send_toll').selectpicker();
-        
-                $('#tickets-preview').DataTable({
-                    data: ticketsDataSet,
-                    columns: [{
-                        title: "ID"
-                    }, {
-                        title: "Date created"
-                    }, {
-                        title: "Date closed"
-                    }, {
-                        title: "Barcode Number"
-                    }, {
-                        title: "Status"
-                    }, {
-                        title: "TOLL Issues"
-                    }, {
-                        title: "Resolved TOLL Issues"
-                    }, {
-                        title: "Comment"
-                    }]
-                });
-        
-                $('#emails-preview').DataTable();
-        
-                var invoice_datatable_inline_html = '<style>';
-                invoice_datatable_inline_html += 'table#invoices-preview {font-size: 12px;text-align: center;border: none;}';
-                invoice_datatable_inline_html += '.dataTables_wrapper {font-size: 14px;}';
-                invoice_datatable_inline_html += 'table#invoices-preview th {text-align: center;}';
-                invoice_datatable_inline_html += 'table#invoices-preview thead input {width: 100%;}';
-                invoice_datatable_inline_html += '</style>';
-                invoice_datatable_inline_html += '<table cellpadding="15" id="invoices-preview" class="table table-responsive table-striped customer tablesorter" cellspacing="0" style="width: 100%;">';
-                invoice_datatable_inline_html += '<thead style="color: white;background-color: #607799;">';
-                invoice_datatable_inline_html += '</thead>';
-                invoice_datatable_inline_html += '<tbody id="result_invoices"></tbody>';
-                invoice_datatable_inline_html += '</table>';
-                $('#open_invoice_dt_div').html(invoice_datatable_inline_html);
-        
-                var invoice_table = $('#invoices-preview').DataTable({
-                    data: invoicesDataSet,
-                    columns: [{
-                        title: "Invoice Date",
-                        type: "date"
-                    }, {
-                        title: "Invoice #"
-                    }, {
-                        title: "Status"
-                    }, {
-                        title: "Invoice Type"
-                    }, {
-                        title: "Amount Due",
-                        type: "num-fmt"
-                    }, {
-                        title: "Total Amount",
-                        type: "num-fmt"
-                    }, {
-                        title: "Overdue"
-                    }, {
-                        title: "Invoice ID"
-                    }, {
-                        title: "Action"
-                    }],
-                    columnDefs: [{
-                        visible: false,
-                        targets: -2,
-                    }, {
-                        targets: -1,
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            var selector_id = currRec.getValue({ fieldId: 'custpage_selector_id' });
-                            var disabled = (data[7] == selector_id) ? 'disabled' : '';
-                            return '<button class="btn btn-success add_inv glyphicon glyphicon-plus" type="button" data-inv-id="' + data[7] + '" data-toggle="tooltip" data-placement="right" title="Attach to email" ' + disabled + '></button>';
-                        }
-                    }]
-                });
-        
-        
-        
-                $('#invoices-preview thead tr').addClass('text-center');
-        
-                // Adapted from https://datatables.net/extensions/fixedheader/examples/options/columnFiltering.html
-                // Adds a row to the table head row, and adds search filters to each column.
-                $('#invoices-preview thead tr').clone(true).appendTo('#invoices-preview thead');
-                $('#invoices-preview thead tr:eq(1) th').each(function(i) {
-                    var title = $(this).text();
-                    $(this).html('<input type="text" placeholder="Search ' + title + '" />');
-        
-                    $('input', this).on('keyup change', function() {
-                        if (invoice_table.column(i).search() !== this.value) {
-                            invoice_table
-                                .column(i)
-                                .search(this.value)
-                                .draw();
-                        }
-                    });
-                });
-            });
+            
         }
 
         function saveRecord(context) {
@@ -1102,6 +1103,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             }
 
             if (isNullorEmpty(customer_number) && isNullorEmpty(selector_number)) {
+                
                 showAlert('Please enter a customer number or a barcode/invoice number');
                 //Remove tickets datatable
                 $('#customer_number_tickets_preview_wrapper').hide();
@@ -1196,6 +1198,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                         deploymentId: 'customdeploy_sl_open_ticket_2',
                         scriptId: 'customscript_sl_open_ticket_2',
                     });
+                    
                     var upload_url = baseURL + output + '&custparam_params=' + params;
                     window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
                 }
@@ -1217,6 +1220,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     deploymentId: 'customdeploy_sl_open_ticket_2',
                     scriptId: 'customscript_sl_open_ticket_2',
                 });
+                
                 var upload_url = baseURL + output + '&custparam_params=' + params;
                 window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
 
@@ -1548,7 +1552,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
             var email_subject = 'MP Ticket issue - ' + selector_number;
             var email_body = '';
-            email_body += 'Environment : ' + runtime.EnvType + '\n';
+            email_body += 'Environment : ' + runtime.envType + '\n';
             email_body += 'Date & Time : ' + formatDate(date) + '\n';
             switch (selector_type) {
                 case 'barcode_number':
@@ -1617,6 +1621,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          */
         function onCancel() {
             var status_value = currRec.getValue({ fieldId: 'custpage_ticket_status_value' });
+            
             if (isTicketNotClosed(status_value)) {
                 var output = url.resolveScript({
                     deploymentId: 'customdeploy_sl_edit_ticket_2',
@@ -1741,6 +1746,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     deploymentId: 'customdeploy_sl_open_ticket_2',
                     scriptId: 'customscript_sl_open_ticket_2',
                 });
+                
                 var upload_url = baseURL + output + '&custparam_params=' + params;
                 window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
             }
@@ -2184,16 +2190,14 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          * @returns {Boolean}   Whether the function worked well or not.
          */
         function updateInvoicesDatatable() {
-
-            var compid = (runtime.EnvType == "SANDBOX") ? '1048144_SB3' : '1048144';
-
+            var compid = (runtime.envType == "SANDBOX") ? '1048144_SB3' : '1048144';
             var customer_id = currRec.getValue({ fieldId: 'custpage_customer_id' });
             var invoice_status_filter = $('#invoices_dropdown option:selected').val();
+            console.log("inv filter", invoice_status_filter);
             var invoicesSearchResults = loadInvoicesSearch(customer_id, invoice_status_filter);
-
             $('#result_invoices').empty();
             var invoicesDataSet = [];
-
+            
             if (isNullorEmpty(invoicesSearchResults)) {
                 if (isNullorEmpty(customer_id)) {
                     $('#info').text('No customer is associated to this invoice.');
@@ -2201,33 +2205,41 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     return true;
                 } else {
                     try {
-                        var customerRecord = record.load({ type: 'customer', id: customer_id }, null);
-                        var customer_name = customerRecord.getValue({ fieldId: 'altname' });
-                        $('#info').text('No open invoice exists for the customer ' + customer_name);
-                        $('#info').parent().show();
+                        var customerRecord = record.load({
+                            type: record.Type.CUSTOMER,
+                            id: customer_id,
+                            isDynamic: true
+                        });
+                        var customer_name = customerRecord.getValue({
+                            fieldId: 'altname'
+                        });
+                        console.log(customer_name);
                         return true;
-                    } catch (e) {
-                        if (e instanceof error.SuiteScriptError) {
-                            if (e.name == "SSS_MISSING_REQD_ARGUMENT") {
+                    } catch (error) {
+                        if (error instanceof error.SuiteScriptError) {
+                            if (error.name == "SSS_MISSING_REQD_ARGUMENT") {
                                 console.log('Error to load the customer record with customer_id : ' + customer_id);
                             }
                         }
                     }
                 }
+
             }
 
-            var today = new Date();
+            var today = new Date;
             invoicesSearchResults.each(function(invoiceResult) {
+
                 var status = invoiceResult.getValue('statusref');
                 if (status == invoice_status_filter) {
 
                     var invoice_date = invoiceResult.getValue('trandate');
                     invoice_date = invoice_date.split(' ')[0];
                     invoice_date = dateCreated2DateSelectedFormat(invoice_date);
+
                     var re = /Invoice #([\w]+)/;
                     var invoice_number = invoiceResult.getValue('invoicenum');
                     invoice_number = invoice_number.replace(re, '$1');
-                    var invoice_id = invoiceResult.searchId;
+                    var invoice_id = invoiceResult.id;
                     var invoice_link = baseURL + '/app/accounting/transactions/custinvc.nl?id=' + invoice_id + '&compid=' + compid + '&cf=116&whence=';
                     invoice_number = '<a href="' + invoice_link + '">' + invoice_number + '</a>';
 
@@ -2238,9 +2250,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
                     var due_date_string = invoiceResult.getValue('duedate');
                     var overdue = '';
+
                     if (!isNullorEmpty(due_date_string)) {
-                        
-                        due_date = format.parse({ value: due_date_string, type: format.Type.DATE });
+                        due_date = stringToDate(due_date_string);
                         var days_overdue = Math.ceil((today - due_date) / 86400000);
                         if (days_overdue > 0) {
                             overdue = days_overdue + ' days (' + due_date_string + ')';
@@ -2252,16 +2264,14 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     amount_due = financial(amount_due);
                     total_amount = financial(total_amount);
 
-                    console.log('invoiceResult : ', invoiceResult);
                     invoicesDataSet.push([invoice_date, invoice_number, status_text, invoice_type, amount_due, total_amount, overdue, invoice_id]);
                 }
                 return true;
 
             });
 
-
             // Update datatable rows.
-            var datatable = $('#invoices-preview').dataTable().api();
+            var datatable = $('#invoices-preview').DataTable();
             datatable.clear();
             datatable.rows.add(invoicesDataSet);
             datatable.draw();
@@ -2270,7 +2280,6 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
             return true;
         }
-
         /**
          * Update the headers of the tickets preview datatable, depending on the selector_type.
          * @param   {String}    selector_type
@@ -2328,7 +2337,14 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             var customer_id = currRec.getValue({ fieldId: 'custpage_customer_id' });
             var selector_type = currRec.getValue({ fieldId: 'custpage_selector_type' });
             var ticketSearchResults = loadTicketsSearch(customer_id);
-
+            ticketSearchResults.filters.push( search.createFilter({
+                    name: 'custrecord_customer1',
+                    operator: search.Operator.IS,
+                    values: customer_id,
+                })
+            );
+            
+            //console.log("cnt", searchResultCount);
             console.log('update tickets datatable');
 
             updateTicketsDatatableHeaders(selector_type);
@@ -2358,46 +2374,46 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 }
             }
 
-            ticketSearchResults.forEach(function(ticketResult) {
-                switch (selector_type) {
-                    case 'barcode_number':
-                        var ticket_id = ticketResult.getValue('name');
-                        var date_created = ticketResult.getValue('created');
-                        var date_closed = ticketResult.getValue('custrecord_date_closed');
-                        var barcode_number = ticketResult.getText('custrecord_barcode_number');
-                        var status = ticketResult.getText('custrecord_ticket_status');
-                        var toll_issues = ticketResult.getText('custrecord_toll_issues');
-                        toll_issues = toll_issues.split(',').join('<br>');
-                        var resolved_toll_issues = ticketResult.getText('custrecord_resolved_toll_issues');
-                        resolved_toll_issues = resolved_toll_issues.split(',').join('<br>');
-                        var comment = ticketResult.getValue('custrecord_comment');
+            // ticketSearchResults.run().each(function(ticketResult) {
+            //     switch (selector_type) {
+            //         case 'barcode_number':
+            //             var ticket_id = ticketResult.getValue('name');
+            //             var date_created = ticketResult.getValue('created');
+            //             var date_closed = ticketResult.getValue('custrecord_date_closed');
+            //             var barcode_number = ticketResult.getText('custrecord_barcode_number');
+            //             var status = ticketResult.getText('custrecord_ticket_status');
+            //             var toll_issues = ticketResult.getText('custrecord_toll_issues');
+            //             toll_issues = toll_issues.split(',').join('<br>');
+            //             var resolved_toll_issues = ticketResult.getText('custrecord_resolved_toll_issues');
+            //             resolved_toll_issues = resolved_toll_issues.split(',').join('<br>');
+            //             var comment = ticketResult.getValue('custrecord_comment');
 
-                        ticketsDataSet.push([ticket_id, date_created, date_closed, barcode_number, status, toll_issues, resolved_toll_issues, comment]);
+            //             ticketsDataSet.push([ticket_id, date_created, date_closed, barcode_number, status, toll_issues, resolved_toll_issues, comment]);
 
-                        break;
+            //             break;
 
-                    case 'invoice_number':
-                        var ticket_id = ticketResult.getValue('name');
-                        var date_created = ticketResult.getValue('created');
-                        var date_closed = ticketResult.getValue('custrecord_date_closed');
-                        var re = /Invoice #([\w]+)/;
-                        var invoice_number = ticketResult.getText('custrecord_invoice_number');
-                        invoice_number = invoice_number.replace(re, '$1');
-                        var status = ticketResult.getText('custrecord_ticket_status');
-                        var invoice_issues = ticketResult.getText('custrecord_invoice_issues');
-                        invoice_issues = invoice_issues.split(',').join('<br>');
-                        var resolved_invoice_issues = ticketResult.getText('custrecord_resolved_invoice_issues');
-                        resolved_invoice_issues = resolved_invoice_issues.split(',').join('<br>');
-                        var comment = ticketResult.getValue('custrecord_comment');
-                        comment = comment.split('\n').join('<br>');
+            //         case 'invoice_number':
+            //             var ticket_id = ticketResult.getValue('name');
+            //             var date_created = ticketResult.getValue('created');
+            //             var date_closed = ticketResult.getValue('custrecord_date_closed');
+            //             var re = /Invoice #([\w]+)/;
+            //             var invoice_number = ticketResult.getText('custrecord_invoice_number');
+            //             invoice_number = invoice_number.replace(re, '$1');
+            //             var status = ticketResult.getText('custrecord_ticket_status');
+            //             var invoice_issues = ticketResult.getText('custrecord_invoice_issues');
+            //             invoice_issues = invoice_issues.split(',').join('<br>');
+            //             var resolved_invoice_issues = ticketResult.getText('custrecord_resolved_invoice_issues');
+            //             resolved_invoice_issues = resolved_invoice_issues.split(',').join('<br>');
+            //             var comment = ticketResult.getValue('custrecord_comment');
+            //             comment = comment.split('\n').join('<br>');
 
-                        ticketsDataSet.push([ticket_id, date_created, date_closed, invoice_number, status, invoice_issues, resolved_invoice_issues, comment]);
+            //             ticketsDataSet.push([ticket_id, date_created, date_closed, invoice_number, status, invoice_issues, resolved_invoice_issues, comment]);
 
-                        break;
-                }
+            //             break;
+            //     }
 
-                return true;
-            });
+            //     //return true;
+            // });
 
             // Update datatable rows.
             var datatable = $('#tickets-preview').dataTable().api();
@@ -2414,30 +2430,73 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          * @param   {String}                invoice_status
          * @return  {nlobjSearchResultSet}  invoicesResultSet
          */
-        function loadInvoicesSearch(customer_id, invoice_status) {
-            if (!isNullorEmpty(customer_id)) {
-                var invoicesSearch = search.load({ type: 'invoice', id: 'customsearch_mp_ticket_invoices_datatabl' });
-                var invoicesFilterExpression = invoicesSearch.filterExpression;
-                invoicesFilterExpression.push('AND', ['entity', 'is', customer_id]);
+        // function loadInvoicesSearch(customer_id, invoice_status) {
+        //     if (!isNullorEmpty(customer_id)) {
+        //         var invoicesSearch = search.load({ type: 'invoice', id: 'customsearch_mp_ticket_invoices_datatabl' });
+        //         var invoicesFilterExpression = invoicesSearch.filterExpression;
+        //         invoicesFilterExpression.push('AND', ['entity', 'is', customer_id]);
 
-                if (invoice_status == 'open') {
-                    invoicesFilterExpression.push('AND', ["status", "anyof", "CustInvc:A"]); // Open Invoices
+        //         if (invoice_status == 'open') {
+        //             invoicesFilterExpression.push('AND', ["status", "anyof", "CustInvc:A"]); // Open Invoices
+        //         } else if (invoice_status == 'paidInFull') {
+        //             invoicesFilterExpression.push('AND', ["status", "anyof", "CustInvc:B"]); // Paid in Full
+
+        //             var today_date = new Date();
+        //             var today_day = today_date.getDate();
+        //             var today_month = today_date.getMonth();
+        //             var today_year = today_date.getFullYear();
+        //             var date_3_months_ago = new Date(Date.UTC(today_year, today_month - 3, today_day));
+        //             var date_3_months_ago_string = format.format({ value: date_3_months_ago, type: 'date' });
+        //             invoicesFilterExpression.push('AND', ["trandate", "after", date_3_months_ago_string]);
+        //         }
+        //         console.log('invoicesFilterExpression : ', invoicesFilterExpression);
+        //         invoicesSearch.filterExpression = invoicesFilterExpression;
+        //         invoicesResultSet = invoicesSearch.run();
+        //     }
+        //     console.log("inv res set", invoicesResultSet)
+        //     return invoicesResultSet;
+        // }
+        /**
+         * Load the result set of the invoices records linked to the customer.
+         * @param   {String}                customer_id
+         * @param   {String}                invoice_status
+         * @return  {nlobjSearchResultSet}  invoicesResultSet
+         */
+         function loadInvoicesSearch(customer_id, invoice_status) {
+            var invoicesResultSet;
+            if (!isNullorEmpty(customer_id)) {
+                var invoicesSearch = search.load({
+                    id: 'customsearch_mp_ticket_invoices_datatabl',
+                    type: search.Type.INVOICE
+                });
+                var invoicesFilterExpression = invoicesSearch.filterExpression;
+                invoicesFilterExpression.push('AND');
+                invoicesFilterExpression.push(['entity', search.Operator.IS, customer_id]);
+
+                console.log("inv status", invoice_status);
+                // Open Invoices
+                if (invoice_status == 'open' || isNullorEmpty(invoice_status)) {
+                    invoicesFilterExpression.push('AND', ["status", search.Operator.ANYOF, "CustInvc:A"]); // Open Invoices
                 } else if (invoice_status == 'paidInFull') {
-                    invoicesFilterExpression.push('AND', ["status", "anyof", "CustInvc:B"]); // Paid in Full
+                    invoicesFilterExpression.push('AND', ["status", search.Operator.ANYOF, "CustInvc:B"]); // Paid in Full
 
                     var today_date = new Date();
                     var today_day = today_date.getDate();
                     var today_month = today_date.getMonth();
                     var today_year = today_date.getFullYear();
                     var date_3_months_ago = new Date(Date.UTC(today_year, today_month - 3, today_day));
-                    var date_3_months_ago_string = format.format({ value: date_3_months_ago, type: 'date' });
-                    invoicesFilterExpression.push('AND', ["trandate", "after", date_3_months_ago_string]);
+                    var date_3_months_ago_string = formatDate(date_3_months_ago);
+                    invoicesFilterExpression.push('AND', ["trandate", search.Operator.AFTER, date_3_months_ago_string]);
                 }
-                console.log('invoicesFilterExpression : ', invoicesFilterExpression);
+                
                 invoicesSearch.filterExpression = invoicesFilterExpression;
                 invoicesResultSet = invoicesSearch.run();
+                var searchResultCount = invoicesSearch.runPaged().count;
+                console.log("cnt", searchResultCount);
             }
+            
             return invoicesResultSet;
+            
         }
 
         /**
@@ -2448,7 +2507,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          */
         function loadTicketsSearch(customer_id) {
             var ticketSearchResults = new Array;
-
+            console.log("custid", customer_id);
             // If a ticket is opened for a barcode that is not allocated to a customer,
             // there will be no customer_id.
             if (!isNullorEmpty(customer_id)) {
@@ -2471,7 +2530,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 ticketsColumns[9] = search.createColumn({ name: 'custrecord_resolved_invoice_issues' });
                 ticketsColumns[10] = search.createColumn({ name: 'custrecord_comment' });
 
-                ticketSearchResults = search.create({ type: 'customrecord_mp_ticket', filterExpression: filterExpression, columns: ticketsColumns });
+                ticketSearchResults = search.create({ type: 'customrecord_mp_ticket', filter: filterExpression, columns: ticketsColumns });
             }
             return ticketSearchResults;
         }
@@ -2485,6 +2544,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          * - Deployment ID : 'customdeploy_sl_open_ticket'
          */
         function addEditContact() {
+            
             var customer_id = currRec.getValue({ fieldId: 'custpage_customer_id' });
             if (!isNullorEmpty(customer_id)) {
                 var selector_number = currRec.getValue({ fieldId: 'custpage_selector_number' });
@@ -2493,7 +2553,6 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     custid: parseInt(customer_id),
                     selector_number: selector_number,
                     selector_type: selector_type,
-                    customer_number: customer_number,
                     id: 'customscript_sl_open_ticket_2',
                     deploy: 'customdeploy_sl_open_ticket_2'
                 };
@@ -2738,8 +2797,11 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             var template_id = $('#template option:selected').val();
             console.log('template_id : ', template_id);
             try {
-                var templateRecord = record.load({ type: 'customrecord_camp_comm_template', id: template_id });
+                var templateRecord = record.load({ type: 'customrecord_camp_comm_template', id: template_id, isDynamic: true });
                 var template_subject = templateRecord.getValue({ fieldId: 'custrecord_camp_comm_subject' });
+                console.log("templateRecord", templateRecord);
+
+                console.log("tempsubj", template_subject);
             } catch (e) {
                 //if (e instanceof error.SuiteScriptError) {
                     if (e.name == "SSS_MISSING_REQD_ARGUMENT") {
@@ -2750,6 +2812,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
             var customer_id = currRec.getValue({ fieldId: 'custpage_customer_id' });
             var sales_rep = encodeURIComponent(runtime.getCurrentUser().name);
+            console.log($('#send_to'))
             var first_name = $('#send_to').data("firstname");
             console.log(first_name)
             var dear = encodeURIComponent(first_name);
@@ -2768,17 +2831,77 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             console.log('contact_id : ', contact_id);
             var userid = encodeURIComponent(runtime.getCurrentUser().id);
 
-            var url = 'https://1048144.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=395&deploy=1&compid=1048144&h=6d4293eecb3cb3f4353e&rectype=customer&template=';
-            if (runtime.EnvType == "SANDBOX") {
-                var url = 'https://1048144-sb3.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=395&deploy=1&compid=1048144_SB3&h=9c35dc467fbdfafcfeaa&rectype=customer&template=';
-            }
-            url += template_id + '&recid=' + customer_id + '&salesrep=' + sales_rep + '&dear=' + dear + '&contactid=' + contact_id + '&userid=' + userid;
+            // var url = 'https://1048144.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=395&deploy=1&compid=1048144&h=6d4293eecb3cb3f4353e&rectype=customer&template=';
+            // if (runtime.envType == "SANDBOX") {
+            //     var url = 'https://1048144-sb3.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=395&deploy=1&compid=1048144_SB3&h=9c35dc467fbdfafcfeaa&rectype=customer&template=';
+            // }
+            // url += template_id + '&recid=' + customer_id + '&salesrep=' + sales_rep + '&dear=' + dear + '&contactid=' + contact_id + '&userid=' + userid;
 
-            console.log("URL", url);
-            urlCall = http.get({
-                url: url,
+            var suiteletUrl = url.resolveScript({
+                scriptId: 'customscript_merge_email',
+                deploymentId: 'customdeploy_merge_email',
+                returnExternalUrl: true
             });
-            var emailHtml = urlCall.body;
+            console.log('suiteletUrl', suiteletUrl);
+
+            suiteletUrl += '&rectype=customer&template=';
+            //var template_id = 94;
+            // var newLeadEmailTemplateRecord = record.load({
+            //     type: 'customrecord_camp_comm_template',
+            //     id: template_id,
+            //     isDynamic: true
+            // });
+            //var templateSubject = template_subject;
+
+            var emailAttach = new Object();
+            emailAttach['entity'] = customer_id;
+
+ 
+            //https://1048144-sb3.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=395&deploy=1&compid=1048144_SB3&h=9c35dc467fbdfafcfeaa&rectype=customer&template=91&recid=780069&salesrep=Sruti%20Desai&dear=&contactid=&userid=1115209
+            suiteletUrl += template_id + '&recid=' + customer_id + '&salesrep=' + sales_rep + '&dear=' + dear + '&contactid=' + null + '&userid=' + userid;
+            // var headerObj = {
+            //     name: 'Accept-Language',
+            //     value: 'en-us'
+            // };
+
+ 
+
+            console.log('suiteletUrl', suiteletUrl);
+
+
+ 
+
+
+                // var response = https.get({
+                //     url: suiteletUrl,
+                // });
+
+ 
+
+                // var emailHtml = response.body;
+
+
+                
+            var response = https.get({
+                url: suiteletUrl
+            });
+
+
+
+            console.log("response", response);
+
+
+            // console.log("URL", url);
+            // suiteletUrl = http.request({
+            //     method: http.Method.GET,
+            //     url: url,
+            // })
+            // // urlCall = http.get({
+            // //     url: url,
+            // // });
+            // console.log(urlCall);
+            var emailHtml = response.body;
+
             $('#email_body').summernote('code', emailHtml);
 
             var ticket_id = currRec.getValue({ fieldId: 'custpage_ticket_id' });
@@ -2847,7 +2970,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
             var url = "https://1048144.app.netsuite.com/app/site/hosting/scriptlet.nl?script=974&deploy=1&compid=1048144&";
 
-            if (runtime.EnvType == "SANDBOX") {
+            if (runtime.envType == "SANDBOX") {
                 var url = "https://1048144-sb3.app.netsuite.com/app/site/hosting/scriptlet.nl?script=974&deploy=1&compid=1048144_SB3";
             }
 
@@ -3006,7 +3129,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 var attachments_invoice_ids = params_email.attachments_invoice_ids;
 
                 params_email = JSON.stringify(params_email);
-
+                
                 if (!isNullorEmpty(attachments_credit_memo_ids) ||
                     !isNullorEmpty(attachments_usage_report_ids) ||
                     !isNullorEmpty(attachments_invoice_ids)) {
@@ -3158,6 +3281,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          * Set the date of closure, and the status as "Closed".
          */
         function closeTicket() {
+            
             if (confirm("Are you sure you want to close this ticket?\n\nThis action cannot be undone.")) {
                 var date = new Date;
                 var dnow = format.format({ value: date, type: 'datetimetz' });
@@ -3191,6 +3315,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          * Set the date of closure, and the status as "Closed - Lost Item".
          */
         function closeTicketLost() {
+            
             if (confirm("Are you sure you want to close this ticket?\n\nThis action cannot be undone.")) {
                 var date = new Date;
                 var dnow = format.format({ value: date, type: 'datetimetz' });
@@ -3224,6 +3349,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          * Set the date of closure, and the status as "Closed - Unallocated".
          */
         function closeUnallocatedTicket() {
+            
             if (confirm("Are you sure you want to close this ticket?\n\nThis action cannot be undone.")) {
                 var date = new Date;
                 var dnow = format.format({ value: date, type: 'datetimetz' });
@@ -3456,6 +3582,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          * Set the status as "Open".
          */
         function reopenTicket() {
+            
             var ticket_id = currRec.getValue({ fieldId: 'custpage_ticket_id' });
             ticket_id = parseInt(ticket_id);
             var selector_number = currRec.getValue({ fieldId: 'custpage_selector_number' });
@@ -3505,7 +3632,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             var selector_type = currRec.getValue({ fieldId: 'custpage_selector_type' });
             if (selector_type == 'invoice_number') {
                 var selector_id = currRec.getValue({ fieldId: 'custpage_selector_id' });
-                var creditMemoResults = search.create({ type: 'creditmemo', filterExpression: [
+                var creditMemoResults = search.create({ type: 'creditmemo', filter: [
                         search.createFilter({
                             name: 'mainline',
                             operator: 'is',
@@ -3524,7 +3651,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                         search.createColumn({ name: 'internalid', summary: 'group' })
                     ]
                 });
-                return creditMemoResults;
+                return creditMemoResults.run();
             } else {
                 return null;
             }
@@ -3538,13 +3665,15 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          */
         function createCreditMemoRows(status_value) {
             var inline_credit_memo_table_html = '';
-            var compid = (runtime.EnvType == "SANDBOX") ? '1048144_SB3' : '1048144';
-
+            var compid = (runtime.envType == "SANDBOX") ? '1048144_SB3' : '1048144';
+            console.log("sv", status_value);
             var creditMemoResults = searchCreditMemo();
+            
             if (!isNullorEmpty(creditMemoResults)) {
                 $('.credit_memo').removeClass('hide');
 
                 creditMemoResults.forEach(function(creditMemoResult) {
+                    console.log("CMR", creditMemoResult);
                     var credit_memo_number = creditMemoResult.getValue({ name:'tranid', join: null, summary: 'group' });
                     var credit_memo_date = creditMemoResult.getValue({ name:'trandate', join: null, summary: 'group' });
 
@@ -3690,40 +3819,46 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          * @param   {Date}      date
          * @returns {String}    date_string
          */
-        function formatDate(date) {
-
-            function addZero(number) {
-                if (number < 10) {
-                    return '0' + number.toString();
-                } else {
-                    return number.toString();
-                }
-            }
-
-            var day = date.getDate();
-            var month = date.getMonth() + 1;
-            var year = date.getFullYear();
-            var hours = date.getHours();
-            if (hours < 12) {
-                var period = 'am';
-                if (hours == 0) {
-                    hours = '12';
-                }
-            } else {
-                var period = 'pm';
-                if (hours > 12) {
-                    hours -= 12;
-                }
-            }
-            var minutes = date.getMinutes();
-
-            day = addZero(day);
-            month = addZero(month);
-            hours = addZero(hours);
-            minutes = addZero(minutes);
-
-            return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes + ' ' + period;
+         function formatDate(testDate){
+            console.log('testDate: '+testDate);
+            var responseDate=format.format({value:testDate,type:format.Type.DATE});
+            console.log('responseDate: '+responseDate);
+            return responseDate;
         }
+        // function formatDate(date) {
+
+        //     function addZero(number) {
+        //         if (number < 10) {
+        //             return '0' + number.toString();
+        //         } else {
+        //             return number.toString();
+        //         }
+        //     }
+
+        //     var day = date.getDate();
+        //     var month = date.getMonth() + 1;
+        //     var year = date.getFullYear();
+        //     var hours = date.getHours();
+        //     if (hours < 12) {
+        //         var period = 'am';
+        //         if (hours == 0) {
+        //             hours = '12';
+        //         }
+        //     } else {
+        //         var period = 'pm';
+        //         if (hours > 12) {
+        //             hours -= 12;
+        //         }
+        //     }
+        //     var minutes = date.getMinutes();
+
+        //     day = addZero(day);
+        //     month = addZero(month);
+        //     hours = addZero(hours);
+        //     minutes = addZero(minutes);
+
+        //     return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes + ' ' + period;
+        // }
 
         /**
          * Converts the date string in the "invoice_date" table to the format of "date_selected".
@@ -4010,6 +4145,10 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             }
 
             return today;
+        }
+
+        function stringToDate(val) {
+            return format.parse({value:val, type: format.Type.DATE})
         }
 
         function isNullorEmpty(strVal) {
