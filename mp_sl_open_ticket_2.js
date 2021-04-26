@@ -367,71 +367,71 @@
             // Define information window.
             inlineHtml += '<div class="container" hidden><p id="info" class="alert alert-info"></p></div>';
     
-            inlineHtml += tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment);
-            inlineHtml += customerNumberSection(customer_number, ticket_id);
-            inlineHtml += selectorSection(ticket_id, selector_number, selector_id, selector_type, status_value);
+            inlineHtml += tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails);
+            // inlineHtml += customerNumberSection(customer_number, ticket_id);
+            // inlineHtml += selectorSection(ticket_id, selector_number, selector_id, selector_type, status_value);
     
-            if (!isNullorEmpty(ticket_id)) {
+            // if (!isNullorEmpty(ticket_id)) {
                 
                 
-                inlineHtml += ticketSection(dateISOToNetsuite(date_created), creator_id, creator_name, status);
-            }
+            //     inlineHtml += ticketSection(dateISOToNetsuite(date_created), creator_id, creator_name, status);
+            // }
             
-            if (isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && !isNullorEmpty(customer_id)) || !isNullorEmpty(customer_number)) {
-                inlineHtml += customerSection(customer_name);
-                inlineHtml += daytodayContactSection(daytodayphone, daytodayemail, status_value, selector_type);
-                inlineHtml += accountsContactSection(accountsphone, accountsemail, status_value, selector_type);
-            }
+            // if (isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && !isNullorEmpty(customer_id)) || !isNullorEmpty(customer_number)) {
+            //     inlineHtml += customerSection(customer_name);
+            //     inlineHtml += daytodayContactSection(daytodayphone, daytodayemail, status_value, selector_type);
+            //     inlineHtml += accountsContactSection(accountsphone, accountsemail, status_value, selector_type);
+            // }
            
-            if(isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && (selector_type == 'invoice_section'))) {
-                inlineHtml += maapBankAccountSection(maap_bank_account_number, maap_parent_bank_account_number, selector_type);
-            }
+            // if(isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && (selector_type == 'invoice_section'))) {
+            //     inlineHtml += maapBankAccountSection(maap_bank_account_number, maap_parent_bank_account_number, selector_type);
+            // }
             
-            if (isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && !isNullorEmpty(zee_id)) || !isNullorEmpty(customer_number)) {
-                inlineHtml += franchiseeMainContactSection(franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn);
-            }
+            // if (isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && !isNullorEmpty(zee_id)) || !isNullorEmpty(customer_number)) {
+            //     inlineHtml += franchiseeMainContactSection(franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn);
+            // }
     
-            inlineHtml += mpexStockUsedSection(selector_type, date_stock_used, time_stock_used);
-            inlineHtml += finalDeliveryEnquirySection(status_value, selector_type, final_delivery_text, selected_enquiry_status_id);
-            inlineHtml += attachmentsSection(attachments_hyperlink, status_value);
+            // inlineHtml += mpexStockUsedSection(selector_type, date_stock_used, time_stock_used);
+            // inlineHtml += finalDeliveryEnquirySection(status_value, selector_type, final_delivery_text, selected_enquiry_status_id);
+            // inlineHtml += attachmentsSection(attachments_hyperlink, status_value);
     
-            if (isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && (selector_type == 'invoice_number'))) {
-                inlineHtml += otherInvoiceFieldsSection(selected_invoice_method_id, accounts_cc_email, mpex_po_number, customer_po_number, selected_invoice_cycle_id, terms, customer_terms, status_value, selector_type);
-                inlineHtml += openInvoicesSection(ticket_id, selector_type);
-                if (!isNullorEmpty(ticket_id)) {
-                    inlineHtml += creditMemoSection(selector_type);
-                    inlineHtml += usageReportSection(selector_type);
-                }
-            }
+            // if (isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && (selector_type == 'invoice_number'))) {
+            //     inlineHtml += otherInvoiceFieldsSection(selected_invoice_method_id, accounts_cc_email, mpex_po_number, customer_po_number, selected_invoice_cycle_id, terms, customer_terms, status_value, selector_type);
+            //     inlineHtml += openInvoicesSection(ticket_id, selector_type);
+            //     if (!isNullorEmpty(ticket_id)) {
+            //         inlineHtml += creditMemoSection(selector_type);
+            //         inlineHtml += usageReportSection(selector_type);
+            //     }
+            // }
             
-            inlineHtml += mpexContactSection();
-            inlineHtml += enquiryMediumSection(list_enquiry_mediums, selected_enquiry_status_id ,selector_type);
-            inlineHtml += enquiryCountSection(total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count);
-            inlineHtml += labelSection(selected_label_id, selector_type, status_value);
+            // inlineHtml += mpexContactSection();
+            // inlineHtml += enquiryMediumSection(list_enquiry_mediums, selected_enquiry_status_id ,selector_type);
+            // inlineHtml += enquiryCountSection(total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count);
+            // inlineHtml += labelSection(selected_label_id, selector_type, status_value);
     
-            inlineHtml += sendEmailSection(ticket_id, status_value, account_manager,list_toll_emails);
+            // inlineHtml += sendEmailSection(ticket_id, status_value, account_manager,list_toll_emails);
     
-            log.debug({ title: 'before prev email - cust id', details: customer_id });
-            if(!isNullorEmpty(customer_id)){
-                inlineHtml += previousEmailsSection(customer_id);
-            }
+            // log.debug({ title: 'before prev email - cust id', details: customer_id });
+            // if(!isNullorEmpty(customer_id)){
+            //     inlineHtml += previousEmailsSection(customer_id);
+            // }
         
-            inlineHtml += issuesHeader();
+            // inlineHtml += issuesHeader();
         
-            inlineHtml += customerIssuesSection(ticket_id, selector_type, selector_number, screenshot_file, browser, login_email_used, operating_system, phone_used, old_sender_name, old_sender_phone, status_value);
+            // inlineHtml += customerIssuesSection(ticket_id, selector_type, selector_number, screenshot_file, browser, login_email_used, operating_system, phone_used, old_sender_name, old_sender_phone, status_value);
             
-            if(selector_type == "barcode_number" || selector_type == "invoice_number"){
-                inlineHtml += reminderSection(status_value);
-            }
+            // if(selector_type == "barcode_number" || selector_type == "invoice_number"){
+            //     inlineHtml += reminderSection(status_value);
+            // }
     
-            inlineHtml += ownerSection(ticket_id, owner_list, status_value);
-            inlineHtml += tollIssuesSection(list_toll_issues, list_resolved_toll_issues, status_value, selector_type);
-            inlineHtml += mpTicketIssuesSection(list_mp_ticket_issues, list_resolved_mp_ticket_issues, status_value, selector_type);
-            inlineHtml += invoiceIssuesSection(list_invoice_issues, list_resolved_invoice_issues, status_value, selector_type);
-            inlineHtml += usernoteSection(selector_type, status_value);
-            inlineHtml += commentSection(comment, selector_type, status_value);
-            inlineHtml += dataTablePreview();
-            inlineHtml += closeReopenSubmitTicketButton(ticket_id, status_value);
+            // inlineHtml += ownerSection(ticket_id, owner_list, status_value);
+            // inlineHtml += tollIssuesSection(list_toll_issues, list_resolved_toll_issues, status_value, selector_type);
+            // inlineHtml += mpTicketIssuesSection(list_mp_ticket_issues, list_resolved_mp_ticket_issues, status_value, selector_type);
+            // inlineHtml += invoiceIssuesSection(list_invoice_issues, list_resolved_invoice_issues, status_value, selector_type);
+            // inlineHtml += usernoteSection(selector_type, status_value);
+            // inlineHtml += commentSection(comment, selector_type, status_value);
+            // inlineHtml += dataTablePreview();
+            //inlineHtml += closeReopenSubmitTicketButton(ticket_id, status_value);
     
     
     
@@ -500,22 +500,22 @@
             form.addField({ id: 'custpage_ss_image', type: ui.FieldType.TEXT, label: 'Screenshot Image' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = screenshot_file;
             form.addField({ id: 'custpage_customer_number_email_sent', type: ui.FieldType.TEXT, label: 'Customer Email Sent' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = customer_number_email_sent;
 
-            if (!isNullorEmpty(ticket_id)) {
-                if (isTicketNotClosed(status_value)) {
+            // if (!isNullorEmpty(ticket_id)) {
+            //     if (isTicketNotClosed(status_value)) {
                     
-                    form.addSubmitButton({ label: 'Update Ticket' });
-                } else {
-                    form.addSubmitButton({ label: 'Reopen Ticket' });
-                }
-            } else {
-                form.addSubmitButton({ label: 'Open Ticket' });
-                form.addButton({ id: 'custpage_openandnew', label: 'Open & New Ticket', functionName: 'openAndNew()' });
-            }
-            if (isTicketNotClosed(status_value)) {
-                form.addButton({ id: 'custpage_escalate', label: 'Escalate', functionName: 'onEscalate()' });
-            }
+            //         form.addSubmitButton({ label: 'Update Ticket' });
+            //     } else {
+            //         form.addSubmitButton({ label: 'Reopen Ticket' });
+            //     }
+            // } else {
+            //     form.addSubmitButton({ label: 'Open Ticket' });
+            //     form.addButton({ id: 'custpage_openandnew', label: 'Open & New Ticket', functionName: 'openAndNew()' });
+            // }
+            // if (isTicketNotClosed(status_value)) {
+            //     form.addButton({ id: 'custpage_escalate', label: 'Escalate', functionName: 'onEscalate()' });
+            // }
             
-            form.addButton({ id: 'custpage_cancel', label: 'Cancel', functionName: 'onCancel()' });
+            // form.addButton({ id: 'custpage_cancel', label: 'Cancel', functionName: 'onCancel()' });
             form.clientScriptFileId = 4796340;//SB=4796340 PROD=??
             context.response.writePage(form);
             
@@ -656,49 +656,152 @@
     //     width: 40%;
     //   }
      
-     function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment) {
+     function instructionsBox(ticket_id) {
+        //Important Instructions box
+        var inlineHtml = '<br></br>'
+        inlineHtml += '<div></div>';
+        inlineHtml += '<div class="form-group container test_section">';
+        //inlineHtml += '<button type="button" class="btn btn-sm btn-info instruction_button" data-toggle="collapse" data-target="#demo">Click for Instructions</button>';
+        //inlineHtml += '<div id="demo" style="background-color: #cfeefc !important;border: 1px solid #417ed9;padding: 20px 30px 30px 30px;width:96%;position:absolute" class="collapse"><b><u>IMPORTANT INSTRUCTIONS:</u></b>';
+        inlineHtml += '<div style=\"background-color: #e3e8e5 !important;border: 2px solid #379E8F;padding: 20px 30px 30px 30px; text-align: left\"><b><u>Mandatory Fields:</u></b>';
+        inlineHtml += '<ul>';
+        inlineHtml += '<li><b><u>Ticket Details</u></b>: If the frequency of the service is multiple days then separate with a / i.e. Mon/Tue/Wed/Thurs/Fri. </li>';
+        inlineHtml += '<li><b><u>Issues</u></b>: Frequency field can take input of Daily and Adhoc as well</li>';
+        if (isNullorEmpty(ticket_id)) {
+            inlineHtml += '<li><b><u>Contact Details</u></b>: Please only enter in "Customer" or "Non-Customer" in this field </li>';
+        } else {
+            inlineHtml += '<li><b><u>Send Email</u></b>: For a Customer Location please enter all address details in this single field i.e. "379-381 Victoria Street, Wetherill Park, NSW, 2164" </li>';
+        }
+        inlineHtml += '<li><b><u>Previous Tickets</u></b>: For a Non-Customer Location please enter the exact name of the stop i.e. "ARNCLIFFE LPO" </li>';
+        inlineHtml += '<li><b><u>Previous Emails</u></b>: Enter length of time in seconds only i.e. "120", where 120 is equal to 2 minutes </li>';
+        inlineHtml += '<li>If you have any issues, please contact Ankith</li>';
+        inlineHtml += '</ul></div></div><br/>';
+        return inlineHtml;
+     }
+
+
+     function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails) {
         
-        var inlineQty = '<div class="container">';
-    
+        var inlineQty = '<div class="a" style="width: 100%; background-color: #CFE0CE; padding: 20px; min-height: 100vh; height: 100%">';
+        //inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
+        
+        inlineQty += instructionsBox();
         // Tabs headers
-        inlineQty += '<div style="width: 95%; margin-left: 0px; padding-left: 0px; margin-top: 30px;  margin-bottom: 20px"><ul class="nav nav-pills nav-justified">';
+        //inlineQty += '<div style="width: 95%; margin-left: 0px; padding-left: 0px; margin-top: 30px;  margin-bottom: 20px"><ul class="nav nav-pills nav-justified">';
+
+        inlineQty += '<style>.nav > li.active > a, .nav > li.active > a:focus, .nav > li.active > a:hover { background-color: #379E8F; color: #fff }';
+        inlineQty += '.nav > li > a, .nav > li > a:focus, .nav > li > a:hover { margin-left: 5px; margin-right: 5px; border: 2px solid #379E8F; color: #379E8F; }';
+        inlineQty += '</style>';
+        
+        // Ticket details header
+        inlineQty += '<div class="form-group container tickets_details_header_section" style="margin-top: 10px">';
+        inlineQty += '<div class="row">';
+        inlineQty += '<div class="col-xs-12"  >';
+        inlineQty += '<span">';
+        inlineQty += '<ul class="nav nav-pills nav-justified" style="margin:0%; ">';
+
         inlineQty += '<li role="presentation" class="active"><a data-toggle="tab" href="#ticketdetails"><b>TICKET DETAILS</b></a></li>';
-        inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#contactdetails"><b>CONTACT DETAILS</b></a></li>';
         inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#issues"><b>ISSUES</b></a></li>';
+
+        if (!isNullorEmpty(ticket_id)) {
+            inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#sendemail"><b>SEND EMAIL</b></a></li>';
+
+        } else {
+            inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#contactdetails"><b>CONTACT DETAILS</b></a></li>';
+
+        }
+
         inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#prevtickets"><b>PREVIOUS TICKETS</b></a></li>';
 
-        
-        inlineQty += '</ul></div>';
-        
+        if (!isNullorEmpty(ticket_id)) {
+            inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#prevemails"><b>PREVIOUS EMAILS</b></a></li>';
+        }
+
+        //style="background-color: #379E8F"
+        inlineQty += '</ul>';
+        inlineQty += '</span>';
+        inlineQty += '</div></div></div>';
         // Tabs content
         inlineQty += '<div class="tab-content">';
+
+        // TICKET DETAILS TAB
         inlineQty += '<div role="tabpanel" class="tab-pane active" id="ticketdetails">';
         inlineQty += customerNumberSection(customer_number, ticket_id);
         inlineQty += selectorSection(ticket_id, selector_number, selector_id, selector_type, status_value);
-        inlineQty += customerSection(customer_name);
-        inlineQty += daytodayContactSection(daytodayphone, daytodayemail, status_value, selector_type);
-        inlineQty += franchiseeMainContactSection(franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn);
+        if (!isNullorEmpty(ticket_id)) {
+            inlineQty += ticketSection(dateISOToNetsuite(date_created), creator_id, creator_name, status);
+        }
+        if (isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && !isNullorEmpty(customer_id)) || !isNullorEmpty(customer_number)) {
+            inlineQty += customerSection(customer_name);
+            inlineQty += daytodayContactSection(daytodayphone, daytodayemail, status_value, selector_type);
+            inlineQty += accountsContactSection(accountsphone, accountsemail, status_value, selector_type);
+        }
+
+        if(isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && (selector_type == 'invoice_section'))) {
+            inlineQty += maapBankAccountSection(maap_bank_account_number, maap_parent_bank_account_number, selector_type);
+        }
+        
+        if (isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && !isNullorEmpty(zee_id)) || !isNullorEmpty(customer_number)) {
+            inlineQty += franchiseeMainContactSection(franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn);
+        }
+
         inlineQty += mpexStockUsedSection(selector_type, date_stock_used, time_stock_used);
         inlineQty += finalDeliveryEnquirySection(status_value, selector_type, final_delivery_text, selected_enquiry_status_id);
         inlineQty += attachmentsSection(attachments_hyperlink, status_value);
-        inlineQty += 'TEST1';
+        inlineQty += enquiryMediumSection(list_enquiry_mediums, selected_enquiry_status_id, selector_type)
+        inlineQty += enquiryCountSection( total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selector_type);
+        //TICKET LABEL DROPDOWN
+        //inlineQty += labelSection(selected_label_id, selector_type, status_value);
+        inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
         inlineQty += '</div>';
-    
-        inlineQty += '<div role="tabpanel" class="tab-pane" id="contactdetails">';
-        inlineQty += mpexContactSection();
-        inlineQty += '</div>';
-            
+
+        // ISSUES TAB
         inlineQty += '<div role="tabpanel" class="tab-pane" id="issues">';
         inlineQty += issuesHeader();
         inlineQty += reminderSection(status_value);
         inlineQty += ownerSection(ticket_id, owner_list, status_value);
         inlineQty += tollIssuesSection(list_toll_issues, list_resolved_toll_issues, status_value, selector_type);
         inlineQty += commentSection(comment, selector_type, status_value);
+        inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
+
         inlineQty += '</div>';
 
+        // CONTACT / EMAILS
+        if (!isNullorEmpty(ticket_id)) {
+            inlineQty += '<div role="tabpanel" class="tab-pane" id="sendemail">';
+            inlineQty += mpexContactSection();
+            inlineQty += sendEmailSection(ticket_id, status_value, account_manager, list_toll_emails);
+            inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
+
+            inlineQty += '</div>';
+        } else {
+            inlineQty += '<div role="tabpanel" class="tab-pane" id="contactdetails">';
+            inlineQty += mpexContactSection();
+            inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
+
+            inlineQty += '</div>';
+        }
+        
+        // PREV TICKETS TAB
         inlineQty += '<div role="tabpanel" class="tab-pane" id="prevtickets">';
         inlineQty += dataTablePreview();
+        inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
+
         inlineQty += '</div>';
+        
+        // PREV EMAILS TAB
+        if (!isNullorEmpty(ticket_id)) {
+            inlineQty += '<div role="tabpanel" class="tab-pane" id="prevemails">';
+            log.debug({ title: 'before prev email - cust id', details: customer_id });
+            if(!isNullorEmpty(customer_id)){
+                inlineQty += previousEmailsSection(customer_id);
+            }
+            inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
+
+            inlineQty += '</div>';
+        } 
+
+        
 
         inlineQty += '</div></div>';
     
@@ -721,7 +824,7 @@
         var inlineQty = '<div class="form-group container tickets_details_header_section">';
         inlineQty += '<div class="row">';
         inlineQty += '<div class="col-xs-12 heading2"  >';
-        inlineQty += '<h4><span style="background-color: #CFE0CE" class="label label-default col-xs-12">TICKET DETAILS</span></h4>';
+        inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">TICKET DETAILS</span></h4>';
         inlineQty += '</div></div></div>';
 
         // Customer number section
@@ -802,7 +905,7 @@
 
                 // Attach Invoice to email
                 if (isTicketNotClosed(status_value)) {
-                    inlineQty += '<div class="input-group-btn"><button id="add_inv" type="button" class="btn btn-success add_inv" data-inv-id="' + selector_id + '" data-toggle="tooltip" data-placement="right" title="Attach to email">';
+                    inlineQty += '<div class="input-group-btn"><button style="background-color: #379E8F" id="add_inv" type="button" class="btn btn-success add_inv" data-inv-id="' + selector_id + '" data-toggle="tooltip" data-placement="right" title="Attach to email">';
                     inlineQty += '<span class="glyphicon glyphicon-plus"></span>';
                     inlineQty += '</button></div>';
                 }
@@ -967,7 +1070,7 @@
         inlineQty += '<span class="input-group-addon" id="daytodayemail_text">DAY-TO-DAY EMAIL</span>';
         inlineQty += '<input id="daytodayemail" type="email" value="' + daytodayemail + '" class="form-control daytodayemail" ' + disabled + ' />';
         inlineQty += '<div class="input-group-btn">';
-        inlineQty += '<button type="button" class="btn btn-success add_as_recipient" data-email="' + daytodayemail + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
+        inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success add_as_recipient" data-email="' + daytodayemail + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
         inlineQty += '<span class="glyphicon glyphicon-envelope"></span>';
         inlineQty += '</button>';
         inlineQty += '</div>';
@@ -978,7 +1081,7 @@
         inlineQty += '<div class="input-group">';
         inlineQty += '<span class="input-group-addon" id="daytodayphone_text">DAY-TO-DAY PHONE</span>';
         inlineQty += '<input id="daytodayphone" type="tel" value="' + daytodayphone + '" class="form-control daytodayphone" ' + disabled + ' />';
-        inlineQty += '<div class="input-group-btn"><button type="button" class="btn btn-success" id="call_daytoday_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
+        inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #379E8F" class="btn btn-success" id="call_daytoday_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
         inlineQty += '</div></div></div></div>';
 
         return inlineQty;
@@ -1033,7 +1136,7 @@
         inlineQty += '<div class="input-group">';
         inlineQty += '<span class="input-group-addon" id="accountsphone_text">ACCOUNTS PHONE</span>';
         inlineQty += '<input id="accountsphone" type="tel" value="' + accountsphone + '" class="form-control accountsphone" ' + disabled + ' />';
-        inlineQty += '<div class="input-group-btn"><button type="button" class="btn btn-success" id="call_accounts_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
+        inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #379E8F" class="btn btn-success" id="call_accounts_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
         inlineQty += '</div></div></div></div>';
 
         return inlineQty;
@@ -1130,7 +1233,7 @@
         inlineQty += '<input id="zee_email" type="email" value="' + zee_email + '" class="form-control accountsemail" disabled />';
         inlineQty += '<div class="input-group-btn">';
         var zee_contact_id = '0';
-        inlineQty += '<button type="button" class="btn btn-success add_as_recipient" data-email="' + zee_email + '" data-contact-id="' + zee_contact_id + '" data-firstname="' + franchisee_name + '" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
+        inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success add_as_recipient" data-email="' + zee_email + '" data-contact-id="' + zee_contact_id + '" data-firstname="' + franchisee_name + '" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
         inlineQty += '<span class="glyphicon glyphicon-envelope"></span>';
         inlineQty += '</button>';
         inlineQty += '</div>';
@@ -1144,7 +1247,7 @@
         inlineQty += '<div class="input-group">'
         inlineQty += '<span class="input-group-addon" id="zee_main_contact_phone_text">FRANCHISEE PHONE</span>';
         inlineQty += '<input id="zee_main_contact_phone" type="tel" value="' + zee_main_contact_phone + '" class="form-control zee_main_contact_phone" disabled />';
-        inlineQty += '<div class="input-group-btn"><button type="button" class="btn btn-success" id="call_zee_main_contact_phone"><span class="glyphicon glyphicon-earphone"></span></button>';
+        inlineQty += '<div class="input-group-btn"><button style="background-color: #379E8F" type="button" class="btn btn-success" id="call_zee_main_contact_phone"><span class="glyphicon glyphicon-earphone"></span></button>';
         inlineQty += '</div>';
         inlineQty += '</div></div>';
 
@@ -1304,14 +1407,14 @@
 
 
         //Ticket Enquiry Header
-        var inlineQty = '<div class="form-group container ticket_enquiry_header_section">';
-        inlineQty += '<div class="row">';
-        inlineQty += '<div class="col-xs-12 heading2">';
-        inlineQty += '<h4><span class="label label-default col-xs-12">TICKET ENQUIRY DETAILS</span></h4>';
-        inlineQty += '</div></div></div>';
+        // var inlineQty = '<div class="form-group container ticket_enquiry_header_section">';
+        // inlineQty += '<div class="row">';
+        // inlineQty += '<div class="col-xs-12 heading2">';
+        // inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">TICKET ENQUIRY DETAILS</span></h4>';
+        // inlineQty += '</div></div></div>';
 
         //Enquiry Medium HTML
-        inlineQty += '<div class="form-group container enquiry_medium_section">';
+        var inlineQty = '<div class="form-group container enquiry_medium_section">';
         inlineQty += '<div class="row">';
 
         inlineQty += '<div class="col-xs-6 enquiry_medium_div">';
@@ -1363,6 +1466,7 @@
             } else {
                 inlineQty += '<option value="' + enquiry_status_id + '">' + enquiry_status_name + '</option>';
             }
+            return true;
         });
         inlineQty += '</select>';
         inlineQty += '</div></div></div></div>';
@@ -1404,7 +1508,7 @@
         inlineQty += '<span class="input-group-addon" id="enquiry_count_by_chat_text"> CHAT ENQUIRY </span>';
         inlineQty += '<input id="enquiry_count_by_chat" value="' + chat_enquiry_count + '" class="form-control enquiry_count_by_chat" disabled>';
         inlineQty += '<div class="input-group-btn">';
-        inlineQty += '<button type="button" class="btn btn-success increment_enquiry_count_by_chat" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Chat Enquiry Count">';
+        inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success increment_enquiry_count_by_chat" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Chat Enquiry Count">';
         inlineQty += '<span class="glyphicon glyphicon-plus"></span>';
         inlineQty += '</button>';
         inlineQty += '<button type="button" class="btn btn-danger decrement_enquiry_count_by_chat" data-firstname="" data-toggle="tooltip" data-placement="right" title="Decrement Chat Enquiry Count">';
@@ -1417,7 +1521,7 @@
         inlineQty += '<span class="input-group-addon" id="enquiry_count_by_phone_text"> PHONE ENQUIRY </span>';
         inlineQty += '<input id="enquiry_count_by_phone" value="' + phone_enquiry_count + '" class="form-control enquiry_count_by_phone" disabled>';
         inlineQty += '<div class="input-group-btn">';
-        inlineQty += '<button type="button" class="btn btn-success increment_enquiry_count_by_phone" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Phone Enquiry Count">';
+        inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success increment_enquiry_count_by_phone" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Phone Enquiry Count">';
         inlineQty += '<span class="glyphicon glyphicon-plus"></span>';
         inlineQty += '</button>';
         inlineQty += '<button type="button" class="btn btn-danger decrement_enquiry_count_by_phone" data-firstname="" data-toggle="tooltip" data-placement="right" title="Decrement Phone Enquiry Count">';
@@ -1430,7 +1534,7 @@
         inlineQty += '<span class="input-group-addon" id="enquiry_count_by_email_text"> EMAIL ENQUIRY </span>';
         inlineQty += '<input id="enquiry_count_by_email" value="' + email_enquiry_count + '" class="form-control enquiry_count_by_email" disabled>';
         inlineQty += '<div class="input-group-btn">';
-        inlineQty += '<button type="button" class="btn btn-success increment_enquiry_count_by_email" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Email Enquiry Count">';
+        inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success increment_enquiry_count_by_email" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Email Enquiry Count">';
         inlineQty += '<span class="glyphicon glyphicon-plus"></span>';
         inlineQty += '</button>';
         inlineQty += '<button type="button" class="btn btn-danger decrement_enquiry_count_by_email" data-firstname="" data-toggle="tooltip" data-placement="right" title="Decrement Email Enquiry Count">';
@@ -1520,7 +1624,7 @@
         inlineQty += '<span class="input-group-addon" id="accounts_cc_email_text">ACCOUNTS CC EMAIL</span>';
         inlineQty += '<input id="accounts_cc_email" type="email" value="' + accounts_cc_email + '" class="form-control accounts_cc_email"  ' + disabled + '/>';
         inlineQty += '<div class="input-group-btn">';
-        inlineQty += '<button type="button" class="btn btn-success add_as_recipient" data-email="' + accounts_cc_email + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
+        inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success add_as_recipient" data-email="' + accounts_cc_email + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
         inlineQty += '<span class="glyphicon glyphicon-envelope"></span>';
         inlineQty += '</button>';
         inlineQty += '</div>';
@@ -1686,7 +1790,7 @@
         var inlineQty = '<div class="form-group container mpex_contact_section">';
         inlineQty += '<div class="row">';
         inlineQty += '<div class="col-xs-12 heading2">';
-        inlineQty += '<h4><span class="label label-default col-xs-12">CONTACT DETAILS</span></h4>';
+        inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">CONTACT DETAILS</span></h4>';
         inlineQty += '</div>';
         inlineQty += '</div></div>';
 
@@ -1704,7 +1808,7 @@
         inlineQty += '<div class="form-group container reviewcontacts_section">';
         inlineQty += '<div class="row">';
         inlineQty += '<div class="col-xs-4 col-xs-offset-4 reviewcontacts">';
-        inlineQty += '<input type="button" value="ADD/EDIT CONTACTS" class="form-control btn btn-primary" id="reviewcontacts" />';
+        inlineQty += '<input type="button" style="background-color: #379E8F; border-color: #379E8F; font-weight: 700" value="ADD/EDIT CONTACTS" class="form-control btn btn-primary" id="reviewcontacts" />';
         inlineQty += '</div></div></div>';
 
         return inlineQty;
@@ -1836,14 +1940,15 @@
         } else {
             var inlineQty = '<div id="send_email_container" class="send_email">';
         }
-        inlineQty += '<div class="form-group container send_email header_section">';
+        // inlineQty += '<div class="form-group container send_email header_section">';
 
-        // Send email header
-        inlineQty += '<div class="row">';
-        inlineQty += '<div class="col-xs-12 heading2">';
-        inlineQty += '<h4><span class="label label-default col-xs-12">SEND EMAILS</span></h4>';
-        inlineQty += '</div></div></div>';
+        // // Send email header
+        // inlineQty += '<div class="row">';
+        // inlineQty += '<div class="col-xs-12 heading2">';
+        // inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">SEND EMAILS</span></h4>';
+        // inlineQty += '</div></div></div>';
 
+        inlineQty += '<br></br>'
         // Row addressees
         inlineQty += '<div class="form-group container send_email adressees_section">';
         inlineQty += '<div class="row">';
@@ -1922,7 +2027,7 @@
             inlineQty += '<input id="acc_manager" class="form-control" data-email="' + account_manager.email.email + '" value="' + account_manager.name + ' - ' + account_manager.email.email + '" disabled/>';
             inlineQty += '</div></div>';
             inlineQty += '<div class="col-xs-2 acc_manager_button_section">';
-            inlineQty += '<button id="acc_manager_button" type="button" class="btn btn-success btn-block">ADD TO CC</button>';
+            inlineQty += '<button id="acc_manager_button" style="background-color: #379E8F; border-color: #379E8F" type="button" class="btn btn-success btn-block">ADD TO CC</button>';
             inlineQty += '</div></div></div>';
         }
 
@@ -1974,7 +2079,7 @@
         inlineQty += '<div class="form-group container send_email button_section">';
         inlineQty += '<div class="row">';
         inlineQty += '<div class="col-xs-4 col-xs-offset-4 send_email_btn">';
-        inlineQty += '<input type="button" value="SEND EMAIL" class="form-control btn btn-primary" id="send_email" />';
+        inlineQty += '<input type="button" style="background-color: #379E8F; border-color: #379E8F; font-weight: 700" value="SEND EMAIL" class="form-control btn btn-primary" id="send_email" />';
         inlineQty += '</div></div></div></div>';
 
         return inlineQty;
@@ -1997,7 +2102,7 @@
         var inlineQty = '<div class="form-group container previous_emails_header">';
         inlineQty += '<div class="row">';
         inlineQty += '<div class="col-xs-12 heading2">';
-        inlineQty += '<h4><span class="label label-default col-xs-12">PREVIOUS EMAILS</span></h4>';
+        inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">PREVIOUS EMAILS</span></h4>';
         inlineQty += '</div></div></div>';
 
 
@@ -2009,10 +2114,23 @@
         var allEmails = resultEmailSet.getRange({ start: 0, end: 1000 });
 
         //Previous Emails table setup
-        inlineQty += '<style> table {font-size: 12px;text-align: center;border: none;} {font-size: 14px;} table th{text-align: center;} .dataTables_wrapper{width:78%; margin:auto;} </style>';
-        inlineQty += '<div class="form-group container previous_emails_section">';
+        // inlineQty += '<style> table {font-size: 12px;text-align: center;border: none;} {font-size: 14px;} table th{text-align: center;} .dataTables_wrapper{width:78%; margin:auto;} </style>';
+        // inlineQty += '<div class="form-group container previous_emails_section">';
+        // inlineQty += '<table cellpadding="15" id="emails-preview" class="table table-responsive table-striped customer tablesorter" cellspacing="0" style="width: 100%;">';
+        // inlineQty += '<thead style="color: white;background-color: #CFE0CE;">';
+        // inlineQty += '<tr class="text-center">';
+        // inlineQty += '<th scope="col">Message Date</th>';
+        // inlineQty += '<th scope="col">Author</th>';
+        // inlineQty += '<th scope="col">Receipients</th>';
+        // inlineQty += '<th scope="col">Subject</th>';
+        // inlineQty += '<th scope="col">More</th>';
+        // inlineQty += '</tr>';
+        // inlineQty += '</thead>';
+        // inlineQty += '<tbody>';
+
+        inlineQty += '<style>table#emails-preview {font-size: 12px;text-align: center;border: none; background-color: #379E8F}.dataTables_wrapper {font-size: 12px;}table#emails-preview th{background-color: #379E8F; text-align: center;}</style>';
         inlineQty += '<table cellpadding="15" id="emails-preview" class="table table-responsive table-striped customer tablesorter" cellspacing="0" style="width: 100%;">';
-        inlineQty += '<thead style="color: white;background-color: #607799;">';
+        inlineQty += '<thead style="color: white;background-color: #379E8F;">';
         inlineQty += '<tr class="text-center">';
         inlineQty += '<th scope="col">Message Date</th>';
         inlineQty += '<th scope="col">Author</th>';
@@ -2044,7 +2162,7 @@
 
         inlineQty += '</tbody>';
         inlineQty += '</table>';
-        inlineQty += '</div>';
+        //inlineQty += '</div>';
 
         return inlineQty;
     }
@@ -2057,7 +2175,7 @@
         var inlineQty = '<div class="form-group container toll_issues_header_section">';
         inlineQty += '<div class="row">';
         inlineQty += '<div class="col-xs-12 heading1">';
-        inlineQty += '<h4><span class="form-group label label-default col-xs-12">ISSUES</span></h4>';
+        inlineQty += '<h4><span style="background-color: #379E8F" class="form-group label label-default col-xs-12">ISSUES</span></h4>';
         inlineQty += '</div></div></div>';
         return inlineQty;
     }
@@ -2324,6 +2442,7 @@
             } else {
                 inlineQty += '<option value="' + issue_id + '">' + issue_name + '</option>';
             }
+            return true;
         });
 
         inlineQty += '</select>';
@@ -2631,9 +2750,9 @@
         var inlineQty = '<div class="form-group container tickets_datatable_section">';
         inlineQty += '<div class="row">';
         inlineQty += '<div class="col-xs-12 heading2">';
-        inlineQty += '<h4><span class="label label-default col-xs-12">PREVIOUS TICKETS</span></h4>';
+        inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">PREVIOUS TICKETS</span></h4>';
         inlineQty += '</div></div></div>';
-        inlineQty += '<style>table#tickets-preview {font-size: 12px;text-align: center;border: none;}.dataTables_wrapper {font-size: 14px;}table#tickets-preview th{text-align: center;}</style>';
+        inlineQty += '<style>table#tickets-preview {font-size: 12px;text-align: center;border: none; background-color: #379E8F}.dataTables_wrapper {font-size: 12px;}table#tickets-preview th{background-color: #379E8F; text-align: center;}</style>';
         inlineQty += '<table cellpadding="15" id="tickets-preview" class="table table-responsive table-striped customer tablesorter" cellspacing="0" style="width: 100%;">';
         inlineQty += '<thead style="color: white;background-color: #607799;">';
         inlineQty += '<tr class="text-center">';
@@ -2643,6 +2762,8 @@
         inlineQty += '<tbody id="result_tickets"></tbody>';
 
         inlineQty += '</table>';
+
+        
         return inlineQty;
     }
 
@@ -2657,42 +2778,53 @@
         var inlineQty = '<div class="form-group container close_reopen_submit_ticket_section">';
         inlineQty += '<div class="row">';
 
+        log.debug({
+            title: 'status_value',
+            details: status_value
+        });
+
+        log.debug({
+            title: 'ticket_id',
+            details: ticket_id
+        });
         if (isTicketNotClosed(status_value)) {
             if (!isNullorEmpty(ticket_id)) {
-                inlineQty += '<div class="col-xs-4 close_ticket">';
-                inlineQty += '<input type="button" value="CLOSE TICKET" class="form-control btn btn-danger" id="close_ticket" onclick="closeTicket()"/>';
+                inlineQty += '<div class="col-xs-2 close_ticket">';
+                inlineQty += '<input type="button" value="CLOSE TICKET" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" class="form-control btn btn-default" id="close_ticket" onclick="closeTicket()"/>';
                 inlineQty += '</div>';
-                inlineQty += '<div class="col-xs-4 close_ticket_lost">';
-                inlineQty += '<input type="button" value="CLOSE TICKET - LOST ITEM" class="form-control btn btn-danger" id="close_ticket_lost" onclick="closeTicketLost()"/>';
+                inlineQty += '<div class="col-xs-3 close_ticket_lost">';
+                inlineQty += '<input type="button" value="CLOSE TICKET - LOST ITEM" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" class="form-control btn btn-default" id="close_ticket_lost" onclick="closeTicketLost()"/>';
                 inlineQty += '</div>';
                 if (userId == 409635 || userId == 696992 || userId == 766498) {
-                    inlineQty += '<div class="col-xs-4 close_unallocated_ticket hide">';
-                    inlineQty += '<input type="button" value="CLOSE UNALLOCATED TICKET" class="form-control btn btn-danger" id="close_unallocated_ticket" onclick="closeUnallocatedTicket()" />';
+                    inlineQty += '<div class="col-xs-3 close_unallocated_ticket hide">';
+                    inlineQty += '<input type="button" value="CLOSE UNALLOCATED TICKET" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" class="form-control btn btn-default" id="close_unallocated_ticket" onclick="closeUnallocatedTicket()" />';
                     inlineQty += '</div>';
                 }
             }
 
-            inlineQty += '<div class="col-xs-4 submitter">';
-            inlineQty += '<input type="button" value="" class="form-control btn btn-primary" id="submit_ticket" />';
+            inlineQty += '<div class="col-xs-2 submitter">';
+            inlineQty += '<input type="button" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" value="UPDATE TICKET" class="form-control btn btn-primary" id="submit_ticket" />';
             inlineQty += '</div>';
 
             if (isNullorEmpty(ticket_id)) {
                 inlineQty += '<div class="col-xs-3 open_and_new_ticket_btn">';
-                inlineQty += '<input type="button" value="OPEN AND NEW TICKET" class="form-control btn btn-primary" id="open_and_new_ticket_btn" />';
+                inlineQty += '<input type="button" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" value="OPEN AND NEW TICKET" class="form-control btn btn-primary" id="open_and_new_ticket_btn" />';
                 inlineQty += '</div>';
             }
-
-            inlineQty += '<div class="col-xs-3 escalate">';
-            inlineQty += '<input type="button" value="ESCALATE" class="form-control btn btn-default" id="escalate" onclick="onEscalate()"/>';
+            inlineQty += '<style>.escalate:hover {box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19)}</style>';
+            inlineQty += '<div class="col-xs-2 escalate">';
+            inlineQty += '<input type="button" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" value="ESCALATE" class="form-control btn btn-default" id="escalate" onclick="onEscalate()"/>';
             inlineQty += '</div>';
+            
+            
 
         } else {
-            inlineQty += '<div class="col-xs-3 col-xs-offset-2 reopen_ticket">';
-            inlineQty += '<input type="button" value="REOPEN TICKET" class="form-control btn btn-primary" id="reopen_ticket" />';
+            inlineQty += '<div class="col-xs-2 col-xs-offset-2 reopen_ticket">';
+            inlineQty += '<input type="button" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" value="REOPEN TICKET" class="form-control btn btn-primary" id="reopen_ticket" />';
             inlineQty += '</div>';
         }
-        inlineQty += '<div class="col-xs-3 cancel">';
-        inlineQty += '<input type="button" value="CANCEL" class="form-control btn btn-default" id="cancel" onclick="onCancel()"/>';
+        inlineQty += '<div class="col-xs-2 cancel">';
+        inlineQty += '<input type="button" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" value="CANCEL" class="form-control btn btn-default" id="cancel" onclick="onCancel()"/>';
         inlineQty += '</div>';
 
         inlineQty += '</div></div>';

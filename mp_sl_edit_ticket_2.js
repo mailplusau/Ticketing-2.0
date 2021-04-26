@@ -73,10 +73,11 @@
              // Define information window.
              inlineHtml += '<div class="container" hidden><p id="info" class="alert alert-info"></p></div>';
  
+             inlineHtml += '<div style="background-color: #CFE0CE; min-height: 100vh"><br/>';
              //inlineHtml += dataTablePreview('test');
              inlineHtml += dateCreatedSection();
              inlineHtml += tabsSection(parseInt(role));
- 
+             inlineHtml += '</div>'
              form.addField({
                  id: 'preview_table',
                  type: ui.FieldType.INLINEHTML,
@@ -197,7 +198,11 @@
          var inlineQty = '<div >';
      
          // Tabs headers
-         inlineQty += '<div style="width: 95%; margin-left: 0px; padding-left: 0px; margin-bottom: 30px"><ul class="nav nav-pills nav-justified">';
+         inlineQty += '<style>.nav > li.active > a, .nav > li.active > a:focus, .nav > li.active > a:hover { background-color: #379E8F; color: #fff }';
+        inlineQty += '.nav > li > a, .nav > li > a:focus, .nav > li > a:hover { margin-left: 5px; margin-right: 5px; border: 2px solid #379E8F; color: #379E8F; }';
+        inlineQty += '</style>';
+
+         inlineQty += '<div style="width: 95%; margin:auto; margin-bottom: 30px"><ul class="nav nav-pills nav-justified" style="margin:0%; ">';
          if (isFinanceRole(userRole)) {
              inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#barcodes"><b>BARCODES</b></a></li>';
              inlineQty += '<li role="presentation" class="active"><a data-toggle="tab" href="#invoices"><b>INVOICES</b></a></li>';
@@ -259,9 +264,10 @@
       * @return  {String}    inlineQty
       */
       function dataTablePreview(selector) {
-         var inlineQty = '<style>table#tickets-preview-' + selector + ' {font-size: 12px;text-align: center;border: none;}.dataTables_wrapper {font-size: 14px;}table#tickets-preview-' + selector + ' th{text-align: center;} .bolded{font-weight: bold;}</style>';
-         inlineQty += '<table id="tickets-preview-' + selector + '" class="table table-responsive table-striped customer tablesorter" style="width: 100%; table-layout: fixed">';
-         inlineQty += '<thead style="color: white;background-color: #607799;">';
+         var inlineQty = '<style>table#tickets-preview-' + selector + ' {font-size: 12px;text-align: center;border: none;}.dataTables_wrapper {font-size: 14px; }table#tickets-preview-' + selector + ' th{text-align: center;} .bolded{font-weight: bold;}</style>';
+         inlineQty += '<div style="width: 95%; margin: auto">';
+         inlineQty += '<table id="tickets-preview-' + selector + '" class="table table-responsive table-striped customer tablesorter" style="table-layout: fixed">';
+         inlineQty += '<thead style="color: white;background-color: #379E8F;">';
          inlineQty += '<tr class="text-center">';
          inlineQty += '</tr>';
          inlineQty += '</thead>';
@@ -269,6 +275,7 @@
          inlineQty += '<tbody id="result_tickets_' + selector + '"></tbody>';
  
          inlineQty += '</table>';
+         inlineQty += '</div>'
          return inlineQty;
      }
  

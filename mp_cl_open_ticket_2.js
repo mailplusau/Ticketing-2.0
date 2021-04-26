@@ -147,11 +147,11 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
             // The inline html of the <table> tag is not correctly displayed inside div.col-xs-12.contacts_div when added with Suitelet.
             // Hence, the html code is added using jQuery when the page loads.
-            var inline_html_contact_table = '<table cellpadding="15" id="contacts" class="table table-responsive table-striped contacts tablesorter" cellspacing="0" style="width: 100%;border: 0"><thead style="color: white;background-color: #607799;"><tr><th style="vertical-align: middle;text-align: center;" id="col_name"><b>NAME</b></th><th style="vertical-align: middle;text-align: center;" id="col_phone"><b>PHONE</b></th><th style="vertical-align: middle;text-align: center;" id="col_email"><b>EMAIL</b></th><th style="vertical-align: middle;text-align: center;" id="col_role"><b>ROLE</b></th><th style="vertical-align: middle;text-align: center;" id="col_add_as_recipient"><b>ADD AS RECIPIENT</b></th></tr></thead><tbody></tbody></table>';
+            var inline_html_contact_table = '<table cellpadding="15" id="contacts" class="table table-responsive table-striped contacts tablesorter" cellspacing="0" style="width: 100%;border: 0"><thead style="color: white;background-color: #379E8F;"><tr><th style="vertical-align: middle;text-align: center;" id="col_name"><b>NAME</b></th><th style="vertical-align: middle;text-align: center;" id="col_phone"><b>PHONE</b></th><th style="vertical-align: middle;text-align: center;" id="col_email"><b>EMAIL</b></th><th style="vertical-align: middle;text-align: center;" id="col_role"><b>ROLE</b></th><th style="vertical-align: middle;text-align: center;" id="col_add_as_recipient"><b>ADD AS RECIPIENT</b></th></tr></thead><tbody></tbody></table>';
             $('div.col-xs-12.contacts_div').html(inline_html_contact_table);
 
             // Like the contacts table, the html code of the usernote table is added using jQuery when the page loads.
-            var inline_html_usernote_table = '<table cellpadding="15" id="user_note" class="table table-responsive table-striped contacts tablesorter" cellspacing="0" style="width: 100%;border: 0"><thead style="color: white;background-color: #607799;"><tr><th style="vertical-align: middle;text-align: center;" id="usernote_title"><b>TITLE</b></th><th style="vertical-align: middle;text-align: center;" id="usernote_name"><b>NAME</b></th><th style="vertical-align: middle;text-align: center;" id="usernote_date"><b>DATE</b></th><th style="vertical-align: middle;text-align: center;" id="usernote_comment"><b>USER NOTE</b></th></tr></thead><tbody></tbody></table>';
+            var inline_html_usernote_table = '<table cellpadding="15" id="user_note" class="table table-responsive table-striped contacts tablesorter" cellspacing="0" style="width: 100%;border: 0"><thead style="color: white;background-color: #379E8F;"><tr><th style="vertical-align: middle;text-align: center;" id="usernote_title"><b>TITLE</b></th><th style="vertical-align: middle;text-align: center;" id="usernote_name"><b>NAME</b></th><th style="vertical-align: middle;text-align: center;" id="usernote_date"><b>DATE</b></th><th style="vertical-align: middle;text-align: center;" id="usernote_comment"><b>USER NOTE</b></th></tr></thead><tbody></tbody></table>';
             $('div.col-xs-12.user_note_div').html(inline_html_usernote_table);
 
 
@@ -165,8 +165,8 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             }
 
             // The value of the submitter button at the bottom of the page is directly linked to the value of the button at the top.
-            var submit_btn_val = $('#submitter').val().toUpperCase();
-            $('#submit_ticket').val(submit_btn_val);
+            // var submit_btn_val = $('#submitter').val().toUpperCase();
+            // $('#submit_ticket').val(submit_btn_val);
 
             if (!isNullorEmpty(selector_number)) {
                 console.log('!isNullorEmpty(selector_number) : ', !isNullorEmpty(selector_number));
@@ -959,7 +959,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
             }
             // Save Owner list
-            ticketRecord.setValues({ fieldId: 'custrecord_owner value:', value: owner_list });
+            ticketRecord.setValue({ fieldId: 'custrecord_owner value:', value: owner_list });
 
             // Save Comment
             switch (selector_type) {
@@ -1018,7 +1018,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 try {
                     var barcodeRecord = record.load({ type: 'customrecord_customer_product_stock', id: selector_id });
                     barcodeRecord.setValue({ fieldId: 'custrecord_mp_ticket', value: ticket_id} );
-                    barcodeRecord.setValues({ fieldId: 'custrecord_cust_prod_stock_toll_issues ', value: list_toll_issues });
+                    barcodeRecord.setValue({ fieldId: 'custrecord_cust_prod_stock_toll_issues ', value: list_toll_issues });
                     barcodeRecord.save({
                         enableSourcing: true,
                     });
@@ -1370,7 +1370,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 }
             }
 
-            ticketRecord.setValues({ fieldId: 'custrecord_enquiry_medium', value: medium_list });
+            ticketRecord.setValue({ fieldId: 'custrecord_enquiry_medium', value: medium_list });
 
         }
 
@@ -1380,6 +1380,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          * Reorganize the shown sections.
          */
         function onEscalate() {
+            console.log("onesc");
             var currRec = currentRecord.get();
             currRec.setValue({ fieldId: 'custpage_selector_issue', value: 'T' });
 
@@ -1620,6 +1621,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          * Redirect to the "View MP Tickets" page without saving any changes.
          */
         function onCancel() {
+            console.log("cancel");
             var status_value = currRec.getValue({ fieldId: 'custpage_ticket_status_value' });
             
             if (isTicketNotClosed(status_value)) {
@@ -2374,46 +2376,46 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 }
             }
 
-            // ticketSearchResults.run().each(function(ticketResult) {
-            //     switch (selector_type) {
-            //         case 'barcode_number':
-            //             var ticket_id = ticketResult.getValue('name');
-            //             var date_created = ticketResult.getValue('created');
-            //             var date_closed = ticketResult.getValue('custrecord_date_closed');
-            //             var barcode_number = ticketResult.getText('custrecord_barcode_number');
-            //             var status = ticketResult.getText('custrecord_ticket_status');
-            //             var toll_issues = ticketResult.getText('custrecord_toll_issues');
-            //             toll_issues = toll_issues.split(',').join('<br>');
-            //             var resolved_toll_issues = ticketResult.getText('custrecord_resolved_toll_issues');
-            //             resolved_toll_issues = resolved_toll_issues.split(',').join('<br>');
-            //             var comment = ticketResult.getValue('custrecord_comment');
+            ticketSearchResults.run().each(function(ticketResult) {
+                switch (selector_type) {
+                    case 'barcode_number':
+                        var ticket_id = ticketResult.getValue('name');
+                        var date_created = ticketResult.getValue('created');
+                        var date_closed = ticketResult.getValue('custrecord_date_closed');
+                        var barcode_number = ticketResult.getText('custrecord_barcode_number');
+                        var status = ticketResult.getText('custrecord_ticket_status');
+                        var toll_issues = ticketResult.getText('custrecord_toll_issues');
+                        toll_issues = toll_issues.split(',').join('<br>');
+                        var resolved_toll_issues = ticketResult.getText('custrecord_resolved_toll_issues');
+                        resolved_toll_issues = resolved_toll_issues.split(',').join('<br>');
+                        var comment = ticketResult.getValue('custrecord_comment');
 
-            //             ticketsDataSet.push([ticket_id, date_created, date_closed, barcode_number, status, toll_issues, resolved_toll_issues, comment]);
+                        ticketsDataSet.push([ticket_id, date_created, date_closed, barcode_number, status, toll_issues, resolved_toll_issues, comment]);
 
-            //             break;
+                        break;
 
-            //         case 'invoice_number':
-            //             var ticket_id = ticketResult.getValue('name');
-            //             var date_created = ticketResult.getValue('created');
-            //             var date_closed = ticketResult.getValue('custrecord_date_closed');
-            //             var re = /Invoice #([\w]+)/;
-            //             var invoice_number = ticketResult.getText('custrecord_invoice_number');
-            //             invoice_number = invoice_number.replace(re, '$1');
-            //             var status = ticketResult.getText('custrecord_ticket_status');
-            //             var invoice_issues = ticketResult.getText('custrecord_invoice_issues');
-            //             invoice_issues = invoice_issues.split(',').join('<br>');
-            //             var resolved_invoice_issues = ticketResult.getText('custrecord_resolved_invoice_issues');
-            //             resolved_invoice_issues = resolved_invoice_issues.split(',').join('<br>');
-            //             var comment = ticketResult.getValue('custrecord_comment');
-            //             comment = comment.split('\n').join('<br>');
+                    case 'invoice_number':
+                        var ticket_id = ticketResult.getValue('name');
+                        var date_created = ticketResult.getValue('created');
+                        var date_closed = ticketResult.getValue('custrecord_date_closed');
+                        var re = /Invoice #([\w]+)/;
+                        var invoice_number = ticketResult.getText('custrecord_invoice_number');
+                        invoice_number = invoice_number.replace(re, '$1');
+                        var status = ticketResult.getText('custrecord_ticket_status');
+                        var invoice_issues = ticketResult.getText('custrecord_invoice_issues');
+                        invoice_issues = invoice_issues.split(',').join('<br>');
+                        var resolved_invoice_issues = ticketResult.getText('custrecord_resolved_invoice_issues');
+                        resolved_invoice_issues = resolved_invoice_issues.split(',').join('<br>');
+                        var comment = ticketResult.getValue('custrecord_comment');
+                        comment = comment.split('\n').join('<br>');
 
-            //             ticketsDataSet.push([ticket_id, date_created, date_closed, invoice_number, status, invoice_issues, resolved_invoice_issues, comment]);
+                        ticketsDataSet.push([ticket_id, date_created, date_closed, invoice_number, status, invoice_issues, resolved_invoice_issues, comment]);
 
-            //             break;
-            //     }
+                        break;
+                }
 
-            //     //return true;
-            // });
+                return true;
+            });
 
             // Update datatable rows.
             var datatable = $('#tickets-preview').dataTable().api();
@@ -2642,7 +2644,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     var contact_phone = contactResult.getValue('phone');
                     var contact_role_value = contactResult.getValue('contactrole');
                     var contact_role_text = contactResult.getText('contactrole');
-                    var add_as_recipient_btn = '<button class="btn btn-success add_as_recipient glyphicon glyphicon-envelope" type="button" data-email="' + contact_email + '" data-firstname="' + first_name + '" data-contact-id="' + contact_id + '" data-toggle="tooltip" data-placement="right" title="Add as recipient"></button>';
+                    var add_as_recipient_btn = '<button style="background-color: #379E8F; border-color: #379E8F" class="btn btn-success add_as_recipient glyphicon glyphicon-envelope" type="button" data-email="' + contact_email + '" data-firstname="' + first_name + '" data-contact-id="' + contact_id + '" data-toggle="tooltip" data-placement="right" title="Add as recipient"></button>';
 
                     inline_contacts_table_html += '<tr class="text-center">';
                     inline_contacts_table_html += '<td headers="col_name">' + contact_name + '</td>';
@@ -3498,10 +3500,10 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                                     list_resolved_toll_issues.push(old_toll_issue);
                                 }
                             });
-                            ticketRecord.setValues({ fieldId: 'custrecord_resolved_toll_issues', value: list_resolved_toll_issues });
+                            ticketRecord.setValue({ fieldId: 'custrecord_resolved_toll_issues', value: list_resolved_toll_issues });
                         }
                     }
-                    ticketRecord.setValues({ fieldId: 'custrecord_toll_issues', value: list_toll_issues });
+                    ticketRecord.setValue({ fieldId: 'custrecord_toll_issues', value: list_toll_issues });
 
                     break;
 
@@ -3534,10 +3536,10 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                                     list_resolved_invoice_issues.push(old_invoice_issue);
                                 }
                             });
-                            ticketRecord.setValues({ fieldId: 'custrecord_resolved_invoice_issues', value: list_resolved_invoice_issues });
+                            ticketRecord.setValue({ fieldId: 'custrecord_resolved_invoice_issues', value: list_resolved_invoice_issues });
                         }
                     }
-                    ticketRecord.setValues({ fieldId: 'custrecord_invoice_issues', value: list_invoice_issues });
+                    ticketRecord.setValue({ fieldId: 'custrecord_invoice_issues', value: list_invoice_issues });
                     break;
             }
 
@@ -3567,11 +3569,11 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                             list_resolved_mp_ticket_issues.push(old_mp_ticket_issue);
                         }
                     });
-                    ticketRecord.setValues({ fieldId: 'custrecord_resolved_mp_ticket_issue', value: list_resolved_mp_ticket_issues });
+                    ticketRecord.setValue({ fieldId: 'custrecord_resolved_mp_ticket_issue', value: list_resolved_mp_ticket_issues });
                 }
             }
 
-            ticketRecord.setValues({ fieldId: 'custrecord_mp_ticket_issue', value: list_mp_ticket_issues });
+            ticketRecord.setValue({ fieldId: 'custrecord_mp_ticket_issue', value: list_mp_ticket_issues });
             return ticketRecord;
         }
 
@@ -3594,10 +3596,11 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             // Save Reminder date
             setReminderDate();
             var reminder_date = $('#reminder').val();
+            console.log("rem3", reminder_date);
             if (!isNullorEmpty(reminder_date)) {
                 reminder_date = new Date(reminder_date);
                 reminder_date = format.format({ value: reminder_date, type: format.Type.DATE});
-                ticketRecord.setFieldValue({ fieldId: 'custrecord_reminder', value: reminder_date });
+                ticketRecord.setValue({ fieldId: 'custrecord_reminder', value: reminder_date });
             }
 
             // Set new Creator and new Owner
@@ -3887,7 +3890,6 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
         function setReminderDate() {
             var ticket_id = currRec.getValue({ fieldId: 'custpage_ticket_id' });
             var status_value = currRec.getValue({ fieldId: 'custpage_ticket_status_value' });
-
             if (isNullorEmpty(ticket_id) || !isTicketNotClosed(status_value)) {
                 var selector_type = currRec.getValue({ fieldId: 'custpage_selector_type' });
 
@@ -3920,7 +3922,6 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 var ticketRecord = record.load({ type: 'customrecord_mp_ticket', id: ticket_id });
                 var ticket_reminder_date = ticketRecord.getValue({ fieldId: 'custrecord_reminder' });
                 var reminder_date = '';
-
                 if (!isNullorEmpty(ticket_reminder_date)) {
                     ticket_reminder_date = format.parse({ value: ticket_reminder_date, type: format.Type.DATE });
                     var reminder_date_day_in_month = ticket_reminder_date.getDate();
@@ -3928,8 +3929,10 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     var reminder_date_year = ticket_reminder_date.getFullYear();
                     reminder_date = new Date(Date.UTC(reminder_date_year, reminder_date_month, reminder_date_day_in_month));
                     reminder_date = reminder_date.toISOString().split('T')[0];
+                    
                 }
             }
+
             $('#reminder').val(reminder_date);
         }
 
@@ -3941,7 +3944,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          */
         function htmlCreditMemoTable(status_value) {
             var inline_html_credit_memo_table = '<table cellpadding="15" id="credit_memo" class="table table-responsive table-striped contacts tablesorter" cellspacing="0" style="width: 100%;border: 0">';
-            inline_html_credit_memo_table += '<thead style="color: white;background-color: #607799;">';
+            inline_html_credit_memo_table += '<thead style="color: white;background-color: #379E8F;">';
             inline_html_credit_memo_table += '<tr>';
             inline_html_credit_memo_table += '<th style="vertical-align: middle;text-align: center;" id="credit_memo_number">';
             inline_html_credit_memo_table += '<b>CREDIT #</b>';
@@ -3969,7 +3972,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
         }
 
         function htmlUsageReportTable(status_value) {
-            var inline_html_usage_report_table = '<table cellpadding="15" id="usage_report" class="table table-responsive table-striped contacts tablesorter" cellspacing="0" style="width: 100%;border: 0"><thead style="color: white;background-color: #607799;">';
+            var inline_html_usage_report_table = '<table cellpadding="15" id="usage_report" class="table table-responsive table-striped contacts tablesorter" cellspacing="0" style="width: 100%;border: 0"><thead style="color: white;background-color: #379E8F;">';
             inline_html_usage_report_table += '<tr>';
             inline_html_usage_report_table += '<th style="vertical-align: middle;text-align: center;" id="usage_report_filename">';
             inline_html_usage_report_table += '<b>FILE NAME</b>';
@@ -4158,6 +4161,11 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
         return {
             pageInit: pageInit,
             saveRecord: saveRecord,
+            closeTicket: closeTicket,
+            closeTicketLost: closeTicketLost,
+            closeUnallocatedTicket: closeUnallocatedTicket,
+            onEscalate: onEscalate,
+            onCancel: onCancel
             
         };  
     }
