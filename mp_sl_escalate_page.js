@@ -104,7 +104,7 @@
             var old_sender_name = '';
             var old_sender_phone = '';
             var customer_number_email_sent = 'F';
-
+            var customer_status_value = '';
             // Load params
             var params = context.request.parameters.custparam_params;
 
@@ -172,6 +172,7 @@
                         old_sender_name = ticketRecord.getValue({ fieldId: 'custrecord_sender_name' });
                         old_sender_phone = ticketRecord.getValue({ fieldId: 'custrecord_sender_phone' });
                         customer_number_email_sent =  ticketRecord.getValue({ fieldId: 'custrecord_customer_number_email_sent' });
+                        customer_status_value = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
 
                         if(isNullorEmpty(customer_id) && !isNullorEmpty(customer_number)){
                             var customer_search = search.load({ type: 'customer', id: 'customsearch_customer_name_2' });
@@ -362,8 +363,8 @@
 
             inlineHtml += '<div style="background-color: #CFE0CE; min-height: 100vh; margin-top: -15px; padding-bottom: 50px"><br/>';
 
-            inlineHtml += '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalationbtn" onclick="">Escalate </button>';
-            inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="removeescalationbtn" onclick="">Remove Escalation</button>';
+
+            inlineHtml += escalateButton(customer_status_value);
 
             inlineHtml += '<h1 style="font-size: 25px; font-weight: 700; color: #103D39; text-align: center">Escalate Ticket - MPSD' + ticket_id + '</h1>';
             //Tabs
@@ -499,6 +500,26 @@
         return inlineQty;
     }
 
+    function escalateButton(status) {
+        if (status == 1) {
+            return '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalationbtn" onclick="">Escalate to 1st Escalation</button>';
+        } else if (status == 2) {
+            var html = '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalationbtn" onclick="">Escalate to 2nd Escalation</button>'; 
+            html += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="removeescalationbtn" onclick="">Remove Escalation</button>';
+            return html;
+        }else if (status == 3) {
+            var html =  '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalationbtn" onclick="">Escalate to 3rd Escalation</button>';
+            html += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="removeescalationbtn" onclick="">Remove Escalation</button>';
+            return html;
+        } else if (status == 4) {
+            var html = '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalationbtn" onclick="">Escalate to Final Escalation</button>';
+            html += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="removeescalationbtn" onclick="">Remove Escalation</button>';
+            return html;
+        } else {
+            return '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="removeescalationbtn" onclick="">Remove Escalation</button>';
+
+        }
+    }
     /**
      * The "Barcode number" OR "Invoice Number" input field.
      * If there is a TICKET ID, we are in the "Edit Ticket", so we display the Ticket ID field and the selector field is disabled.

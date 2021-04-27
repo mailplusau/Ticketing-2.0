@@ -147,24 +147,125 @@
 
         $('#escalationbtn').click(function() {
             console.log("here");
-            escalateTicket();
+            escalateTicket(ticket_id, selector_number, selector_type);
             
         });
 
         $('#removeescalationbtn').click(function() {
             console.log("here2");
-            deEscalateTicket();
+            deEscalateTicket(ticket_id, selector_number, selector_type);
         });
 
         
       }
 
-      function escalateTicket() {
-        alert("escalate");
-      }
 
-      function deEscalateTicket() {
-        alert("deescalate");
+      function escalateTicket(ticket_id, selector_number, selector_type) {
+        var answer = window.confirm("Are you sure you want to escalate this ticket?");
+        if (answer) {
+            //SET FIELDS IN RECORD
+
+            //some code
+
+            var ticketRecord = record.load({
+                type: 'customrecord_mp_ticket',
+                id: Math.floor(ticket_id),
+                isDynamic: true,
+            });
+
+            var customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
+            var customerstatus_text = ticketRecord.getText({fieldId: 'custrecord_mp_ticket_customer_status'});
+            console.log('customerstatus', customerstatus);
+            console.log('customerstatus_text', customerstatus_text);
+            if (parseInt(customerstatus) < 5 ) {
+                console.log(customerstatus);
+                ticketRecord.setValue({fieldId: 'custrecord_mp_ticket_customer_status', value: parseInt(customerstatus) + 1});
+                ticketRecord.save({
+                    enableSourcing: true,
+                })
+            }
+            customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
+            customerstatus_text = ticketRecord.getText({fieldId: 'custrecord_mp_ticket_customer_status'});
+
+            console.log('customerstatus', customerstatus);
+            console.log('customerstatus_text', customerstatus_text);
+
+
+
+            // REDIRECT TO URL
+            console.log("IN HERE");
+            var params = {
+                ticket_id: parseInt(ticket_id),
+                selector_number: selector_number,
+                selector_type: selector_type
+            };
+            params = JSON.stringify(params);
+            var output = url.resolveScript({
+                deploymentId: 'customdeploy_sl_ticketing_escalate',
+                scriptId: 'customscript_sl_ticketing_escalate',
+            });
+            var upload_url = baseURL + output + '&custparam_params=' + params;
+            
+            window.open(upload_url, '_blank');
+        }
+        else {
+            //some code
+        }
+    }
+
+
+      function deEscalateTicket(ticket_id, selector_number, selector_type) {
+        var answer = window.confirm("Are you sure you want to de-escalate this ticket?");
+        if (answer) {
+            //SET FIELDS IN RECORD
+
+            //some code
+
+            var ticketRecord = record.load({
+                type: 'customrecord_mp_ticket',
+                id: Math.floor(ticket_id),
+                isDynamic: true,
+            });
+
+            var customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
+            var customerstatus_text = ticketRecord.getText({fieldId: 'custrecord_mp_ticket_customer_status'});
+            console.log('customerstatus', customerstatus);
+            console.log('customerstatus_text', customerstatus_text);
+            if (parseInt(customerstatus) > 1 ) {
+                console.log(customerstatus);
+                ticketRecord.setValue({fieldId: 'custrecord_mp_ticket_customer_status', value: parseInt(customerstatus) - 1});
+                ticketRecord.save({
+                    enableSourcing: true,
+                });
+            }
+            
+            customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
+            customerstatus_text = ticketRecord.getText({fieldId: 'custrecord_mp_ticket_customer_status'});
+
+            console.log('customerstatus', customerstatus);
+            console.log('customerstatus_text', customerstatus_text);
+
+
+
+            // REDIRECT TO URL
+            console.log("IN HERE");
+            var params = {
+                ticket_id: parseInt(ticket_id),
+                selector_number: selector_number,
+                selector_type: selector_type
+            };
+            params = JSON.stringify(params);
+            var output = url.resolveScript({
+                deploymentId: 'customdeploy_sl_ticketing_escalate',
+                scriptId: 'customscript_sl_ticketing_escalate',
+            });
+            var upload_url = baseURL + output + '&custparam_params=' + params;
+            
+            window.open(upload_url, '_blank');
+        }
+        else {
+            //some code
+        }
 
       }
 

@@ -653,7 +653,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 //SET FIELDS IN RECORD
 
                 //some code
-
+                
                 // REDIRECT TO URL
                 console.log("IN HERE");
                 var params = {
@@ -668,7 +668,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 });
                 var upload_url = baseURL + output + '&custparam_params=' + params;
                 
-                window.open(upload_url, '_blank');
+                window.open(upload_url, '_self');
             }
             else {
                 //some code
