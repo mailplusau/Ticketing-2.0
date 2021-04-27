@@ -192,7 +192,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                         // console.log("TEMPLATEEE CHOSEN2", $('#template option:selected').val());
 
                         $('#template option:selected').attr('selected', false);
-                        $('#template option[value="66"]').attr('selected', true); // Select the acknoledgement template
+                        $('#template option[value="91"]').attr('selected', true); // Select the acknoledgement template
                         loadTemplate();
 
                         //loadTemplate();
@@ -637,7 +637,42 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 checkMandatoryFields();
             });
 
+            $('#escalatebutton').click(function() {
+                console.log("here");
+                escalateTicket(ticket_id, selector_number, selector_type);
+                
+            });
             
+
+            
+        }
+
+        function escalateTicket(ticket_id, selector_number, selector_type) {
+            var answer = window.confirm("Are you sure you want to escalate this ticket?");
+            if (answer) {
+                //SET FIELDS IN RECORD
+
+                //some code
+
+                // REDIRECT TO URL
+                console.log("IN HERE");
+                var params = {
+                    ticket_id: parseInt(ticket_id),
+                    selector_number: selector_number,
+                    selector_type: selector_type
+                };
+                params = JSON.stringify(params);
+                var output = url.resolveScript({
+                    deploymentId: 'customdeploy_sl_ticketing_escalate',
+                    scriptId: 'customscript_sl_ticketing_escalate',
+                });
+                var upload_url = baseURL + output + '&custparam_params=' + params;
+                
+                window.open(upload_url, '_blank');
+            }
+            else {
+                //some code
+            }
         }
 
         function saveRecord(context) {

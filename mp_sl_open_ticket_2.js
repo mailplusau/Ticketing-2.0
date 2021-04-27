@@ -323,16 +323,11 @@
                 }
             }
 
-            if (!isNullorEmpty(ticket_id)) {
-                var form = ui.createForm({
-                    title: 'Edit Ticket - MPSD' + ticket_id,
-                });
-            } else {
-                var form = ui.createForm({
-                    title: 'Open New Ticket',
-                });
-            }
-    
+            var form = ui.createForm({
+                 title: ' ',
+             });
+            
+
             // Load jQuery
             var inlineHtml = '<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>';
     
@@ -682,13 +677,52 @@
 
      function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails) {
         
-        var inlineQty = '<div class="a" style="width: 100%; background-color: #CFE0CE; padding: 20px; min-height: 100vh; height: 100%">';
-        //inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
+        var inlineQty = '<div style="background-color: #CFE0CE; min-height: 100vh; margin-top: -15px; padding-bottom: 50px"><br/>';
+
+        // BUTTONS
+        if (!isNullorEmpty(ticket_id)) {
+            if (isTicketNotClosed(status_value)) {
+                inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="updateticketbutton" onclick="">Update Ticket</button>';
+            } else {
+                inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="reopenticketbutton" onclick="">Reopen Ticket</button>';
+            }
+        } else {
+            inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="openticketbutton" onclick="">Open Ticket</button>';
+            inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="opennewticketbutton" onclick="">Open & New Ticket</button>';
+        }
+        
+
+        if (isTicketNotClosed(status_value)) {
+            if (!isNullorEmpty(ticket_id)) {
+                inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closeticketbutton" onclick="">Close Ticket</button>';
+                inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closelostbutton" onclick="">Close Ticket - Lost Item</button>';
+
+                if (userId == 409635 || userId == 696992 || userId == 766498) {
+                    inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closeunallocatedbutton" onclick="">Close Unallocated Ticket</button>';
+
+                }
+            }           
+
+        } 
+
+        // ESCALATE AND CANCEL BUTTONS
+        if (isTicketNotClosed(status_value)) {
+            inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalatebutton" onclick="">Escalate</button>';
+        }
+        inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="cancelbutton" onclick="">Cancel</button>';
+
+
+        // Title
+        if (!isNullorEmpty(ticket_id)) {
+            inlineQty += '<h1 style="display: inline-block; font-size: 25px; font-weight: 700; color: #103D39; text-align: center; width: 100%">Edit Ticket - MPSD' + ticket_id + '</h1>'
+
+        } else {
+            inlineQty += '<h1 style="display: inline-block; font-size: 25px; font-weight: 700; color: #103D39; text-align: center; width: 100%">Open New Ticket</h1>'
+        }
         
         inlineQty += instructionsBox();
+        
         // Tabs headers
-        //inlineQty += '<div style="width: 95%; margin-left: 0px; padding-left: 0px; margin-top: 30px;  margin-bottom: 20px"><ul class="nav nav-pills nav-justified">';
-
         inlineQty += '<style>.nav > li.active > a, .nav > li.active > a:focus, .nav > li.active > a:hover { background-color: #379E8F; color: #fff }';
         inlineQty += '.nav > li > a, .nav > li > a:focus, .nav > li > a:hover { margin-left: 5px; margin-right: 5px; border: 2px solid #379E8F; color: #379E8F; }';
         inlineQty += '</style>';
@@ -752,7 +786,7 @@
         inlineQty += enquiryCountSection( total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selector_type);
         //TICKET LABEL DROPDOWN
         //inlineQty += labelSection(selected_label_id, selector_type, status_value);
-        inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
+        //inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
         inlineQty += '</div>';
 
         // ISSUES TAB
@@ -762,7 +796,7 @@
         inlineQty += ownerSection(ticket_id, owner_list, status_value);
         inlineQty += tollIssuesSection(list_toll_issues, list_resolved_toll_issues, status_value, selector_type);
         inlineQty += commentSection(comment, selector_type, status_value);
-        inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
+        //inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
 
         inlineQty += '</div>';
 
@@ -771,13 +805,13 @@
             inlineQty += '<div role="tabpanel" class="tab-pane" id="sendemail">';
             inlineQty += mpexContactSection();
             inlineQty += sendEmailSection(ticket_id, status_value, account_manager, list_toll_emails);
-            inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
+            //inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
 
             inlineQty += '</div>';
         } else {
             inlineQty += '<div role="tabpanel" class="tab-pane" id="contactdetails">';
             inlineQty += mpexContactSection();
-            inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
+            //inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
 
             inlineQty += '</div>';
         }
@@ -785,7 +819,7 @@
         // PREV TICKETS TAB
         inlineQty += '<div role="tabpanel" class="tab-pane" id="prevtickets">';
         inlineQty += dataTablePreview();
-        inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
+        //inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
 
         inlineQty += '</div>';
         
@@ -796,7 +830,7 @@
             if(!isNullorEmpty(customer_id)){
                 inlineQty += previousEmailsSection(customer_id);
             }
-            inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
+            //inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
 
             inlineQty += '</div>';
         } 

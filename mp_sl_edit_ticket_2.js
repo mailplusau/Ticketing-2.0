@@ -26,7 +26,7 @@
          
          if (context.request.method === 'GET') {
              var form = ui.createForm({
-                 title: 'View MP Tickets',
+                 title: ' ',
              });
  
              // Load jQuery
@@ -73,7 +73,39 @@
              // Define information window.
              inlineHtml += '<div class="container" hidden><p id="info" class="alert alert-info"></p></div>';
  
-             inlineHtml += '<div style="background-color: #CFE0CE; min-height: 100vh"><br/>';
+             inlineHtml += '<div style="background-color: #CFE0CE; min-height: 100vh; margin-top: -15px"><br/>';
+
+             inlineHtml += '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="opennewticket" onclick="">Open New Ticket</button>';
+             inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="viewclosedtickets" onclick="">View Closed Tickets</button>';
+             inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="viewlosttickets" onclick="">View Lost Tickets</button>';
+             inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="sendbulkemails" onclick="">Send Bulk Emails</button>';
+
+             
+             //  form.addSubmitButton({
+            //      label: 'Open New Ticket'
+            //  });
+ 
+ 
+            //  form.addButton({
+            //      id: 'custpage_view_closed_tickets',
+            //      label: 'View Closed Tickets',
+            //      functionName: 'viewClosedTickets()'
+            //  });
+ 
+            //  form.addButton({
+            //      id: 'custpage_view_lost_tickets',
+            //      label: 'View Closed-Lost Tickets',
+            //      functionName: 'viewLostTickets()'
+            //  });
+ 
+            //  form.addButton({
+            //      id: 'custpage_bulk_email',
+            //      label: 'Send Bulk Emails',
+            //      functionName: 'onSendBulkEmails()'
+            //  });
+
+             inlineHtml += '<h1 style="font-size: 25px; font-weight: 700; color: #103D39; text-align: center">View MP Tickets</h1>'
+             
              //inlineHtml += dataTablePreview('test');
              inlineHtml += dateCreatedSection();
              inlineHtml += tabsSection(parseInt(role));
@@ -104,28 +136,28 @@
              });
  
  
-             form.addSubmitButton({
-                 label: 'Open New Ticket'
-             });
+            //  form.addSubmitButton({
+            //      label: 'Open New Ticket'
+            //  });
  
  
-             form.addButton({
-                 id: 'custpage_view_closed_tickets',
-                 label: 'View Closed Tickets',
-                 functionName: 'viewClosedTickets()'
-             });
+            //  form.addButton({
+            //      id: 'custpage_view_closed_tickets',
+            //      label: 'View Closed Tickets',
+            //      functionName: 'viewClosedTickets()'
+            //  });
  
-             form.addButton({
-                 id: 'custpage_view_lost_tickets',
-                 label: 'View Closed-Lost Tickets',
-                 functionName: 'viewLostTickets()'
-             });
+            //  form.addButton({
+            //      id: 'custpage_view_lost_tickets',
+            //      label: 'View Closed-Lost Tickets',
+            //      functionName: 'viewLostTickets()'
+            //  });
  
-             form.addButton({
-                 id: 'custpage_bulk_email',
-                 label: 'Send Bulk Emails',
-                 functionName: 'onSendBulkEmails()'
-             });
+            //  form.addButton({
+            //      id: 'custpage_bulk_email',
+            //      label: 'Send Bulk Emails',
+            //      functionName: 'onSendBulkEmails()'
+            //  });
              
              form.clientScriptFileId = 4796342;//SB=4796342 PROD = ??
              context.response.writePage(form);
@@ -141,8 +173,8 @@
              if (isNullorEmpty(param_selected_ticket_id)) {
                  
                  redirect.toSuitelet({
-                     scriptId: 'customscript_sl_open_ticket',
-                     deploymentId: 'customdeploy_sl_open_ticket',
+                     scriptId: 'customscript_sl_open_ticket_2',
+                     deploymentId: 'customdeploy_sl_open_ticket_2',
                      isExternal: null,
                      parameters: null
                  });
@@ -205,13 +237,17 @@
          inlineQty += '<div style="width: 95%; margin:auto; margin-bottom: 30px"><ul class="nav nav-pills nav-justified" style="margin:0%; ">';
          if (isFinanceRole(userRole)) {
              inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#barcodes"><b>BARCODES</b></a></li>';
+             inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#customers"><b>CUSTOMERS</b></a></li>';
              inlineQty += '<li role="presentation" class="active"><a data-toggle="tab" href="#invoices"><b>INVOICES</b></a></li>';
+         } else if (isDataAdminRole(userRole)) {
+            inlineQty += '<li role="presentation" class="active"><a data-toggle="tab" href="#barcodes"><b>BARCODES</b></a></li>';
+            inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#customers"><b>CUSTOMERS</b></a></li>';
+            inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#invoices"><b>INVOICES</b></a></li>';
          } else {
              inlineQty += '<li role="presentation" class="active"><a data-toggle="tab" href="#barcodes"><b>BARCODES</b></a></li>';
-         }
-         if(isDataAdminRole(userRole)){
              inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#customers"><b>CUSTOMERS</b></a></li>';
          }
+         
          inlineQty += '</ul></div>';
          
          // Tabs content
@@ -225,15 +261,20 @@
          inlineQty += dataTablePreview('barcodes');
          inlineQty += '</div>';
      
+         inlineQty += '<div role="tabpanel" class="tab-pane" id="customers">';
+         inlineQty += dataTablePreview('customers');
+         inlineQty += '</div>';
+
          if (isFinanceRole(userRole)) {
              inlineQty += '<div role="tabpanel" class="tab-pane active" id="invoices">';
              inlineQty += dataTablePreview('invoices');
              inlineQty += '</div>';
+         } else if (isDataAdminRole(userRole)) {
+            inlineQty += '<div role="tabpanel" class="tab-pane" id="invoices">';
+            inlineQty += dataTablePreview('invoices');
+            inlineQty += '</div>';
          }
-     
-         inlineQty += '<div role="tabpanel" class="tab-pane" id="customers">';
-         inlineQty += dataTablePreview('customers');
-         inlineQty += '</div>';
+         
          inlineQty += '</div></div>';
      
          return inlineQty;
@@ -266,7 +307,7 @@
       function dataTablePreview(selector) {
          var inlineQty = '<style>table#tickets-preview-' + selector + ' {font-size: 12px;text-align: center;border: none;}.dataTables_wrapper {font-size: 14px; }table#tickets-preview-' + selector + ' th{text-align: center;} .bolded{font-weight: bold;}</style>';
          inlineQty += '<div style="width: 95%; margin: auto">';
-         inlineQty += '<table id="tickets-preview-' + selector + '" class="table table-responsive table-striped customer tablesorter" style="table-layout: fixed">';
+         inlineQty += '<table id="tickets-preview-' + selector + '" class="table table-responsive table-striped customer tablesorter" style="width: 100%; table-layout: fixed">';
          inlineQty += '<thead style="color: white;background-color: #379E8F;">';
          inlineQty += '<tr class="text-center">';
          inlineQty += '</tr>';
@@ -290,7 +331,7 @@
          // 1032 is the Data Systems Co-ordinator role (to be deleted in prod)
          // 1006 is the Mail Plus Administration role.
          // 3 is the Administrator role.
-         return ((userRole == 1001 || userRole == 1031 || userRole == 1023) || ((userRole == 1032) || (userRole == 1006) || (userRole == 3)));
+         return ((userRole == 1001 || userRole == 1031 || userRole == 1023));
      }
  
      /**

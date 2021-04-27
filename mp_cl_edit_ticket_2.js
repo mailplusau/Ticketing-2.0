@@ -66,7 +66,6 @@
 
                         var columnDefs = [{
                             targets: 0,
-                            "width": "20%",
                             render: function(data, type, row, meta) {
                                 var status = row[7];
                                 var has_mpex_contact = row[10];
@@ -372,6 +371,19 @@
                 return (date_from <= date_created && date_created <= date_to);
             }
         );
+
+        $('#opennewticket').click(function() {
+            openTicket();
+        });
+        $('#viewclosedtickets').click(function() {
+            viewClosedTickets();
+        });
+        $('#viewlosttickets').click(function() {
+            viewLostTickets();
+        });
+        $('#sendbulkemails').click(function() {
+            //onSendBulkEmails();
+        });
        
 
         
@@ -400,6 +412,7 @@
      * @param   {String}    selector_type
      */
     function editTicket(ticket_id, selector_number, selector_type) {
+        console.log("IN HERE");
         var params = {
             ticket_id: parseInt(ticket_id),
             selector_number: selector_number,
@@ -411,9 +424,18 @@
             scriptId: 'customscript_sl_open_ticket_2',
         });
         var upload_url = baseURL + output + '&custparam_params=' + params;
-        window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
+        
+        window.open(upload_url, '_blank');
     }
 
+    function openTicket() {
+        //https://1048144-sb3.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1228&deploy=1
+        var upload_url = url.resolveScript({
+            deploymentId: 'customdeploy_sl_open_ticket_2',
+            scriptId: 'customscript_sl_open_ticket_2',
+        });
+        window.open(upload_url, '_blank');
+    }
     /**
      * Redirect to the "View Closed Tickets" page.
      */
@@ -422,7 +444,7 @@
             deploymentId: 'customdeploy_sl_edit_closed_ticket_2',
             scriptId: 'customscript_sl_edit_closed_ticket_2',
         });
-        window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
+        window.open(upload_url, '_blank');
     }
 
     /**
@@ -434,7 +456,7 @@
             scriptId: 'customscript_sl_edit_lost_ticket_2',
         });
         var upload_url = baseURL + upload_url;
-        window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
+        window.open(upload_url, '_blank');
     }
 
     /**
