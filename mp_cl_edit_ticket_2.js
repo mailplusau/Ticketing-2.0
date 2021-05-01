@@ -23,6 +23,11 @@
        * On page initialisation
        */
       function pageInit() {
+        //background-colors
+        $("#NS_MENU_ID0-item0").css("background-color", "#CFE0CE");
+        $("#NS_MENU_ID0-item0 a").css("background-color", "#CFE0CE");
+        $("#body").css("background-color", "#CFE0CE");
+        
         var ticketsDataSet = [];
         var tableSet = [];
         $(document).ready(function() {

@@ -105,6 +105,9 @@
             var old_sender_phone = '';
             var customer_number_email_sent = 'F';
             var customer_status_value = '';
+            var customer_ticket_status = '';
+            var customer_barcode_number = '';
+
             // Load params
             var params = context.request.parameters.custparam_params;
 
@@ -173,7 +176,9 @@
                         old_sender_phone = ticketRecord.getValue({ fieldId: 'custrecord_sender_phone' });
                         customer_number_email_sent =  ticketRecord.getValue({ fieldId: 'custrecord_customer_number_email_sent' });
                         customer_status_value = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
-
+                        customer_ticket_status = ticketRecord.getText({fieldId: 'custrecord_mp_ticket_customer_status'});
+                        customer_barcode_number = ticketRecord.getValue({ fieldId : 'custrecord_barcode_number'});
+                        
                         if(isNullorEmpty(customer_id) && !isNullorEmpty(customer_number)){
                             var customer_search = search.load({ type: 'customer', id: 'customsearch_customer_name_2' });
                             customer_search.filters.push(search.createFilter({
@@ -361,14 +366,14 @@
             // Define information window.
             inlineHtml += '<div class="container" hidden><p id="info" class="alert alert-info"></p></div>';
 
-            inlineHtml += '<div style="background-color: #CFE0CE; min-height: 100vh; margin-top: -15px; padding-bottom: 50px"><br/>';
+            //inlineHtml += '<div style="background-color: #CFE0CE; min-height: 100vh; margin-top: -15px; padding-bottom: 50px"><br/>';
+            inlineHtml += '<div style="margin-top: -40px"><br/>';
 
-
-            inlineHtml += escalateButton(customer_status_value);
+            inlineHtml += escalateButton(status_value);
 
             inlineHtml += '<h1 style="font-size: 25px; font-weight: 700; color: #103D39; text-align: center">Escalate Ticket - MPSD' + ticket_id + '</h1>';
             //Tabs
-            inlineHtml += tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, date_created, creator_id, creator_name, status, customer_id, customer_name, daytodayphone, daytodayemail, accountsphone, accountsemail, maap_bank_account_number, maap_parent_bank_account_number, zee_id, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id,attachments_hyperlink, list_enquiry_mediums, selected_enquiry_status_id, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, owner_list, list_toll_issues, list_resolved_toll_issues, comment, account_manager, list_toll_emails);
+            inlineHtml += tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, date_created, creator_id, creator_name, status, customer_id, customer_name, daytodayphone, daytodayemail, accountsphone, accountsemail, maap_bank_account_number, maap_parent_bank_account_number, zee_id, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id,attachments_hyperlink, list_enquiry_mediums, selected_enquiry_status_id, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, owner_list, list_toll_issues, list_resolved_toll_issues, comment, account_manager, list_toll_emails, customer_ticket_status, customer_barcode_number);
             inlineHtml += '</div>';
 
             form.addField({
@@ -427,7 +432,7 @@
             form.addField({ id: 'custpage_customer_number_email_sent', type: ui.FieldType.TEXT, label: 'Customer Email Sent' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = customer_number_email_sent;
 
 
-            form.clientScriptFileId = 4797047;//SB=4797047 PROD = ??
+            form.clientScriptFileId = 4813457;//SB=4797047 PROD = 4813457
             context.response.writePage(form);
          } else {
  
@@ -501,17 +506,15 @@
     }
 
     function escalateButton(status) {
-        if (status == 1) {
+        if (status < 11) {
             return '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalationbtn" onclick="">Escalate to 1st Escalation</button>';
-        } else if (status == 2) {
-            var html = '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalationbtn" onclick="">Escalate to 2nd Escalation</button>'; 
-            html += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="removeescalationbtn" onclick="">Remove Escalation</button>';
-            return html;
-        }else if (status == 3) {
+        } else if (status == 11) {
+            return '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalationbtn" onclick="">Escalate to 2nd Escalation</button>'; 
+        }else if (status == 12) {
             var html =  '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalationbtn" onclick="">Escalate to 3rd Escalation</button>';
             html += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="removeescalationbtn" onclick="">Remove Escalation</button>';
             return html;
-        } else if (status == 4) {
+        } else if (status == 13) {
             var html = '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalationbtn" onclick="">Escalate to Final Escalation</button>';
             html += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="removeescalationbtn" onclick="">Remove Escalation</button>';
             return html;
@@ -646,14 +649,14 @@
     }
 
     /**
-     * The informations regarding the ticket being edited.
-     * @param   {String}    date_created
-     * @param   {Number}    creator_id
-     * @param   {String}    creator_name
-     * @param   {String}    status
-     * @return  {String}    inlineQty
-     */
-    function ticketSection(date_created, creator_id, creator_name, status) {
+         * The informations regarding the ticket being edited.
+         * @param   {String}    date_created
+         * @param   {Number}    creator_id
+         * @param   {String}    creator_name
+         * @param   {String}    status
+         * @return  {String}    inlineQty
+         */
+    function ticketSection(date_created, creator_id, creator_name, status, customer_ticket_status) {
         if (isNullorEmpty(date_created)) {
             date_created = '';
         }
@@ -684,11 +687,20 @@
         // Status Section
         inlineQty += '<div class="form-group container status_section">';
         inlineQty += '<div class="row">';
+        
         // Status field
-        inlineQty += '<div class="col-xs-12 status">';
+        inlineQty += '<div class="col-xs-6 status">';
         inlineQty += '<div class="input-group">';
         inlineQty += '<span class="input-group-addon" id="status_text">STATUS</span>';
         inlineQty += '<input id="status" value="' + status + '" class="form-control status" disabled />';
+        inlineQty += '</div></div>';
+        
+        // Customer Status field
+        inlineQty += '<div class="col-xs-6 status">';
+        inlineQty += '<div class="input-group">';
+        inlineQty += '<span class="input-group-addon" id="status_text">CUSTOMER STATUS</span>';
+        inlineQty += '<input id="status" value="' + customer_ticket_status + '" class="form-control status" disabled />';
+        
         inlineQty += '</div></div></div></div>';
 
         return inlineQty;
@@ -1423,6 +1435,58 @@
         return inlineQty;
     };
 
+    /*
+    * @param   {String}    daytodayphone
+    * @param   {String}    daytodayemail
+    * @param   {Number}    status_value
+    * @param   {String}    selector_type
+    * @return  {String}    inlineQty
+    */
+    function receiverEmailPhone(customer_barcode_number, status_value, selector_type) {
+
+        var disabled = 'disabled';
+        var inlineQty = '';
+        // if (isTicketNotClosed(status_value) && selector_type == 'barcode_number') {
+        //     disabled = '';
+        // }
+
+        if (selector_type == 'barcode_number') { 
+            var rec = record.load({
+                type: 'customrecord_customer_product_stock',
+                id: customer_barcode_number,
+            });
+            
+            var receiveremail = rec.getValue({fieldId: 'custrecord_receiver_email'});
+            var receiverphone = rec.getValue({fieldId: 'custrecord_receiver_phone'});
+    
+            inlineQty += '<div class="form-group container receivercontact_section">';
+            inlineQty += '<div class="row">';
+    
+            // Day to day email field
+            inlineQty += '<div class="col-xs-6 receiveremail_div">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="receiveremail_text">RECEIVER EMAIL</span>';
+            inlineQty += '<input id="receiveremail" type="email" value="' + receiveremail + '" class="form-control receiveremail" ' + disabled + ' />';
+            inlineQty += '<div class="input-group-btn">';
+            inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success add_as_recipient" data-email="' + receiveremail + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
+            inlineQty += '<span class="glyphicon glyphicon-envelope"></span>';
+            inlineQty += '</button>';
+            inlineQty += '</div>';
+            inlineQty += '</div></div>';
+    
+            // Day to day phone field
+            inlineQty += '<div class="col-xs-6 receiverphone_div">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="receiverphone_text">RECEIVER PHONE</span>';
+            inlineQty += '<input id="receiverphone" type="tel" value="' + receiverphone + '" class="form-control receiverphone" ' + disabled + ' />';
+            inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #379E8F" class="btn btn-success" id="call_receiver_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
+            inlineQty += '</div></div></div></div>';
+        }
+        
+
+        return inlineQty;
+    }
+
     /**
      * The "Send Email" section.
      * Possibility for the user to send an email to the customer, based on selected templates.
@@ -1585,7 +1649,7 @@
         return inlineQty;
     };
 
-    function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, date_created, creator_id, creator_name, status, customer_id, customer_name, daytodayphone, daytodayemail, accountsphone, accountsemail, maap_bank_account_number, maap_parent_bank_account_number, zee_id, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id,attachments_hyperlink, list_enquiry_mediums, selected_enquiry_status_id, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, owner_list, list_toll_issues, list_resolved_toll_issues, comment, account_manager, list_toll_emails) {
+    function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, date_created, creator_id, creator_name, status, customer_id, customer_name, daytodayphone, daytodayemail, accountsphone, accountsemail, maap_bank_account_number, maap_parent_bank_account_number, zee_id, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id,attachments_hyperlink, list_enquiry_mediums, selected_enquiry_status_id, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, owner_list, list_toll_issues, list_resolved_toll_issues, comment, account_manager, list_toll_emails, customer_ticket_status, customer_barcode_number) {
         var inlineQty = '<br/><div >';
 
         // Tabs headers
@@ -1616,7 +1680,8 @@
         inlineQty += customerNumberSection(customer_number, ticket_id);
         inlineQty += selectorSection(ticket_id, selector_number, selector_id, selector_type, status_value);
         if (!isNullorEmpty(ticket_id)) {
-            inlineQty += ticketSection(dateISOToNetsuite(date_created), creator_id, creator_name, status);
+            inlineQty += receiverEmailPhone(customer_barcode_number, status_value, selector_type);
+            inlineQty += ticketSection(dateISOToNetsuite(date_created), creator_id, creator_name, status, customer_ticket_status);
         }
         if (isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && !isNullorEmpty(customer_id)) || !isNullorEmpty(customer_number)) {
             inlineQty += customerSection(customer_name);

@@ -27,6 +27,11 @@
         var status_value = currRec.getValue({ fieldId: 'custpage_ticket_status_value' });
         var customer_number = currRec.getValue({ fieldId: 'custpage_customer_number' });
 
+        //background-colors
+        $("#NS_MENU_ID0-item0").css("background-color", "#CFE0CE");
+        $("#NS_MENU_ID0-item0 a").css("background-color", "#CFE0CE");
+        $("#body").css("background-color", "#CFE0CE");
+
         $(document).ready(function() {
             $('#email_body').summernote();
             $('#owner, #toll_issues, #mp_issues, #invoice_issues, #enquiry_medium_status, #send_toll').selectpicker();
@@ -174,21 +179,33 @@
             });
 
             var customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
-            var customerstatus_text = ticketRecord.getText({fieldId: 'custrecord_mp_ticket_customer_status'});
-            console.log('customerstatus', customerstatus);
-            console.log('customerstatus_text', customerstatus_text);
-            if (parseInt(customerstatus) < 5 ) {
-                console.log(customerstatus);
-                ticketRecord.setValue({fieldId: 'custrecord_mp_ticket_customer_status', value: parseInt(customerstatus) + 1});
-                ticketRecord.save({
-                    enableSourcing: true,
-                })
-            }
-            customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
-            customerstatus_text = ticketRecord.getText({fieldId: 'custrecord_mp_ticket_customer_status'});
+            var ticketstatus = ticketRecord.getValue({fieldId: 'custrecord_ticket_status'});
 
             console.log('customerstatus', customerstatus);
-            console.log('customerstatus_text', customerstatus_text);
+            if (parseInt(customerstatus) < 4 ) {
+                console.log(customerstatus);
+                ticketRecord.setValue({fieldId: 'custrecord_mp_ticket_customer_status', value: parseInt(customerstatus) + 1});
+            }
+
+            if (parseInt(ticketstatus) < 11 ) {
+                console.log(ticketstatus);
+                ticketRecord.setValue({fieldId: 'custrecord_ticket_status', value: 11});
+                
+            } else if (parseInt(ticketstatus) < 14) {
+                console.log(ticketstatus);
+                ticketRecord.setValue({fieldId: 'custrecord_ticket_status', value: parseInt(ticketstatus) + 1});
+                
+            }
+
+            ticketRecord.save({
+                enableSourcing: true,
+            })
+
+            customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
+            ticketstatus = ticketRecord.getValue({fieldId: 'custrecord_ticket_status'});
+
+            console.log('customerstatus', customerstatus);
+            console.log('ticketstatus', ticketstatus);
 
 
 
@@ -206,7 +223,7 @@
             });
             var upload_url = baseURL + output + '&custparam_params=' + params;
             
-            window.open(upload_url, '_blank');
+            window.open(upload_url, "_self");
         }
         else {
             //some code
@@ -228,22 +245,24 @@
             });
 
             var customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
-            var customerstatus_text = ticketRecord.getText({fieldId: 'custrecord_mp_ticket_customer_status'});
+            var ticketstatus = ticketRecord.getValue({fieldId: 'custrecord_ticket_status'});
+
             console.log('customerstatus', customerstatus);
-            console.log('customerstatus_text', customerstatus_text);
             if (parseInt(customerstatus) > 1 ) {
                 console.log(customerstatus);
                 ticketRecord.setValue({fieldId: 'custrecord_mp_ticket_customer_status', value: parseInt(customerstatus) - 1});
-                ticketRecord.save({
-                    enableSourcing: true,
-                });
+                
             }
-            
-            customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
-            customerstatus_text = ticketRecord.getText({fieldId: 'custrecord_mp_ticket_customer_status'});
 
-            console.log('customerstatus', customerstatus);
-            console.log('customerstatus_text', customerstatus_text);
+            if (parseInt(ticketstatus) > 11 ) {
+                console.log(ticketstatus);
+                ticketRecord.setValue({fieldId: 'custrecord_ticket_status', value: parseInt(ticketstatus) - 1});
+            }
+
+            ticketRecord.save({
+                enableSourcing: true,
+            });
+
 
 
 
@@ -261,7 +280,7 @@
             });
             var upload_url = baseURL + output + '&custparam_params=' + params;
             
-            window.open(upload_url, '_blank');
+            window.open(upload_url, "_self");
         }
         else {
             //some code

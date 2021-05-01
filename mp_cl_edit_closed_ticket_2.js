@@ -15,88 +15,30 @@
           baseURL = 'https://1048144-sb3.app.netsuite.com';
       }
       var role = runtime.getCurrentUser().role;
+      var userRole = runtime.getCurrentUser().role;
+
       var selector_list = ['barcodes', 'invoices'];
 
       /**
        * On page initialisation
        */
       function pageInit() {
-        loadTicketsTable(selector_list);
+        //background-colors
+        $("#NS_MENU_ID0-item0").css("background-color", "#CFE0CE");
+        $("#NS_MENU_ID0-item0 a").css("background-color", "#CFE0CE");
+        $("#body").css("background-color", "#CFE0CE");
 
-        // Initialize all tooltips : https://getbootstrap.com/docs/4.0/components/tooltips/
-        $('[data-toggle="tooltip"]').tooltip();
-    
-        $('.table').each(function () {
-            var table = $(this).DataTable();
-    
-            table.on('draw.dt', function () {
-                // Each time the table is redrawn, we trigger tooltip for the new cells.
-                $('[data-toggle="tooltip"]').tooltip();
-            });
-    
-            table.on('click', '.edit_class', function () {
-                var selector = $('div.tab-pane.active').attr('id');
-                switch (selector) {
-                    case 'barcodes':
-                        var selector_type = 'barcode_number';
-                        break;
-    
-                    case 'invoices':
-                        var selector_type = 'invoice_number';
-                        break;
-                }
-                var ticket_id = $(this).parent().siblings().eq(0).text().split('MPSD')[1];
-                var selector_number = $(this).parent().siblings().eq(3).text();
-    
-                if (isNullorEmpty(selector_number.trim())) {
-                    var ticketRecord = record.load({
-                        type: 'customrecord_mp_ticket',
-                        id: ticket_id,
-                    })
-                    selector_number = ticketRecord.getValue({ fieldId: 'altname' });
-                }
-                editTicket(ticket_id, selector_number, selector_type);
-            });
-        });
-    
-        // Date filtering
-        /* Custom filtering function which will search data in column two between two values */
-        $.fn.dataTable.ext.search.push(
-            function (settings, data, dataIndex) {
-    
-                // Get value of the "Date created from" field
-                var date_from_val = $('#date_from').val();
-                if (isNullorEmpty(date_from_val)) {
-                    // The minimum date value is set to the 1st January 1970
-                    var date_from = new Date(0);
-                } else {
-                    var date_from = new Date(dateSelected2Date(date_from_val));
-                }
-    
-                // Get value of the "Date created to" field
-                var date_to_val = $('#date_to').val();
-                if (isNullorEmpty(date_to_val)) {
-                    // The maximum value is set to the 1st January 3000
-                    var date_to = new Date(3000, 0);
-                } else {
-                    var date_to = new Date(dateSelected2Date(date_to_val));
-                }
-    
-                var date_created = dateSelected2Date(data[1]);
-    
-                return (date_from <= date_created && date_created <= date_to);
-            }
-        );
         var ticketsDataSet = [];
+        var tableSet = [];
         $(document).ready(function () {
 
             selector_list.forEach(function (selector) {
                 // The inline html of the <table> tag is not correctly displayed inside 'div#' + selector when added with Suitelet.
                 // Hence, the html code is added using jQuery when the page loads.
-                if ((selector != 'invoices') || isFinanceRole(userRole)) {
-                    var inline_html_tickets_table = dataTablePreview(selector);
-                    $('div#' + selector).html(inline_html_tickets_table);
-                }
+                // if ((selector != 'invoices') || isFinanceRole(userRole)) {
+                //     var inline_html_tickets_table = dataTablePreview(selector);
+                //     $('div#' + selector).html(inline_html_tickets_table);
+                // }
 
                 var table_id = '#tickets-preview-' + selector;
 
@@ -164,12 +106,12 @@
                 // Adapted from https://datatables.net/extensions/fixedheader/examples/options/columnFiltering.html
                 // Adds a row to the table head row, and adds search filters to each column.
                 $(table_id + ' thead tr').clone(true).appendTo(table_id + ' thead');
-                $(table_id + ' thead tr:eq(1) th').each(function (i) {
+                $(table_id + ' thead tr:eq(3) th').each(function (i) {
                     var title = $(this).text();
                     if (title == '') {
-                        $(this).html('<input type="checkbox" id="select_all"></input>');
+                        $(this).html('');
                     } else {
-                        $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+                        $(this).html('<input style="width: 90%" type="text" placeholder="Search ' + title + '" />');
 
                         $('input', this).on('keyup change', function () {
                             if (table.column(i).search() !== this.value) {
@@ -193,7 +135,77 @@
                     table.draw();
                 });
             });
-        })
+
+            
+        });
+
+        loadTicketsTable(selector_list);
+
+        // Initialize all tooltips : https://getbootstrap.com/docs/4.0/components/tooltips/
+        $('[data-toggle="tooltip"]').tooltip();
+    
+        
+        $('.table').each(function () {
+            var table = $(this).DataTable();
+    
+            table.on('draw.dt', function () {
+                // Each time the table is redrawn, we trigger tooltip for the new cells.
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+    
+            table.on('click', '.edit_class', function () {
+                var selector = $('div.tab-pane.active').attr('id');
+                switch (selector) {
+                    case 'barcodes':
+                        var selector_type = 'barcode_number';
+                        break;
+    
+                    case 'invoices':
+                        var selector_type = 'invoice_number';
+                        break;
+                }
+                var ticket_id = $(this).parent().siblings().eq(0).text().split('MPSD')[1];
+                var selector_number = $(this).parent().siblings().eq(3).text();
+    
+                if (isNullorEmpty(selector_number.trim())) {
+                    var ticketRecord = record.load({
+                        type: 'customrecord_mp_ticket',
+                        id: ticket_id,
+                    })
+                    selector_number = ticketRecord.getValue({ fieldId: 'altname' });
+                }
+                editTicket(ticket_id, selector_number, selector_type);
+            });
+        });
+        // Date filtering
+        /* Custom filtering function which will search data in column two between two values */
+        $.fn.dataTable.ext.search.push(
+            function (settings, data, dataIndex) {
+    
+                // Get value of the "Date created from" field
+                var date_from_val = $('#date_from').val();
+                if (isNullorEmpty(date_from_val)) {
+                    // The minimum date value is set to the 1st January 1970
+                    var date_from = new Date(0);
+                } else {
+                    var date_from = new Date(dateSelected2Date(date_from_val));
+                }
+    
+                // Get value of the "Date created to" field
+                var date_to_val = $('#date_to').val();
+                if (isNullorEmpty(date_to_val)) {
+                    // The maximum value is set to the 1st January 3000
+                    var date_to = new Date(3000, 0);
+                } else {
+                    var date_to = new Date(dateSelected2Date(date_to_val));
+                }
+    
+                var date_created = dateSelected2Date(data[1]);
+    
+                return (date_from <= date_created && date_created <= date_to);
+            }
+        );
+        
     }
 
     /**
@@ -290,7 +302,7 @@
                 resultTicketSlice = ticketResultSet.getRange({ start: slice_index * 1000, end: (slice_index + 1) * 1000 });
                 resultTicketSlice.forEach(function (ticketResult) {
 
-                    var ticket_id = ticketResult.scriptId;
+                    var ticket_id = ticketResult.getValue('internalid');
                     ticket_id = 'MPSD' + ticket_id;
 
                     var date_created = ticketResult.getValue('created');
@@ -301,10 +313,10 @@
                     date_closed = date_closed.split(' ')[0];
                     date_closed = dateCreated2DateSelectedFormat(date_closed);
 
-                    var customer_name = ticketResult.getText('custrecord_customer1');
-                    var franchise_name = ticketResult.getText('custrecord_zee');
+                    var customer_name = ticketResult.getText({ name: 'custrecord_customer1' });
+                    var franchise_name = ticketResult.getText({ name: 'custrecord_zee' });
 
-                    var owners = ticketResult.getText('owner');
+                    var owners = ticketResult.getText({ name: 'owner' });
                     owners = owners.split(',').join('<br>');
 
                     var status_val = ticketResult.getValue('custrecord_ticket_status');
@@ -314,14 +326,14 @@
                     switch (ticket_type) {
                         case 'barcode':
                             // Barcode number
-                            var barcode_number = ticketResult.getText('custrecord_barcode_number');
+                            var barcode_number = ticketResult.getText({ name: 'custrecord_barcode_number' });
                             if (isNullorEmpty(barcode_number)) {
                                 barcode_number = ticketResult.getValue('altname');
                             }
                             barcode_number = '<b>' + barcode_number + '</b>';
 
                             // Resolved TOLL Issues
-                            var resolved_toll_issues = ticketResult.getText('custrecord_resolved_toll_issues');
+                            var resolved_toll_issues = ticketResult.getText({ name: 'custrecord_resolved_toll_issues' });
                             if (!isNullorEmpty(resolved_toll_issues)) {
                                 resolved_toll_issues = resolved_toll_issues.split(',').join('<br>');
                             }
@@ -330,7 +342,7 @@
                         case 'invoice':
                             // Invoice number
                             var re = /Invoice #([\w]+)/;
-                            var invoice_number = ticketResult.getText('custrecord_invoice_number');
+                            var invoice_number = ticketResult.getText({ name: 'custrecord_invoice_number' });
                             if (isNullorEmpty(invoice_number)) {
                                 invoice_number = ticketResult.getValue('altname');
                             }
@@ -338,7 +350,7 @@
                             invoice_number = '<b>' + invoice_number + '</b>';
 
                             // Resolved Invoice Issues
-                            var resolved_invoice_issues = ticketResult.getText('custrecord_resolved_invoice_issues');
+                            var resolved_invoice_issues = ticketResult.getText({ name: 'custrecord_resolved_invoice_issues' });
                             if (!isNullorEmpty(resolved_invoice_issues)) {
                                 resolved_invoice_issues = resolved_invoice_issues.split(',').join('<br>');
                             }
@@ -347,7 +359,7 @@
                     }
 
                     // Resolved MP Ticket Issues
-                    var resolved_mp_ticket_issues = ticketResult.getText('custrecord_resolved_mp_ticket_issue');
+                    var resolved_mp_ticket_issues = ticketResult.getText({ name: 'custrecord_resolved_mp_ticket_issue' });
                     if (!isNullorEmpty(resolved_mp_ticket_issues)) {
                         resolved_mp_ticket_issues = resolved_mp_ticket_issues.split(',').join('<br>');
                     }
@@ -355,7 +367,7 @@
                     // MP Ticket Issues
                     if (status_val == 8) {
                         // If the status is 'Closed - Unallocated', there are still the MP Issues 'No allocated customer' or 'No allocated franchisee'.
-                        var mp_ticket_issues = ticketResult.getText('custrecord_mp_ticket_issue');
+                        var mp_ticket_issues = ticketResult.getText({ name: 'custrecord_mp_ticket_issue' });
                         var mp_ticket_issues_array = mp_ticket_issues.split(',');
                         mp_ticket_issues_array = mp_ticket_issues_array.map(function (mp_ticket_issues_array) {
                             return 'Unresolved : ' + mp_ticket_issues_array;
@@ -363,7 +375,7 @@
                         resolved_mp_ticket_issues = mp_ticket_issues_array.join('<br>');
                     }
 
-                    var status = ticketResult.getText('custrecord_ticket_status');
+                    var status = ticketResult.getText({ name: 'custrecord_ticket_status' });
                     var action_button = '<button class="btn btn-success edit_class glyphicon glyphicon-eye-open" type="button" data-toggle="tooltip" data-placement="right" title="Open"></button>';
 
                     switch (ticket_type) {
@@ -458,12 +470,12 @@
      * @returns {String}            type of the ticket
      */
     function getTicketType(ticketResult) {
-        var barcode_number = ticketResult.getText({ fieldId: 'custrecord_barcode_number' });
+        var barcode_number = ticketResult.getText({ name: 'custrecord_barcode_number' });
         if (!isNullorEmpty(barcode_number)) {
             barcode_number = barcode_number.trim();
         }
 
-        var invoice_number = ticketResult.getText({ fieldId: 'custrecord_invoice_number' });
+        var invoice_number = ticketResult.getText({ name: 'custrecord_invoice_number' });
         if (!isNullorEmpty(invoice_number)) {
             invoice_number = invoice_number.trim();
         }
@@ -476,7 +488,7 @@
         } else {
             var re_barcode = /^MPE/;
             var re_invoice = /^INV/;
-            var ticket_name = ticketResult.getValue({ fieldId: 'altname' });
+            var ticket_name = ticketResult.getValue({ name: 'altname' });
             if (ticket_name.match(re_barcode)) {
                 return 'barcode';
             } else if (ticket_name.match(re_invoice)) {

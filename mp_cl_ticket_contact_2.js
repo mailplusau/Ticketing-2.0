@@ -20,6 +20,11 @@
          * On page initialisation
          */
         function pageInit() {
+            //background-colors
+            $("#NS_MENU_ID0-item0").css("background-color", "#CFE0CE");
+            $("#NS_MENU_ID0-item0 a").css("background-color", "#CFE0CE");
+            $("#body").css("background-color", "#CFE0CE");
+            
             // The inline html of the <table> tag is not correctly displayed inside div.col-xs-10.contacts_div when added with Suitelet.
             // Hence, the html code is added using jQuery when the page loads.
             // The body is populated using the createContactsRows().

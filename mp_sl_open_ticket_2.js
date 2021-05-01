@@ -97,6 +97,7 @@
                 attachments_usage_report_ids: [],
                 attachments_invoice_ids: []
             };
+            var customer_barcode_number = '';
             var customer_issue = '';
             var screenshot_file = '';
             var browser = '';
@@ -106,7 +107,7 @@
             var old_sender_name = '';
             var old_sender_phone = '';
             var customer_number_email_sent = 'F';
-
+            var customer_ticket_status = '';
             // Load params
             var params = context.request.parameters.custparam_params;
             log.debug({
@@ -173,7 +174,8 @@
                         old_sender_name = ticketRecord.getValue({ fieldId: 'custrecord_sender_name' });
                         old_sender_phone = ticketRecord.getValue({ fieldId: 'custrecord_sender_phone' });
                         customer_number_email_sent =  ticketRecord.getValue({ fieldId: 'custrecord_customer_number_email_sent' });
-
+                        customer_barcode_number = ticketRecord.getValue({ fieldId : 'custrecord_barcode_number'});
+                        customer_ticket_status = ticketRecord.getText({ fieldId : 'custrecord_mp_ticket_customer_status'});
                         if(isNullorEmpty(customer_id) && !isNullorEmpty(customer_number)){
                             var customer_search = search.load({ type: 'customer', id: 'customsearch_customer_name_2' });
                             customer_search.filters.push(search.createFilter({
@@ -362,7 +364,7 @@
             // Define information window.
             inlineHtml += '<div class="container" hidden><p id="info" class="alert alert-info"></p></div>';
     
-            inlineHtml += tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails);
+            inlineHtml += tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, customer_ticket_status);
             // inlineHtml += customerNumberSection(customer_number, ticket_id);
             // inlineHtml += selectorSection(ticket_id, selector_number, selector_id, selector_type, status_value);
     
@@ -511,7 +513,7 @@
             // }
             
             // form.addButton({ id: 'custpage_cancel', label: 'Cancel', functionName: 'onCancel()' });
-            form.clientScriptFileId = 4796340;//SB=4796340 PROD=??
+            form.clientScriptFileId = 4813453;//SB=4796340 PROD=4813453
             context.response.writePage(form);
             
 
@@ -675,10 +677,9 @@
      }
 
 
-     function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails) {
+     function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, customer_ticket_status) {
         
-        var inlineQty = '<div style="background-color: #CFE0CE; min-height: 100vh; margin-top: -15px; padding-bottom: 50px"><br/>';
-
+        var inlineQty = '<div style="margin-top: -40px"><br/>';
         // BUTTONS
         if (!isNullorEmpty(ticket_id)) {
             if (isTicketNotClosed(status_value)) {
@@ -745,9 +746,9 @@
 
         }
 
-        inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#prevtickets"><b>PREVIOUS TICKETS</b></a></li>';
 
         if (!isNullorEmpty(ticket_id)) {
+            inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#prevtickets"><b>PREVIOUS TICKETS</b></a></li>';
             inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#prevemails"><b>PREVIOUS EMAILS</b></a></li>';
         }
 
@@ -762,8 +763,10 @@
         inlineQty += '<div role="tabpanel" class="tab-pane active" id="ticketdetails">';
         inlineQty += customerNumberSection(customer_number, ticket_id);
         inlineQty += selectorSection(ticket_id, selector_number, selector_id, selector_type, status_value);
+        
         if (!isNullorEmpty(ticket_id)) {
-            inlineQty += ticketSection(dateISOToNetsuite(date_created), creator_id, creator_name, status);
+            inlineQty += receiverEmailPhone(customer_barcode_number, status_value, selector_type);
+            inlineQty += ticketSection(dateISOToNetsuite(date_created), creator_id, creator_name, status, customer_ticket_status);
         }
         if (isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && !isNullorEmpty(customer_id)) || !isNullorEmpty(customer_number)) {
             inlineQty += customerSection(customer_name);
@@ -782,11 +785,11 @@
         inlineQty += mpexStockUsedSection(selector_type, date_stock_used, time_stock_used);
         inlineQty += finalDeliveryEnquirySection(status_value, selector_type, final_delivery_text, selected_enquiry_status_id);
         inlineQty += attachmentsSection(attachments_hyperlink, status_value);
-        inlineQty += enquiryMediumSection(list_enquiry_mediums, selected_enquiry_status_id, selector_type)
+        inlineQty += enquiryMediumSection(list_enquiry_mediums, selected_enquiry_status_id, selector_type);
         inlineQty += enquiryCountSection( total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selector_type);
+        
         //TICKET LABEL DROPDOWN
         //inlineQty += labelSection(selected_label_id, selector_type, status_value);
-        //inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
         inlineQty += '</div>';
 
         // ISSUES TAB
@@ -796,7 +799,6 @@
         inlineQty += ownerSection(ticket_id, owner_list, status_value);
         inlineQty += tollIssuesSection(list_toll_issues, list_resolved_toll_issues, status_value, selector_type);
         inlineQty += commentSection(comment, selector_type, status_value);
-        //inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
 
         inlineQty += '</div>';
 
@@ -816,15 +818,17 @@
             inlineQty += '</div>';
         }
         
-        // PREV TICKETS TAB
-        inlineQty += '<div role="tabpanel" class="tab-pane" id="prevtickets">';
-        inlineQty += dataTablePreview();
-        //inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
-
-        inlineQty += '</div>';
         
-        // PREV EMAILS TAB
+        
+        // PREV TICKETS + EMAILS TAB
         if (!isNullorEmpty(ticket_id)) {
+            // PREV TICKETS TAB
+            inlineQty += '<div role="tabpanel" class="tab-pane" id="prevtickets">';
+            inlineQty += dataTablePreview();
+            //inlineQty += closeReopenSubmitTicketButton(ticket_id, status_value);
+
+            inlineQty += '</div>';
+            
             inlineQty += '<div role="tabpanel" class="tab-pane" id="prevemails">';
             log.debug({ title: 'before prev email - cust id', details: customer_id });
             if(!isNullorEmpty(customer_id)){
@@ -1007,7 +1011,7 @@
      * @param   {String}    status
      * @return  {String}    inlineQty
      */
-    function ticketSection(date_created, creator_id, creator_name, status) {
+    function ticketSection(date_created, creator_id, creator_name, status, customer_ticket_status) {
         if (isNullorEmpty(date_created)) {
             date_created = '';
         }
@@ -1038,11 +1042,20 @@
         // Status Section
         inlineQty += '<div class="form-group container status_section">';
         inlineQty += '<div class="row">';
+        
         // Status field
-        inlineQty += '<div class="col-xs-12 status">';
+        inlineQty += '<div class="col-xs-6 status">';
         inlineQty += '<div class="input-group">';
         inlineQty += '<span class="input-group-addon" id="status_text">STATUS</span>';
         inlineQty += '<input id="status" value="' + status + '" class="form-control status" disabled />';
+        inlineQty += '</div></div>';
+        
+        // Customer Status field
+        inlineQty += '<div class="col-xs-6 status">';
+        inlineQty += '<div class="input-group">';
+        inlineQty += '<span class="input-group-addon" id="status_text">CUSTOMER STATUS</span>';
+        inlineQty += '<input id="status" value="' + customer_ticket_status + '" class="form-control status" disabled />';
+        
         inlineQty += '</div></div></div></div>';
 
         return inlineQty;
@@ -1117,6 +1130,61 @@
         inlineQty += '<input id="daytodayphone" type="tel" value="' + daytodayphone + '" class="form-control daytodayphone" ' + disabled + ' />';
         inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #379E8F" class="btn btn-success" id="call_daytoday_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
         inlineQty += '</div></div></div></div>';
+
+        return inlineQty;
+    }
+
+    /**
+     * The receiver phone and email fields.
+     * These fields should be automatically filled based on the Selector number value.
+     
+    * @param   {String}    daytodayphone
+    * @param   {String}    daytodayemail
+    * @param   {Number}    status_value
+    * @param   {String}    selector_type
+    * @return  {String}    inlineQty
+    */
+    function receiverEmailPhone(customer_barcode_number, status_value, selector_type) {
+
+        var disabled = 'disabled';
+        var inlineQty = '';
+        // if (isTicketNotClosed(status_value) && selector_type == 'barcode_number') {
+        //     disabled = '';
+        // }
+
+        if (selector_type == 'barcode_number') { 
+            var rec = record.load({
+                type: 'customrecord_customer_product_stock',
+                id: customer_barcode_number,
+            });
+            
+            var receiveremail = rec.getValue({fieldId: 'custrecord_receiver_email'});
+            var receiverphone = rec.getValue({fieldId: 'custrecord_receiver_phone'});
+    
+            inlineQty += '<div class="form-group container receivercontact_section">';
+            inlineQty += '<div class="row">';
+    
+            // Day to day email field
+            inlineQty += '<div class="col-xs-6 receiveremail_div">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="receiveremail_text">RECEIVER EMAIL</span>';
+            inlineQty += '<input id="receiveremail" type="email" value="' + receiveremail + '" class="form-control receiveremail" ' + disabled + ' />';
+            inlineQty += '<div class="input-group-btn">';
+            inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success add_as_recipient" data-email="' + receiveremail + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
+            inlineQty += '<span class="glyphicon glyphicon-envelope"></span>';
+            inlineQty += '</button>';
+            inlineQty += '</div>';
+            inlineQty += '</div></div>';
+    
+            // Day to day phone field
+            inlineQty += '<div class="col-xs-6 receiverphone_div">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="receiverphone_text">RECEIVER PHONE</span>';
+            inlineQty += '<input id="receiverphone" type="tel" value="' + receiverphone + '" class="form-control receiverphone" ' + disabled + ' />';
+            inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #379E8F" class="btn btn-success" id="call_receiver_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
+            inlineQty += '</div></div></div></div>';
+        }
+        
 
         return inlineQty;
     }
@@ -1451,29 +1519,29 @@
         var inlineQty = '<div class="form-group container enquiry_medium_section">';
         inlineQty += '<div class="row">';
 
-        inlineQty += '<div class="col-xs-6 enquiry_medium_div">';
-        inlineQty += '<div class="input-group">';
-        inlineQty += '<span class="input-group-addon" id="enquiry_medium_text">ENQUIRY MEDIUM</span>';
-        inlineQty += '<select multiple id="enquiry_medium_status" class="form-control enquiry_medium_status" size="'+ enquiryMediumResultSet.length + '" disabled>';
+        // inlineQty += '<div class="col-xs-6 enquiry_medium_div">';
+        // inlineQty += '<div class="input-group">';
+        // inlineQty += '<span class="input-group-addon" id="enquiry_medium_text">ENQUIRY MEDIUM</span>';
+        // inlineQty += '<select multiple id="enquiry_medium_status" class="form-control enquiry_medium_status" size="'+ enquiryMediumResultSet.length + '" disabled>';
 
-        enquiryMediumResultSet.run().each(function (enquiryMediumResult) {
-            var enquiryMediumName = enquiryMediumResult.getValue('name');
-            var enquiryMediumId = enquiryMediumResult.getValue('internalId');
-            var selected = false;
-            if(hasEnquiryMediums){
-                selected = (list_enquiry_mediums.indexOf(enquiryMediumId) !== -1);
-            }
+        // enquiryMediumResultSet.run().each(function (enquiryMediumResult) {
+        //     var enquiryMediumName = enquiryMediumResult.getValue('name');
+        //     var enquiryMediumId = enquiryMediumResult.getValue('internalId');
+        //     var selected = false;
+        //     if(hasEnquiryMediums){
+        //         selected = (list_enquiry_mediums.indexOf(enquiryMediumId) !== -1);
+        //     }
 
-            if(selected) {
-                inlineQty += '<option value="' + enquiryMediumId + '"selected>' + enquiryMediumName + '</option>';
-            }else{
-                inlineQty += '<option value="' + enquiryMediumId + '">' + enquiryMediumName + '</option>';
-            }
-            return true;
-        });
+        //     if(selected) {
+        //         inlineQty += '<option value="' + enquiryMediumId + '"selected>' + enquiryMediumName + '</option>';
+        //     }else{
+        //         inlineQty += '<option value="' + enquiryMediumId + '">' + enquiryMediumName + '</option>';
+        //     }
+        //     return true;
+        // });
 
-        inlineQty += '</select>';
-        inlineQty += '</div></div>';
+        // inlineQty += '</select>';
+        // inlineQty += '</div></div>';
 
 
         // Enquiry Status
@@ -1524,17 +1592,17 @@
         if (isNullorEmpty(email_enquiry_count)) { email_enquiry_count = 0;}
 
         //Total Enquiry Count HTML
-        var inlineQty = '<div class="form-group container enquiry_count_section">';
-        inlineQty += '<div class="row">';
+        // var inlineQty = '<div class="form-group container enquiry_count_section">';
+        // inlineQty += '<div class="row">';
 
-        inlineQty += '<div class="col-xs-12 total_enquiry_count_div">';
-        inlineQty += '<div class="input-group">';
-        inlineQty += '<span class="input-group-addon" id="total_enquiry_count_text">ENQUIRY COUNT</span>';
-        inlineQty += '<input id="total_enquiry_count" class="form-control enquiry_count" value="' + total_enquiry_count + '" disabled />';
-        inlineQty += '</div></div></div></div>';
+        // inlineQty += '<div class="col-xs-12 total_enquiry_count_div">';
+        // inlineQty += '<div class="input-group">';
+        // inlineQty += '<span class="input-group-addon" id="total_enquiry_count_text">ENQUIRY COUNT</span>';
+        // inlineQty += '<input id="total_enquiry_count" class="form-control enquiry_count" value="' + total_enquiry_count + '" disabled />';
+        // inlineQty += '</div></div></div></div>';
 
         //Enquiries by chat count
-        inlineQty += '<div class="form-group container enquiry_count_breakdown_section">';
+        var inlineQty = '<div class="form-group container enquiry_count_breakdown_section">';
         inlineQty += '<div class="row">';
 
         inlineQty += '<div class="col-xs-4 enquiry_count_by_chat">';

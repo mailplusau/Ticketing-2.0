@@ -23,16 +23,21 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          * On page initialisation
          */
         function pageInit() {
+            //background-colors
+            $("#NS_MENU_ID0-item0").css("background-color", "#CFE0CE");
+            $("#NS_MENU_ID0-item0 a").css("background-color", "#CFE0CE");
+            $("#body").css("background-color", "#CFE0CE");
+            
             var ticketsDataSet = [];
             $(document).ready(function () {
 
                 selector_list.forEach(function (selector) {
                     // The inline html of the <table> tag is not correctly displayed inside 'div#' + selector when added with Suitelet.
                     // Hence, the html code is added using jQuery when the page loads.
-                    if ((selector != 'invoices') || isFinanceRole(userRole)) {
-                        var inline_html_tickets_table = dataTablePreview(selector);
-                        $('div#' + selector).html(inline_html_tickets_table);
-                    }
+                    // if ((selector != 'invoices') || isFinanceRole(userRole)) {
+                    //     var inline_html_tickets_table = dataTablePreview(selector);
+                    //     $('div#' + selector).html(inline_html_tickets_table);
+                    // }
 
                     var table_id = '#tickets-preview-' + selector;
 
@@ -100,12 +105,12 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     // Adapted from https://datatables.net/extensions/fixedheader/examples/options/columnFiltering.html
                     // Adds a row to the table head row, and adds search filters to each column.
                     $(table_id + ' thead tr').clone(true).appendTo(table_id + ' thead');
-                    $(table_id + ' thead tr:eq(1) th').each(function (i) {
+                    $(table_id + ' thead tr:eq(3) th').each(function (i) {
                         var title = $(this).text();
                         if (title == '') {
-                            $(this).html('<input type="checkbox" id="select_all"></input>');
+                            $(this).html('');
                         } else {
-                            $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+                            $(this).html('<input style="width: 90%" type="text" placeholder="Search ' + title + '" />');
 
                             $('input', this).on('keyup change', function () {
                                 if (table.column(i).search() !== this.value) {
@@ -446,12 +451,12 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          * @returns {String}            type of the ticket
          */
         function getTicketType(ticketResult) {
-            var barcode_number = ticketResult.getText('custrecord_barcode_number');
+            var barcode_number = ticketResult.getText({ name: 'custrecord_barcode_number' });
             if (!isNullorEmpty(barcode_number)) {
                 barcode_number = barcode_number.trim();
             }
 
-            var invoice_number = ticketResult.getText('custrecord_invoice_number');
+            var invoice_number = ticketResult.getText({ name: 'custrecord_invoice_number' });
             if (!isNullorEmpty(invoice_number)) {
                 invoice_number = invoice_number.trim();
             }
@@ -464,7 +469,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             } else {
                 var re_barcode = /^MPE/;
                 var re_invoice = /^INV/;
-                var ticket_name = ticketResult.getValue('altname');
+                var ticket_name = ticketResult.getValue({ name: 'altname' });
                 if (ticket_name.match(re_barcode)) {
                     return 'barcode';
                 } else if (ticket_name.match(re_invoice)) {

@@ -73,8 +73,8 @@
              // Define information window.
              inlineHtml += '<div class="container" hidden><p id="info" class="alert alert-info"></p></div>';
  
-             inlineHtml += '<div style="background-color: #CFE0CE; min-height: 100vh; margin-top: -15px"><br/>';
-
+             //inlineHtml += '<div style="background-color: #CFE0CE; min-height: 100vh; margin-top: -15px"><br/>';
+             inlineHtml += '<div style="margin-top: -40px"><br/>';
              inlineHtml += '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="opennewticket" onclick="">Open New Ticket</button>';
              inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="viewclosedtickets" onclick="">View Closed Tickets</button>';
              inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="viewlosttickets" onclick="">View Lost Tickets</button>';
@@ -159,7 +159,7 @@
             //      functionName: 'onSendBulkEmails()'
             //  });
              
-             form.clientScriptFileId = 4796342;//SB=4796342 PROD = ??
+             form.clientScriptFileId = 4813449;//SB=4796342 PROD = 4813449
              context.response.writePage(form);
  
          } else {
@@ -236,8 +236,8 @@
 
          inlineQty += '<div style="width: 95%; margin:auto; margin-bottom: 30px"><ul class="nav nav-pills nav-justified" style="margin:0%; ">';
          if (isFinanceRole(userRole)) {
-             inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#barcodes"><b>BARCODES</b></a></li>';
-             inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#customers"><b>CUSTOMERS</b></a></li>';
+             //inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#barcodes"><b>BARCODES</b></a></li>';
+             //inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#customers"><b>CUSTOMERS</b></a></li>';
              inlineQty += '<li role="presentation" class="active"><a data-toggle="tab" href="#invoices"><b>INVOICES</b></a></li>';
          } else if (isDataAdminRole(userRole)) {
             inlineQty += '<li role="presentation" class="active"><a data-toggle="tab" href="#barcodes"><b>BARCODES</b></a></li>';
@@ -252,18 +252,19 @@
          
          // Tabs content
          inlineQty += '<div class="tab-content">';
-         if (isFinanceRole(userRole)) {
-             inlineQty += '<div role="tabpanel" class="tab-pane" id="barcodes">';
-         } else {
-             inlineQty += '<div role="tabpanel" class="tab-pane active" id="barcodes">';
+         if (!isFinanceRole(userRole)) {
+            inlineQty += '<div role="tabpanel" class="tab-pane active" id="barcodes">';
+            inlineQty += dataTablePreview('barcodes');
+            inlineQty += '</div>';
+
+            inlineQty += '<div role="tabpanel" class="tab-pane" id="customers">';
+            inlineQty += dataTablePreview('customers');
+            inlineQty += '</div>';
          }
      
-         inlineQty += dataTablePreview('barcodes');
-         inlineQty += '</div>';
+         
      
-         inlineQty += '<div role="tabpanel" class="tab-pane" id="customers">';
-         inlineQty += dataTablePreview('customers');
-         inlineQty += '</div>';
+         
 
          if (isFinanceRole(userRole)) {
              inlineQty += '<div role="tabpanel" class="tab-pane active" id="invoices">';

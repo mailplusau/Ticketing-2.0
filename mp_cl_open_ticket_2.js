@@ -21,13 +21,21 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          */
         var currRec = currentRecord.get();
         function pageInit() {
+            
             var currRec = currentRecord.get();
             //Remove Chrome's incessant "Leave Site" warning
             window.onbeforeunload = null;
 
+            //background-colors
+            $("#NS_MENU_ID0-item0").css("background-color", "#CFE0CE");
+            $("#NS_MENU_ID0-item0 a").css("background-color", "#CFE0CE");
+            $("#body").css("background-color", "#CFE0CE");
+
+            
             var ticketsDataSet = [];
             var invoicesDataSet = [];
             $(document).ready(function() {
+                
                 console.log('doc ready');
         
                 $('#email_body').summernote();
@@ -123,7 +131,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     attachFileButton.call(this)
                 });
             });
+            
 
+            
             console.log('Page init');
 
             if (window.location.search.substr(1) == "script=974&deploy=1" ||
@@ -478,8 +488,10 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
             updateEnquiryMediumAndCount();
 
+
             $('#reviewcontacts').click(function() {
-                addEditContact()
+                console.log("1234");
+                addEditContact();
             });
 
             $('#invoices_dropdown').change(function() {
@@ -495,6 +507,8 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
             $('.add_as_recipient').click(function() {
                 var email_address = $(this).data('email');
+                console.log("akjaks");
+                console.log(email_address);
                 if (!isNullorEmpty(email_address)) {
                     $(this).toggleClass('btn-success');
                     $(this).toggleClass('btn-danger');
@@ -667,7 +681,37 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     scriptId: 'customscript_sl_ticketing_escalate',
                 });
                 var upload_url = baseURL + output + '&custparam_params=' + params;
-                
+
+                var ticketRecord = record.load({
+                    type: 'customrecord_mp_ticket',
+                    id: Math.floor(ticket_id),
+                    isDynamic: true,
+                });
+
+                var customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
+                var ticketstatus = ticketRecord.getValue({fieldId: 'custrecord_ticket_status'});
+
+                console.log('customerstatus', customerstatus);
+                if (parseInt(customerstatus) < 4 ) {
+                    console.log(customerstatus);
+                    ticketRecord.setValue({fieldId: 'custrecord_mp_ticket_customer_status', value: parseInt(customerstatus) + 1});
+                }
+
+                if (parseInt(ticketstatus) < 11 ) {
+                    console.log(ticketstatus);
+                    ticketRecord.setValue({fieldId: 'custrecord_ticket_status', value: 11});
+                    
+                } else if (parseInt(ticketstatus) < 14) {
+                    console.log(ticketstatus);
+                    ticketRecord.setValue({fieldId: 'custrecord_ticket_status', value: parseInt(ticketstatus) + 1});
+                    
+                }
+
+                ticketRecord.save({
+                    enableSourcing: true,
+                })
+
+                console.log("upload", upload_url)
                 window.open(upload_url, '_self');
             }
             else {
@@ -1917,12 +1961,24 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 ["name", "is", selector_number], 'AND', ["custrecord_ticket_status", "noneof", '3']
             ];
             var activeTicketsResults = search.create({ type: 'customrecord_mp_ticket', filterExpression: activeTicketFilterExpression });
-            if (isNullorEmpty(activeTicketsResults)) {
+            var columns = new Array();
+            columns[0] = search.createColumn({ name: 'custrecord_mp_ticket_i', join: null, summary: null });
+
+            var activeTicketsRes = activeTicketsResults.run();
+            if (isNullorEmpty(activeTicketsRes)) {
                 return false;
             } else {
                 // If an active ticket exists for the barcode number, the ticket_id is saved.
                 // The validate function then redirects the user to its "Edit Ticket" page.
-                var activeTicketResult = activeTicketsResults[0];
+                var ticket_id = '';
+                activeTicketsRes.each(function(value) { 
+                    console.log(value);
+                    console.log(value.getValue('internalid'))
+                    ticket_id = value.id;
+                });
+                //console.log("AR2", activeTicketsRes);
+                var activeTicketResult = activeTicketsRes[0];
+                console.log("AR", ticket_id);
                 var ticket_id = activeTicketResult.getId();
                 currRec.setValue({ fieldId: 'custpage_ticket_id', value: ticket_id });
                 return true;
@@ -2595,8 +2651,8 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 };
                 params = JSON.stringify(params);
                 var output = url.resolveScript({
-                    deploymentId: 'customdeploy_sl_ticket_contact_2',
-                    scriptId: 'customscript_sl_ticket_contact_2',
+                    deploymentId: 'customdeploy_sl_ticket_contact',
+                    scriptId: 'customscript_sl_ticket_contact',
                 })
                 var upload_url = baseURL + output + '&params=' + params;
                 window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
