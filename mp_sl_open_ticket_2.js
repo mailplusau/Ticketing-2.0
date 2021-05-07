@@ -108,6 +108,17 @@
             var old_sender_phone = '';
             var customer_number_email_sent = 'F';
             var customer_ticket_status = '';
+            var receiveremail = '';
+            var receiverphone = '';            
+            var receivername = '';           
+            var receiverstate = '';            
+            var receiverzip = '';
+            var receiversuburb = '';
+            var receiveraddr1 = '';            
+            var receiveraddr2 = '';
+            var prod_stock_invoice = '';   
+            var barcodempdl = '';
+            var barcodesource = '';  
             // Load params
             var params = context.request.parameters.custparam_params;
             log.debug({
@@ -176,6 +187,27 @@
                         customer_number_email_sent =  ticketRecord.getValue({ fieldId: 'custrecord_customer_number_email_sent' });
                         customer_barcode_number = ticketRecord.getValue({ fieldId : 'custrecord_barcode_number'});
                         customer_ticket_status = ticketRecord.getText({ fieldId : 'custrecord_mp_ticket_customer_status'});
+                        
+                        if (!isNullorEmpty(customer_barcode_number)) {
+                            var rec = record.load({
+                                type: 'customrecord_customer_product_stock',
+                                id: customer_barcode_number,
+                            });
+                            
+                            receiveremail = rec.getValue({fieldId: 'custrecord_receiver_email'});
+                            receiverphone = rec.getValue({fieldId: 'custrecord_receiver_phone'});
+                            receivername = rec.getValue({fieldId: 'custrecord_receiver_name'});
+                            receiverstate = rec.getValue({fieldId: 'custrecord_receiver_state'});
+                            receiverzip = rec.getValue({fieldId: 'custrecord_receiver_postcode'});
+                            receiversuburb = rec.getValue({fieldId: 'custrecord_receiver_suburb'});
+                            receiveraddr1 = rec.getValue({fieldId: 'custrecord_receiver_addr1'});
+                            receiveraddr2 = rec.getValue({fieldId: 'custrecord_receiver_addr2'});
+                            prod_stock_invoice = rec.getText({fieldId: 'custrecord_prod_stock_invoice'});
+                            barcodempdl = rec.getValue({fieldId: 'custrecord_mpdl_number'});
+                            barcodesource = rec.getText({fieldId: 'custrecord_barcode_source'});
+                        }
+                        
+                        
                         if(isNullorEmpty(customer_id) && !isNullorEmpty(customer_number)){
                             var customer_search = search.load({ type: 'customer', id: 'customsearch_customer_name_2' });
                             customer_search.filters.push(search.createFilter({
@@ -248,8 +280,26 @@
                                 if(!isNullorEmpty(selector_id)){
                                     //Come in here only if selector_id is not null
                                     stock_used = search.lookupFields({ type: 'customrecord_customer_product_stock', id: selector_id, columns: ['custrecord_cust_date_stock_used', 'custrecord_cust_time_stock_used'] });
-                                    final_delivery_text = search.lookupFields({ type: 'customrecord_customer_product_stock', id: selector_id, columns: 'custrecord_cust_prod_stock_final_del' })["custrecord_cust_prod_stock_final_del"][0]["text"];
+                                    log.debug({
+                                        title: 'stock_used',
+                                        details: stock_used
+                                    })
+
+                                    log.debug({
+                                        title: 'finalDel',
+                                        details: search.lookupFields({ type: 'customrecord_customer_product_stock', id: selector_id, columns: 'custrecord_cust_prod_stock_final_del' })
+                                    });
+
+                                    var finalDelCheck = search.lookupFields({ type: 'customrecord_customer_product_stock', id: selector_id, columns: 'custrecord_cust_prod_stock_final_del' }).custrecord_cust_prod_stock_final_del;
+                                    if (!isNullorEmpty(finalDelCheck)) {
+                                        final_delivery_text = search.lookupFields({ type: 'customrecord_customer_product_stock', id: selector_id, columns: 'custrecord_cust_prod_stock_final_del' })["custrecord_cust_prod_stock_final_del"][0]["text"];
+
+                                    }
+                                    
+
                                    
+                                    
+
                                     date_stock_used = stock_used.custrecord_cust_date_stock_used;
                                     time_stock_used = stock_used.custrecord_cust_time_stock_used;
                                 }
@@ -262,6 +312,7 @@
 
                                 list_toll_emails = ticketRecord.getValue({ fieldId: 'custrecord_toll_emails' });
                                 list_toll_emails = java2jsArray(list_toll_emails);
+                                
                                 break;
 
                             case 'invoice_number':
@@ -318,8 +369,9 @@
                         list_resolved_mp_ticket_issues = java2jsArray(list_resolved_mp_ticket_issues);
 
                         owner_list = ticketRecord.getValue({ fieldId: 'custrecord_owner'  });
-                        owner_list = java2jsArray(owner_list);
-
+                        
+                        owner_list = Ownerjava2jsArray(owner_list);
+                        
                         comment = ticketRecord.getValue({ fieldId: 'custrecord_comment' });
                     }
                 }
@@ -364,7 +416,7 @@
             // Define information window.
             inlineHtml += '<div class="container" hidden><p id="info" class="alert alert-info"></p></div>';
     
-            inlineHtml += tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, customer_ticket_status);
+            inlineHtml += tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, customer_ticket_status, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2, prod_stock_invoice, barcodempdl, barcodesource, list_mp_ticket_issues, list_resolved_mp_ticket_issues, list_invoice_issues, list_resolved_invoice_issues);
             // inlineHtml += customerNumberSection(customer_number, ticket_id);
             // inlineHtml += selectorSection(ticket_id, selector_number, selector_id, selector_type, status_value);
     
@@ -497,20 +549,20 @@
             form.addField({ id: 'custpage_ss_image', type: ui.FieldType.TEXT, label: 'Screenshot Image' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = screenshot_file;
             form.addField({ id: 'custpage_customer_number_email_sent', type: ui.FieldType.TEXT, label: 'Customer Email Sent' }).updateDisplayType({ displayType: ui.FieldDisplayType.HIDDEN }).defaultValue = customer_number_email_sent;
 
-            // if (!isNullorEmpty(ticket_id)) {
-            //     if (isTicketNotClosed(status_value)) {
+             if (!isNullorEmpty(ticket_id)) {
+                 if (isTicketNotClosed(status_value)) {
                     
-            //         form.addSubmitButton({ label: 'Update Ticket' });
-            //     } else {
-            //         form.addSubmitButton({ label: 'Reopen Ticket' });
-            //     }
-            // } else {
-            //     form.addSubmitButton({ label: 'Open Ticket' });
+                     form.addSubmitButton({ label: 'Update Ticket' });
+                 } else {
+                     form.addSubmitButton({ label: 'Reopen Ticket' });
+                 }
+            } else {
+                 form.addSubmitButton({ label: 'Open Ticket' });
             //     form.addButton({ id: 'custpage_openandnew', label: 'Open & New Ticket', functionName: 'openAndNew()' });
             // }
             // if (isTicketNotClosed(status_value)) {
             //     form.addButton({ id: 'custpage_escalate', label: 'Escalate', functionName: 'onEscalate()' });
-            // }
+            }
             
             // form.addButton({ id: 'custpage_cancel', label: 'Cancel', functionName: 'onCancel()' });
             form.clientScriptFileId = 4813453;//SB=4796340 PROD=4813453
@@ -620,14 +672,14 @@
                 if (!isNullorEmpty(attachement_files)) {
                     try {
                         email.send({
-                            author: userId,
+                            author: 112209,
                             body: email_body,
                             recipients: to,
                             subject: email_subject,
                             attachments: attachement_files,
                             bcc: bcc,
                             cc: cc,
-                            relatedRecords: emailAttach,
+                            relatedRecords: { entityId: emailAttach["entity"] },
                         });
                         // 112209 is from MailPlus Team
                     } catch (error) {
@@ -677,29 +729,60 @@
      }
 
 
-     function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, customer_ticket_status) {
+     function externalBarcodeSource(selector_type, barcodempdl, barcodesource) {
+        var disabled = 'disabled';
+        var inlineQty = '';
+        
+        
+
+        if (selector_type == 'barcode_number') { 
+
+            inlineQty += '<div class="form-group container barcode_section">';
+            inlineQty += '<div class="row">';
+    
+            // MPLD field
+            inlineQty += '<div class="col-xs-6 barcodempdl_div">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="barcodempdl_text">EXTERNAL BARCODE</span>';
+            inlineQty += '<input id="barcodempdl" value="' + barcodempdl + '" class="form-control barcodempdl" ' + disabled + ' />';
+            inlineQty += '</div></div>';
+
+            // barcode source field
+            inlineQty += '<div class="col-xs-6 barcodesource_div">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="barcodesource_text">BARCODE SOURCE</span>';
+            inlineQty += '<input id="barcodesource" value="' + barcodesource + '" class="form-control barcodesource" ' + disabled + ' />';
+            inlineQty += '</div></div></div></div>';
+
+        }
+        
+
+        return inlineQty;
+     }
+
+     function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, customer_ticket_status, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2, prod_stock_invoice, barcodempdl, barcodesource, list_mp_ticket_issues, list_resolved_mp_ticket_issues, list_invoice_issues, list_resolved_invoice_issues) {
         
         var inlineQty = '<div style="margin-top: -40px"><br/>';
         // BUTTONS
         if (!isNullorEmpty(ticket_id)) {
             if (isTicketNotClosed(status_value)) {
-                inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="updateticketbutton" onclick="">Update Ticket</button>';
+                inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="updateticketbutton" onclick="">Update Ticket</button>';
             } else {
-                inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="reopenticketbutton" onclick="">Reopen Ticket</button>';
+                inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="reopenticketbutton" onclick="">Reopen Ticket</button>';
             }
         } else {
-            inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="openticketbutton" onclick="">Open Ticket</button>';
-            inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="opennewticketbutton" onclick="">Open & New Ticket</button>';
+            inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="openticketbutton" onclick="">Save Ticket</button>';
+            inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="opennewticketbutton" onclick="">Save & New Ticket</button>';
         }
         
 
         if (isTicketNotClosed(status_value)) {
             if (!isNullorEmpty(ticket_id)) {
-                inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closeticketbutton" onclick="">Close Ticket</button>';
-                inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closelostbutton" onclick="">Close Ticket - Lost Item</button>';
+                inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closeticketbutton" onclick="">Close Ticket</button>';
+                inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closelostbutton" onclick="">Close Ticket - Lost Item</button>';
 
                 if (userId == 409635 || userId == 696992 || userId == 766498) {
-                    inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closeunallocatedbutton" onclick="">Close Unallocated Ticket</button>';
+                    inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closeunallocatedbutton" onclick="">Close Unallocated Ticket</button>';
 
                 }
             }           
@@ -707,10 +790,10 @@
         } 
 
         // ESCALATE AND CANCEL BUTTONS
-        if (isTicketNotClosed(status_value)) {
-            inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalatebutton" onclick="">Escalate</button>';
+        if (isTicketNotClosed(status_value) && !isNullorEmpty(ticket_id)) {
+            inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #379E8F; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalatebutton" onclick="">Escalate</button>';
         }
-        inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="cancelbutton" onclick="">Cancel</button>';
+        inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="cancelbutton" onclick="">Cancel</button>';
 
 
         // Title
@@ -765,7 +848,7 @@
         inlineQty += selectorSection(ticket_id, selector_number, selector_id, selector_type, status_value);
         
         if (!isNullorEmpty(ticket_id)) {
-            inlineQty += receiverEmailPhone(customer_barcode_number, status_value, selector_type);
+            inlineQty += externalBarcodeSource(selector_type, barcodempdl, barcodesource)
             inlineQty += ticketSection(dateISOToNetsuite(date_created), creator_id, creator_name, status, customer_ticket_status);
         }
         if (isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && !isNullorEmpty(customer_id)) || !isNullorEmpty(customer_number)) {
@@ -783,11 +866,15 @@
         }
 
         inlineQty += mpexStockUsedSection(selector_type, date_stock_used, time_stock_used);
-        inlineQty += finalDeliveryEnquirySection(status_value, selector_type, final_delivery_text, selected_enquiry_status_id);
+        inlineQty += finalDeliveryEnquirySection(status_value, selector_type, final_delivery_text, selected_enquiry_status_id, prod_stock_invoice);
         inlineQty += attachmentsSection(attachments_hyperlink, status_value);
         inlineQty += enquiryMediumSection(list_enquiry_mediums, selected_enquiry_status_id, selector_type);
         inlineQty += enquiryCountSection( total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selector_type);
         
+        if(!isNullorEmpty(ticket_id)) {
+            inlineQty += receiverEmailPhone(selector_type, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2);
+        }
+
         //TICKET LABEL DROPDOWN
         //inlineQty += labelSection(selected_label_id, selector_type, status_value);
         inlineQty += '</div>';
@@ -798,6 +885,9 @@
         inlineQty += reminderSection(status_value);
         inlineQty += ownerSection(ticket_id, owner_list, status_value);
         inlineQty += tollIssuesSection(list_toll_issues, list_resolved_toll_issues, status_value, selector_type);
+        inlineQty += mpTicketIssuesSection(list_mp_ticket_issues, list_resolved_mp_ticket_issues, status_value, selector_type);
+        inlineQty += invoiceIssuesSection(list_invoice_issues, list_resolved_invoice_issues, status_value, selector_type);
+        inlineQty += usernoteSection(selector_type, status_value);
         inlineQty += commentSection(comment, selector_type, status_value);
 
         inlineQty += '</div>';
@@ -894,6 +984,8 @@
 
         return inlineQty;
     }
+
+
     
     /**
      * The "Barcode number" OR "Invoice Number" input field.
@@ -1132,7 +1224,7 @@
         inlineQty += '</div></div></div></div>';
 
         return inlineQty;
-    }
+    }   
 
     /**
      * The receiver phone and email fields.
@@ -1144,30 +1236,46 @@
     * @param   {String}    selector_type
     * @return  {String}    inlineQty
     */
-    function receiverEmailPhone(customer_barcode_number, status_value, selector_type) {
+    function receiverEmailPhone(selector_type, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2) {
 
         var disabled = 'disabled';
         var inlineQty = '';
-        // if (isTicketNotClosed(status_value) && selector_type == 'barcode_number') {
-        //     disabled = '';
-        // }
+        
+        
 
         if (selector_type == 'barcode_number') { 
-            var rec = record.load({
-                type: 'customrecord_customer_product_stock',
-                id: customer_barcode_number,
-            });
+
+            // Receiver details header
+            var inlineQty = '<div class="form-group container tickets_details_header_section">';
+            inlineQty += '<div class="row">';
+            inlineQty += '<div class="col-xs-12 heading2"  >';
+            inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">RECEIVER DETAILS</span></h4>';
+            inlineQty += '</div></div></div>';
             
-            var receiveremail = rec.getValue({fieldId: 'custrecord_receiver_email'});
-            var receiverphone = rec.getValue({fieldId: 'custrecord_receiver_phone'});
-    
             inlineQty += '<div class="form-group container receivercontact_section">';
+            inlineQty += '<div class="row">';
+    
+            // name field
+            inlineQty += '<div class="col-xs-6 receivername_div">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="receivername_text">NAME</span>';
+            inlineQty += '<input id="receivername" value="' + receivername + '" class="form-control receivername" ' + disabled + ' />';
+            inlineQty += '</div></div>';
+
+            // state field
+            inlineQty += '<div class="col-xs-6 receiverstate_div">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="receiverstate_text">STATE</span>';
+            inlineQty += '<input id="receiverstate" value="' + receiverstate + '" class="form-control receiverstate" ' + disabled + ' />';
+            inlineQty += '</div></div></div></div>';
+
+            inlineQty += '<div class="form-group container receivercontact2_section">';
             inlineQty += '<div class="row">';
     
             // Day to day email field
             inlineQty += '<div class="col-xs-6 receiveremail_div">';
             inlineQty += '<div class="input-group">';
-            inlineQty += '<span class="input-group-addon" id="receiveremail_text">RECEIVER EMAIL</span>';
+            inlineQty += '<span class="input-group-addon" id="receiveremail_text">EMAIL</span>';
             inlineQty += '<input id="receiveremail" type="email" value="' + receiveremail + '" class="form-control receiveremail" ' + disabled + ' />';
             inlineQty += '<div class="input-group-btn">';
             inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success add_as_recipient" data-email="' + receiveremail + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
@@ -1179,9 +1287,43 @@
             // Day to day phone field
             inlineQty += '<div class="col-xs-6 receiverphone_div">';
             inlineQty += '<div class="input-group">';
-            inlineQty += '<span class="input-group-addon" id="receiverphone_text">RECEIVER PHONE</span>';
+            inlineQty += '<span class="input-group-addon" id="receiverphone_text">PHONE</span>';
             inlineQty += '<input id="receiverphone" type="tel" value="' + receiverphone + '" class="form-control receiverphone" ' + disabled + ' />';
             inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #379E8F" class="btn btn-success" id="call_receiver_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
+            inlineQty += '</div></div></div></div>';
+
+            inlineQty += '<div class="form-group container receivercontact3_section">';
+            inlineQty += '<div class="row">';
+    
+            // suburb field
+            inlineQty += '<div class="col-xs-6 receiversuburb_div">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="receiversuburb_text">SUBURB</span>';
+            inlineQty += '<input id="receiversuburb" value="' + receiversuburb + '" class="form-control receiversuburb" ' + disabled + ' />';
+            inlineQty += '</div></div>';
+
+            // postcode field
+            inlineQty += '<div class="col-xs-6 receiverzip_div">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="receiverzip_text">POSTCODE</span>';
+            inlineQty += '<input id="receiverzip" value="' + receiverzip + '" class="form-control receiverzip" ' + disabled + ' />';
+            inlineQty += '</div></div></div></div>';
+
+            inlineQty += '<div class="form-group container receivercontact4_section">';
+            inlineQty += '<div class="row">';
+    
+            // address1 field
+            inlineQty += '<div class="col-xs-6 receiveraddr1_div">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="receiveraddr1_text">ADDRESS1</span>';
+            inlineQty += '<input id="receiveraddr1" value="' + receiveraddr1 + '" class="form-control receiveraddr1" ' + disabled + ' />';
+            inlineQty += '</div></div>';
+
+            // address2 field
+            inlineQty += '<div class="col-xs-6 receiveraddr2_div">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="receiveraddr2_text">ADDRESS2</span>';
+            inlineQty += '<input id="receiveraddr2" value="' + receiveraddr2 + '" class="form-control receiveraddr2" ' + disabled + ' />';
             inlineQty += '</div></div></div></div>';
         }
         
@@ -1409,7 +1551,7 @@
      * @param   {Number} selected_enquiry_status_id
      * @return  {String} inlineQty
      */
-    function finalDeliveryEnquirySection(status_value, selector_type, final_delivery_text, selected_enquiry_status_id) {
+    function finalDeliveryEnquirySection(status_value, selector_type, final_delivery_text, selected_enquiry_status_id, prod_stock_invoice) {
         if (isNullorEmpty(final_delivery_text)) {
             final_delivery_text = ''
         }
@@ -1429,6 +1571,13 @@
         inlineQty += '<div class="input-group">';
         inlineQty += '<span class="input-group-addon" id="final_delivery_text">FINAL DELIVERY</span>';
         inlineQty += '<input id="final_delivery" class="form-control final_delivery" value="' + final_delivery_text + '" disabled>';
+        inlineQty += '</div></div>';
+
+        // Final Delivery
+        inlineQty += '<div class="col-xs-6 invoice ' + barcode_hide_class + '">';
+        inlineQty += '<div class="input-group">';
+        inlineQty += '<span class="input-group-addon" id="invoice_text">INVOICE</span>';
+        inlineQty += '<input id="invoice" class="form-control invoice" value="' + prod_stock_invoice + '" disabled>';
         inlineQty += '</div></div>';
 
         inlineQty += '</div></div>';
@@ -2314,12 +2463,21 @@
         if (isNullorEmpty(ticket_id)) {
             // If ticket_id is null, owner_list as well.
             // In that case, only the creator of the ticket is pre-selected as the owner.
-            var userId = runtime.getCurrentUser().toString();
+            
+            var userId = runtime.getCurrentUser().id;
+            log.debug({
+                title: 'userId',
+                details: userId
+            })
             owner_list = [userId];
         }
 
         var disabled = (!isTicketNotClosed(status_value)) ? 'disabled' : '';
 
+        log.debug({
+            title: 'owner_list',
+            details: owner_list
+        })
         var inlineQty = '<div class="form-group container owner_section">';
         inlineQty += '<div class="row">';
         inlineQty += '<div class="col-xs-12 owner">';
@@ -2330,12 +2488,13 @@
         var employeeSearch = search.load({ type: 'employee', id: 'customsearch_active_employees' });
         var employeeResultSet = employeeSearch.run();
         employeeResultSet.each(function(employeeResult) {
-            var employee_id = employeeResult.searchId;
+            var employee_id = employeeResult.id;
             var employee_firstname = employeeResult.getValue('firstname');
             var employee_lastname = employeeResult.getValue('lastname');
             var employee_email = employeeResult.getValue('email');
 
-            if (owner_list.indexOf(employee_id) != -1) {
+            
+            if (owner_list.indexOf(parseInt(employee_id)) != -1) {
                 inlineQty += '<option value="' + employee_id + '" data-email="' + employee_email + '" selected>' + employee_firstname + ' ' + employee_lastname + '</option>';
             } else {
                 inlineQty += '<option value="' + employee_id + '" data-email="' + employee_email + '">' + employee_firstname + ' ' + employee_lastname + '</option>';
@@ -2621,6 +2780,7 @@
             if (show_option) {
                 inlineQty += '<option value="' + mp_issue_id + '" ' + selected_option + '> ' + mp_issue_name + '</option > ';
             }
+            return true;
 
         });
 
@@ -2637,6 +2797,7 @@
                 if (list_resolved_mp_ticket_issues.indexOf(mp_issue_id) !== -1) {
                     text_resolved_mp_ticket_issues += mp_issue_name + '\n';
                 }
+                return true;
             });
             inlineQty += '<div class="form-group container resolved_mp_issues_section">';
             inlineQty += '<div class="row">';
@@ -2932,6 +3093,17 @@
         inlineQty += '</div></div>';
 
         return inlineQty;
+    }
+
+    function Ownerjava2jsArray(javaArray) {
+        var jsArray = new Array;
+        if (!isNullorEmpty(javaArray)) {
+            javaArray.forEach(function(javaValue) {
+                var jsValue = parseInt(javaValue);
+                jsArray.push(jsValue);
+            })
+        }
+        return jsArray;
     }
 
     /**

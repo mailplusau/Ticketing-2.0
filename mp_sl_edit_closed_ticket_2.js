@@ -77,9 +77,9 @@
 
             //inlineHtml += '<div style="background-color: #CFE0CE; min-height: 100vh; margin-top: -15px"><br/>';
             inlineHtml += '<div style="margin-top: -40px"><br/>';
-            inlineHtml += '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="opennewticket" onclick="">Open New Ticket</button>';
-            inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="viewclosedtickets" onclick="">View Open MP Tickets</button>';
-            inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #379E8F; font-weight: 700; border-color: #379E8F; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="viewlosttickets" onclick="">View Closed-Lost Tickets</button>';
+            inlineHtml += '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="opennewticket" onclick="">Open New Ticket</button>';
+            inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="viewopentickets" onclick="">View Open MP Tickets</button>';
+            inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="viewlosttickets" onclick="">View Closed-Lost Tickets</button>';
 
             // form.addSubmitButton({
             //     label: 'Open New Ticket'

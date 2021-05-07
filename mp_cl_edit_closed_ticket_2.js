@@ -28,6 +28,16 @@
         $("#NS_MENU_ID0-item0 a").css("background-color", "#CFE0CE");
         $("#body").css("background-color", "#CFE0CE");
 
+        $('#opennewticket').click(function() {
+            openTicket();
+        });
+        $('#viewopentickets').click(function() {
+            viewOpenTickets();
+        });
+        $('#viewlosttickets').click(function() {
+            viewLostTickets();
+        });
+
         var ticketsDataSet = [];
         var tableSet = [];
         $(document).ready(function () {
@@ -205,6 +215,7 @@
                 return (date_from <= date_created && date_created <= date_to);
             }
         );
+
         
     }
 
@@ -234,8 +245,8 @@
      */
     function viewOpenTickets() {
         var output = url.resolveScript({
-            deploymentId: 'customdeploy_sl_edit_ticket',
-            scriptId: 'customscript_sl_edit_ticket',
+            deploymentId: 'customdeploy_sl_edit_ticket_2',
+            scriptId: 'customscript_sl_edit_ticket_2',
         });
         var upload_url = baseURL + output;
         window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
@@ -246,13 +257,34 @@
      */
     function viewLostTickets() {
         var output = url.resolveScript({
-            deploymentId: 'customdeploy_mp_sl_edit_lost_ticket',
-            scriptId: 'customscript_mp_sl_edit_lost_ticket',
+            deploymentId: 'customdeploy_mp_sl_edit_lost_ticket_2',
+            scriptId: 'customscript_mp_sl_edit_lost_ticket_2',
         });
         var upload_url = baseURL + output;
         window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
     }
 
+
+    function openTicket() {
+        //https://1048144-sb3.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1228&deploy=1
+        var upload_url = url.resolveScript({
+            deploymentId: 'customdeploy_sl_open_ticket_2',
+            scriptId: 'customscript_sl_open_ticket_2',
+        });
+        window.open(upload_url, '_blank');
+    }
+    
+    /**
+     * Redirect to the "View Closed Tickets" page.
+     */
+     function viewClosedTickets() {
+        var upload_url = url.resolveScript({
+            deploymentId: 'customdeploy_sl_edit_closed_ticket_2',
+            scriptId: 'customscript_sl_edit_closed_ticket_2',
+        });
+        window.open(upload_url, '_blank');
+    }
+    
 
     /**
      * @returns {Boolean} Whether the function has completed correctly.

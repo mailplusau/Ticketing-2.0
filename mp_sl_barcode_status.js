@@ -9,8 +9,8 @@
  */
 
 
- define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/http', 'N/log', 'N/redirect', 'N/format'], 
- function(ui, email, runtime, search, record, http, log, redirect, format) {
+ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/https', 'N/log', 'N/redirect', 'N/format', 'N/url'], 
+ function(ui, email, runtime, search, record, https, log, redirect, format, url) {
      var baseURL = 'https://1048144.app.netsuite.com';
      if (runtime.envType == "SANDBOX") {
          baseURL = 'https://1048144-sb3.app.netsuite.com';
@@ -38,176 +38,197 @@
         });
 
         // website- tracking/barcode
-        var tracking_number = context.request.parameters.tracking_number;
+        var tracking_number = context.request.parameters.barcode;
+        var sender_or_receiver = context.request.parameters.sender_or_receiver;
+        var email = context.request.parameters.email;
+
         tracking_number = tracking_number.toUpperCase();
         var barcode = true;
 
-        if (tracking_number.startsWith("MPSD")) {
+        log.debug({
+            title: 'tracking_number',
+            details: tracking_number.toString()
+        });
+
+        if (tracking_number.indexOf("MPSD") === 0 ) {
             barcode = false;
         }
 
-        var ticketSearch = search.load({
-            id: 'customsearch_mp_ticket',
+        // checks all tickets
+        var openTicketSearch = search.load({
+            id: 'customsearch_mp_ticket_2',
             type: 'customrecord_mp_ticket'
         });
 
         
         if (!barcode) {
-            ticketSearch.filters.push(search.createFilter({
-                name: 'name',
+            openTicketSearch.filters.push(search.createFilter({
+                name: 'formulatext',
+                operator: search.Operator.IS,
                 values: tracking_number,
+                formula: '{name}'
             }));
         } else {
-            ticketSearch.filters.push(search.createFilter({
-                name: 'altname',
+            openTicketSearch.filters.push(search.createFilter({
+                name: 'formulatext',
+                operator: search.Operator.IS,
                 values: tracking_number,
+                formula: '{custrecord_barcode_number}'
             }));
         }
 
+        // count of results for search
+        var openTicketsCount = openTicketSearch.runPaged().count;
 
-        var searchResultCount = ticketSearch.runPaged().count;
-
-        if (searchResultCount > 0) {
-            // send email based on status
-            // send email to customer and CS team?
-            var ticketResults = ticketSearch.run();
+        if (openTicketsCount > 0) {
+            // run search for open and in progress tickets
+            var openTicketResults = openTicketSearch.run();
             var ticketStatus; 
             var ticket_id;
-            //ADD LIST TO MP TICKET RECORD
-            ticketResults.each(function(ticket) { 
-                ticketStatus = ticket.getValue('custrecord_mp_ticket_customer_status');
+            var ticket_name;
+            var barcode_number;
+            var customer_id;
+            openTicketResults.each(function(ticket) { 
+                ticketStatus = ticket.getValue('custrecord_ticket_status');
                 ticket_id = ticket.getValue('internalid');
+                ticket_name = ticket.getValue('name');
+                barcode_number = ticket.getValue('altname');
+                customer_id = ticket.getValue('custrecord_customer1');
             });
 
-            // send emails!!
-            if (ticketStatus == 1) {
-                sendCustomerTicketEmail();
-            } else if (ticketStatus == 2) {
+            // send emails based on status
 
-            } else if (ticketStatus == 3) {
+            log.debug({
+                title: 'ticketStatus',
+                details: ticketStatus
+            })
+            log.debug({
+                title: 'ticket_name',
+                details: ticket_name
+            })
+            log.debug({
+                title: 'barcode_number',
+                details: barcode_number
+            })
+            //if ticket is open or in progress
+            if (ticketStatus == 1 || ticketStatus == 2 || ticketStatus == 4 || ticketStatus == 5 || ticketStatus == 6 || ticketStatus == 7) {
+                log.debug({
+                    title: 'status 1',
+                });
+                sendCustomerTicketEmail('MailPlus [' + ticket_name + '] - Status Update - ' + barcode_number, [email], 112, customer_id);
+            } else if (ticketStatus == 11) {
 
-            } else if (ticketStatus == 4) {
+                //Escalation 1
+                log.debug({
+                    title: 'status 2',
+                });
+                sendCustomerTicketEmail('MailPlus [' + ticket_name + '] - Support enquiry | Stage 1 - ' + barcode_number, [email], 109, customer_id);
+            } else if (ticketStatus == 12) {
+                //Escalation 2
+                log.debug({
+                    title: 'status 3',
+                    details: customer_id
+                });
+                
+                sendCustomerTicketEmail('MailPlus [' + ticket_name + '] - Support enquiry | Stage 2 - ' + barcode_number, [email], 110, customer_id);
+            } else if (ticketStatus == 13 || ticketStatus == 14) {
+                //Final Escalation
+                log.debug({
+                    title: 'status 4',
+                });
+                sendCustomerTicketEmail('MailPlus [' + ticket_name + '] - Support enquiry | Stage 3 - ' + barcode_number, [email], 111, customer_id);
+            } else if (ticketStatus == 3 || ticketStatus == 8) {
+                //Closed Ticket or Closed- Unallocated Ticket
+                log.debug({
+                    title: 'status 5',
+                });
+                sendCustomerTicketEmail('MailPlus [' + ticket_name + '] - Ticket Closed - ' + barcode_number, [email], 114, customer_id);
+                
 
-            } else if (ticketStatus == 5) {
+            } else if (ticketStatus == 9) {
+                //Lost Ticket
+                log.debug({
+                    title: 'status 7',
+                });
+
+                if (sender_or_receiver == 1) {
+                    sendCustomerTicketEmail('MailPlus [' + ticket_name + '] - Lost In Transit - ' + barcode_number, [email], 115, customer_id);
+
+                } else {
+                    sendCustomerTicketEmail('MailPlus [' + ticket_name + '] - Lost In Transit - ' + barcode_number, [email], 113, customer_id);
+
+                }
+
 
             } else {
+                log.debug({
+                    title: 'Ticket Error',
+                });
+                sendCustomerTicketEmail('MailPlus [' + ticket_name + '] - Under Enquiry - ' + barcode_number, [email], 66, customer_id);
 
             }
 
         } else {
-            // No results found- send email to customer directing to new ticket page
-            sendCustomerTicketEmail();
+             //NO results found- send email to redirect to create ticket page
+
+             log.debug({
+                 title: 'status 8',
+                 details: 'status 8'
+             });
+             sendCustomerTicketEmail('MailPlus - Create New Ticket - ' + tracking_number, [email], 118, ''); 
         }
 
-
         
-
-        
-        
-
-        //  if (context.request.method === 'GET') {
-        //      //barcode number or ticket number
-        //      // if it's on 1st escalation- send 1st escalation email to customer- check which email
-        //      // if it hasn't been escalated- under investigation? check which email template to send
-        //      // if no active ticket for barcode- there'll be another email sent with a link to create that ticket
-
-        //      // create new ticket suitelet
-        //      // 2 types: receiver & sender (in the ticket record, add a notes field andstore what's coming from the webform)
-        //      // create another field for whether if it's coming from sender or receiver
-        //      // send another email with customer service
-        //      // send an acknowledgement email to whatever email address has been selected (66)
-        //  } else {
- 
-        //  }
      }
- 
+
      /**
          * Function to sent emails when a customer associated ticket is opened
          */
-      function sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, browser, os, login_email_used, sender_name, sender_phone, send_to) {
-        if (isNullorEmpty(browser)) {
-            browser = " - "
-        };
-        if (isNullorEmpty(os)) {
-            os = " - "
-        };
-        if (isNullorEmpty(login_email_used)) {
-            login_email_used = " - "
-        };
-        if (isNullorEmpty(sender_name)) {
-            sender_name = " - "
-        };
-        if (isNullorEmpty(sender_phone)) {
-            sender_phone = " - "
-        };
+      function sendCustomerTicketEmail(subject, recipients, template, customer_id) {
+        var sales_rep = encodeURIComponent(runtime.getCurrentUser().name);
+        var userid = encodeURIComponent(runtime.getCurrentUser().id);
+                
+        var suiteletUrl = url.resolveScript({
+            scriptId: 'customscript_merge_email',
+            deploymentId: 'customdeploy_merge_email',
+            returnExternalUrl: true
+        });
 
-        var url = "https://1048144.app.netsuite.com/app/site/hosting/scriptlet.nl?script=974&deploy=1&compid=1048144&";
+        suiteletUrl += '&rectype=customer&template=';
+        suiteletUrl += template + '&recid=' + customer_id + '&salesrep=' + sales_rep + '&dear=' + '' + '&contactid=' + null + '&userid=' + userid;
 
-        if (runtime.envType == "SANDBOX") {
-            var url = "https://1048144-sb3.app.netsuite.com/app/site/hosting/scriptlet.nl?script=974&deploy=1&compid=1048144_SB3";
-        }
+        log.debug({
+            title: 'suiteletUrl',
+            details: suiteletUrl
+        });
 
-        var contactEmail = ["sruti.desai@mailplus.com.au"];
+        var response = https.get({
+            url: suiteletUrl
+        });
 
-        var custparam_params = new Object();
-        custparam_params['ticket_id'] = parseInt(ticket_id);
-        custparam_params['selector_number'] = selector_number;
-        custparam_params['selector_type'] = selector_type;
-
-        var ticket_url = url + "&custparam_params=" + encodeURIComponent(JSON.stringify(custparam_params));
-
-        var subject = 'MPSD' + ticket_id + ' - New Customer Ticket Opened';
-        var body = '' + selector_number + '  Ticket Details <br>';
-        body += 'Customer number : ' + customer_number + ' <br>';
-        body += 'Login email used : ' + login_email_used + ' <br>';
-
-        switch (selector_number) {
-            case 'Customer App':
-                body += 'Browser : ' + browser + ' <br>';
-                body += 'Operating system : ' + os + ' <br>';
-                break;
-            case 'Customer Portal':
-                body += 'Browser : ' + browser + ' <br>';
-                break;
-            case 'Update Label':
-                body += 'Sender name : ' + sender_name + ' <br>';
-                body += 'Sender phone : ' + sender_phone + ' <br>';
-                break;
-        }
-
-        body += '<a href="' + ticket_url + '"> Open ticket page </a><br>';
-        body += 'Next reminder time: ' + getNextReminderTime() + ' <br>';
-
-        var file = $('#screenshot_image')[0];
-        if (file && (typeof file.files[0] != 'undefined')) {
-            file = file.files[0];
-            if ((file.type == "image/jpeg" || file.type == "image/png") && (file.name)) {
-                var fr = new FileReader();
-                fr.onload = function(e) {
-                    body += '<img src=" ' + e.target.result + '">';
-                    if (!isNullorEmpty(send_to)) {
-                        email.send({
-                            author: userId,
-                            body: body,
-                            recipients: send_to,
-                            subject: subject,
-                            cc: contactEmail,
-                        })
-                    }
-                }
-                fr.readAsDataURL(file);
-            }
+        var emailHtml = response.body;
+        
+        if (!isNullorEmpty(customer_id)) {
+            email.send({
+                author: 112209,
+                body: emailHtml,
+                recipients: recipients,
+                subject: subject,
+                relatedRecords: { entityId: customer_id}
+            });
         } else {
-            if (!isNullorEmpty(send_to)) {
-                email.send({
-                    author: userId,
-                    body: body,
-                    recipients: send_to,
-                    subject: subject,
-                    cc: contactEmail,
-                })
-            }
+            email.send({
+                author: 112209,
+                body: emailHtml,
+                recipients: recipients,
+                subject: subject,
+            });
         }
+
+        
+
+        
+        
     }
 
      function isNullorEmpty(strVal) {

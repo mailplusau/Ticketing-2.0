@@ -15,7 +15,9 @@
           baseURL = 'https://1048144-sb3.app.netsuite.com';
       }
       var role = runtime.getCurrentUser().role;
+      var userId = runtime.getCurrentUser().id;
 
+      var currRec = currentRecord.get();
       /**
        * On page initialisation
        */
@@ -26,6 +28,15 @@
         var ticket_id = currRec.getValue({ fieldId: 'custpage_ticket_id' });
         var status_value = currRec.getValue({ fieldId: 'custpage_ticket_status_value' });
         var customer_number = currRec.getValue({ fieldId: 'custpage_customer_number' });
+
+        var ticketRecord = record.load({
+            type: 'customrecord_mp_ticket',
+            id: Math.floor(ticket_id),
+            isDynamic: true,
+        });
+
+        var customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
+        var ticketstatus = ticketRecord.getValue({fieldId: 'custrecord_ticket_status'});
 
         //background-colors
         $("#NS_MENU_ID0-item0").css("background-color", "#CFE0CE");
@@ -47,9 +58,29 @@
                 console.log('isNullorEmpty(ticket_id) : ', isNullorEmpty(ticket_id));
                 createContactsRows();
                 // If the ticket status is "Open, the acknoledgement template shall be selected.
-                if (status_value == 1) {
+                if (status_value != 3) {
                     $('#template option:selected').attr('selected', false);
-                    $('#template option[value="91"]').attr('selected', true); // Select the acknoledgement template
+
+                    if (customerstatus == 2) {
+                        $('#template option[value="109"]').attr('selected', true); // Select the acknoledgement template
+
+                        //$('#template option[value="304"]').attr('selected', true); // Select the acknoledgement template
+                        console.log("a");
+                    } else if (customerstatus == 3) {
+                        $('#template option[value="110"]').attr('selected', true); // Select the acknoledgement template
+
+                        //$('#template option[value="303"]').attr('selected', true); // Select the acknoledgement template
+                        console.log("b");
+                    } else if (customerstatus == 4) {
+                        $('#template option[value="111"]').attr('selected', true); // Select the acknoledgement template
+
+                        //$('#template option[value="302"]').attr('selected', true); // Select the acknoledgement template
+                        console.log("c");
+                    } else {
+                        $('#template option[value="66"]').attr('selected', true); // Select the acknoledgement template
+                        //$('#template option[value="237"]').attr('selected', true); // Select the under investigation template
+
+                    }
                     loadTemplate();
                 }
 
@@ -152,20 +183,24 @@
 
         $('#escalationbtn').click(function() {
             console.log("here");
-            escalateTicket(ticket_id, selector_number, selector_type);
+            escalateTicket(ticket_id, selector_number, selector_type, customerstatus, ticketstatus);
             
         });
 
         $('#removeescalationbtn').click(function() {
             console.log("here2");
-            deEscalateTicket(ticket_id, selector_number, selector_type);
+            deEscalateTicket(ticket_id, selector_number, selector_type, customerstatus, ticketstatus);
+        });
+
+        $('#send_email').click(function() {
+            sendEmail()
         });
 
         
       }
 
 
-      function escalateTicket(ticket_id, selector_number, selector_type) {
+      function escalateTicket(ticket_id, selector_number, selector_type, customerstatus, ticketstatus) {
         var answer = window.confirm("Are you sure you want to escalate this ticket?");
         if (answer) {
             //SET FIELDS IN RECORD
@@ -178,8 +213,8 @@
                 isDynamic: true,
             });
 
-            var customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
-            var ticketstatus = ticketRecord.getValue({fieldId: 'custrecord_ticket_status'});
+            // var customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
+            // var ticketstatus = ticketRecord.getValue({fieldId: 'custrecord_ticket_status'});
 
             console.log('customerstatus', customerstatus);
             if (parseInt(customerstatus) < 4 ) {
@@ -231,7 +266,7 @@
     }
 
 
-      function deEscalateTicket(ticket_id, selector_number, selector_type) {
+      function deEscalateTicket(ticket_id, selector_number, selector_type, customerstatus, ticketstatus) {
         var answer = window.confirm("Are you sure you want to de-escalate this ticket?");
         if (answer) {
             //SET FIELDS IN RECORD
@@ -244,20 +279,25 @@
                 isDynamic: true,
             });
 
-            var customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
-            var ticketstatus = ticketRecord.getValue({fieldId: 'custrecord_ticket_status'});
+            // var customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
+            // var ticketstatus = ticketRecord.getValue({fieldId: 'custrecord_ticket_status'});
 
             console.log('customerstatus', customerstatus);
-            if (parseInt(customerstatus) > 1 ) {
-                console.log(customerstatus);
-                ticketRecord.setValue({fieldId: 'custrecord_mp_ticket_customer_status', value: parseInt(customerstatus) - 1});
-                
-            }
-
-            if (parseInt(ticketstatus) > 11 ) {
-                console.log(ticketstatus);
+            if (parseInt(ticketstatus) == 14) {
                 ticketRecord.setValue({fieldId: 'custrecord_ticket_status', value: parseInt(ticketstatus) - 1});
+            } else {
+                if (parseInt(customerstatus) > 1 ) {
+                    console.log(customerstatus);
+                    ticketRecord.setValue({fieldId: 'custrecord_mp_ticket_customer_status', value: parseInt(customerstatus) - 1});
+                    
+                }
+    
+                if (parseInt(ticketstatus) > 11 ) {
+                    console.log(ticketstatus);
+                    ticketRecord.setValue({fieldId: 'custrecord_ticket_status', value: parseInt(ticketstatus) - 1});
+                }
             }
+            
 
             ticketRecord.save({
                 enableSourcing: true,
@@ -288,6 +328,43 @@
 
       }
 
+      /**
+         * Set record status to 'In Progress'.
+         * @param {Number} ticket_id 
+         */
+       function setRecordStatusToInProgress(ticket_id) {
+            try {
+                var ticketRecord = record.load({ type: 'customrecord_mp_ticket', id: ticket_id });
+                var status_value = ticketRecord.getValue({ fieldId: 'customrecord_mp_ticket' });
+                var invoice_id = ticketRecord.getValue({ fieldId: 'custrecord_invoice_number' });
+
+                if (isNullorEmpty(status_value) || status_value == 1) {
+                    //Ticket is open 
+                    var selector_number = currRec.getValue({ fieldId: 'custpage_selector_number' });
+                    if (isFinanceRoleOnly(userRole) && !isNullorEmpty(invoice_id)) {
+                        ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 6 });
+                    } else if (!isNullorEmpty(selector_number) && selector_number == "Customer App") {
+                        console.log('Setting ticket status to In progress - IT');
+                        ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 4 }); //In progress - Developers
+                    } else {
+                        ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 2 });
+                    }
+                    
+                    ticketRecord.setValue({ fieldId: 'custrecord_email_sent', value: 'T' });
+
+                    ticketRecord.save({
+                        enableSourcing: true,
+                    })
+                }
+            } catch (e) {
+                console.log("e", e);
+                //if (e instanceof error.SuiteScriptError) {
+                    if (e.name == "SSS_MISSING_REQD_ARGUMENT") {
+                        console.log('Error to Set record status to In Progress with ticket_id : ' + ticket_id);
+                    }
+                //}
+            }
+      }
       /**
        * - Populates the Contacts table by adding contacts details at each row.
        * - If there is a ticket_id (which means we are in edit mode), 
@@ -524,6 +601,149 @@
       function isTicketNotClosed(status_value) {
             var is_ticket_not_closed = ((status_value != 3) && (status_value != 8)) ? true : false;
             return is_ticket_not_closed;
+      }
+
+      /**
+       * Triggered by a click on the button 'SEND EMAIL' ('#send_email')
+       * Send the selected email to the selected contact, and reloads the page.
+      */
+      function sendEmail() {
+        
+          if (validateEmailFields()) {
+            // Send Email
+            // Convert "TO" text field to email adresses array
+            var send_to_values = $('#send_to').val().split(',');
+            var send_to = [];
+
+            if (!isNullorEmpty(send_to_values)) {
+                send_to_values.forEach(function(email_address) {
+                    email_address = email_address.trim();
+                    if (!isNullorEmpty(email_address)) {
+                        send_to.push(email_address);
+                    }
+                });
+            }
+
+            var send_toll_values = $('#send_toll').val();
+            var send_toll_to = [];
+            if (!isNullorEmpty(send_toll_values)) {
+                for (var i = 0; i < send_toll_values.length; i++) {
+                    send_toll_to.push($('#send_toll option:selected').val(send_toll_values)[i].text);
+                }
+            }
+
+
+            // CC Field
+            var cc_values = $('#send_cc').val().split(',');
+            var cc = [];
+            cc_values.forEach(function(email_address) {
+                cc.push(email_address.trim());
+                return true;
+            });
+            if (isNullorEmpty(cc)) {
+                cc = null;
+            }
+
+            // BCC Field
+            var bcc_values = $('#send_bcc').val().split(',');
+            var bcc = [];
+            bcc_values.forEach(function(email_address) {
+                bcc.push(email_address.trim());
+                return true;
+            });
+            if (isNullorEmpty(bcc)) {
+                bcc = null;
+            }
+
+            if (!isNullorEmpty(send_to)) {
+                // Attach message to Customer / Franchisee record
+                var emailAttach = new Object();
+                var receiver_contact_id_array = $('#send_to').data('contact-id');
+                if (!isNullorEmpty(receiver_contact_id_array)) {
+                    receiver_contact_id_array = JSON.parse(receiver_contact_id_array);
+
+                    receiver_contact_id_array.forEach(function(receiver_contact_id) {
+                        if (receiver_contact_id == "0") {
+                            // Partner
+                            var zee_id = currRec.getValue({ fieldId: 'custpage_zee_id' });
+                            emailAttach['entity'] = zee_id;
+                        } else if (!isNullorEmpty(receiver_contact_id)) {
+                            // Customer
+                            var customer_id = currRec.getValue({ fieldId: 'custpage_customer_id' });
+                            emailAttach['entity'] = customer_id;
+                        }
+                    });
+                }
+            }
+
+            var email_subject = $('#subject').val();
+            var email_body = $('#email_body').summernote('code');
+
+            var ticket_id = currRec.getValue({ fieldId: 'custpage_ticket_id' });
+            ticket_id = parseInt(ticket_id);
+
+            var params_email = currRec.getValue({ fieldId: 'custpage_param_email' });
+            params_email = JSON.parse(params_email);
+
+            params_email.recipient = send_to;
+            params_email.subject = email_subject;
+            params_email.body = encodeURIComponent(email_body);
+            params_email.cc = cc;
+            params_email.bcc = bcc;
+            params_email.records = emailAttach;
+            var attachments_credit_memo_ids = params_email.attachments_credit_memo_ids;
+            var attachments_usage_report_ids = params_email.attachments_usage_report_ids;
+            var attachments_invoice_ids = params_email.attachments_invoice_ids;
+
+            params_email = JSON.stringify(params_email);
+            
+            if (!isNullorEmpty(attachments_credit_memo_ids) ||
+                !isNullorEmpty(attachments_usage_report_ids) ||
+                !isNullorEmpty(attachments_invoice_ids)) {
+                // Send email using the response part of this suitelet script.
+                currRec.setValue({ fieldId: 'custpage_param_email', value: params_email });
+                setRecordStatusToInProgress(ticket_id);
+
+                // Trigger the submit function.
+                $('#submitter').trigger('click');
+            } else {
+
+                send_to = send_to.concat(send_toll_to);
+                console.log("Final send " + send_to);
+                // If there are no attachments, it's faster to directly use nlapiSendEmail() from the client script.
+                email.send({
+                    author: userId,
+                    body: email_body,
+                    recipients: send_to,
+                    subject: email_subject,
+                    //attachments: emailAttach,
+                    bcc: bcc,
+                    cc: cc,
+                })
+                // 112209 is from MailPlus Team
+
+                var selector_number = currRec.getValue({ fieldId: 'custpage_selector_number' });
+                var selector_type = currRec.getValue({ fieldId: 'custpage_selector_type' });
+
+                setRecordStatusToInProgress(ticket_id);
+
+                // Reload the page
+                var params = {
+                    ticket_id: parseInt(ticket_id),
+                    selector_number: selector_number,
+                    selector_type: selector_type,
+                };
+                params = JSON.stringify(params);
+                var output = url.resolveScript({
+                    deploymentId: 'customdeploy_sl_ticketing_escalate',
+                    scriptId: 'customscript_sl_ticketing_escalate',
+                })
+                var upload_url = baseURL + output + '&custparam_params=' + params;
+                window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
+            }
+          } else {
+            return false;
+          }
       }
 
       function saveRecord(context) {

@@ -28,6 +28,16 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             $("#NS_MENU_ID0-item0 a").css("background-color", "#CFE0CE");
             $("#body").css("background-color", "#CFE0CE");
             
+            $('#opennewticket').click(function() {
+                openTicket();
+            });
+            $('#viewclosedtickets').click(function() {
+                viewClosedTickets();
+            });
+            $('#viewopentickets').click(function() {
+                viewOpenTickets();
+            });
+
             var ticketsDataSet = [];
             $(document).ready(function () {
 
