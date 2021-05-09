@@ -727,12 +727,14 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 var ticketRecord = record.load({
                     type: 'customrecord_mp_ticket',
                     id: Math.floor(ticket_id),
-                    isDynamic: true,
                 });
 
                 var customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
                 var ticketstatus = ticketRecord.getValue({fieldId: 'custrecord_ticket_status'});
-
+                var customer_id = ticketRecord.getValue({fieldId: 'custrecord_customer1'});
+                var customer_barcode_number = ticketRecord.getValue({ fieldId : 'custrecord_barcode_number'});
+                var ticket_name = ticketRecord.getText({fieldId: 'name'});
+                
                 console.log('customerstatus', customerstatus);
                 if (parseInt(customerstatus) < 4 ) {
                     console.log(customerstatus);
@@ -749,16 +751,149 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     
                 }
 
+
                 ticketRecord.save({
                     enableSourcing: true,
                 })
 
+                //Send email to Receiver
+
+                var barcodeRecord = record.load({
+                    type: 'customrecord_customer_product_stock',
+                    id: customer_barcode_number,
+                });
+
+                var receiveremail = barcodeRecord.getValue({fieldId: 'custrecord_receiver_email'});
+                var barcodeName = barcodeRecord.getValue({fieldId: 'name'});
+                var ticketRecord = record.load({
+                    type: 'customrecord_mp_ticket',
+                    id: Math.floor(ticket_id),
+                })
+                var ticketstatus = ticketRecord.getValue({fieldId: 'custrecord_ticket_status'});
+                if (!isNullorEmpty(receiveremail)) {
+                    if (ticketstatus == 11) {
+                        sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Support enquiry | Stage 1 - ' + barcodeName, [receiveremail], 109, customer_id);
+                    } else if (ticketstatus == 12) {
+                        sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Support enquiry | Stage 2 - ' + barcodeName, [receiveremail], 110, customer_id);
+
+                    } else if (ticketstatus == 13) {
+                        sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Support enquiry | Stage 3 - ' + barcodeName, [receiveremail], 111, customer_id);
+                    }
+                    
+
+                } 
+
+                //Send email to TOLL
+                var toll_issues = ticketRecord.getText({ fieldId: 'custrecord_toll_issues' });
+                var mp_issues = ticketRecord.getText({ fieldId: 'custrecord_mp_ticket_issue' });
+
+                var body = 'MP Ticket ID: ' + ticket_name + '\n Barcode: ' + barcodeName + '\nToll Issues: ' + toll_issues + '\nMP Issues: ' + mp_issues;
+
+                if (ticketstatus == 11) {
+                    email.send({
+                        author: 112209,
+                        body: body,
+                        cc: ['jessica.roberts@mailplus.com.au', 'gabrielle.bathman@mailplus.com.au', 'customerservice@mailplus.com.au'],
+                        recipients: ['CorpGold.Escalations@tollgroup.com'],
+                        subject: 'Ticket Escalated: Escalation 1- ' + ticket_name,
+                        relatedRecords: {record: ticket_id, recordtype: 1042}
+                    });
+                } else if (ticketstatus == 12) {
+                    email.send({
+                        author: 112209,
+                        body: body,
+                        cc: ['jessica.roberts@mailplus.com.au', 'gabrielle.bathman@mailplus.com.au', 'customerservice@mailplus.com.au'], 
+                        recipients: ['Natalie.Yildirim@tollgroup.com', 'Bernadette.Uluinaceva@tollgroup.com', 'aaron.davis@tollgroup.com'],
+                        subject: 'Ticket Escalated: Escalation 2- ' + ticket_name,
+                        relatedRecords: {record: ticket_id, recordtype: 1042},
+                    });
+                } else if (ticketstatus == 13) {
+                    email.send({
+                        author: 112209,
+                        body: body,
+                        cc: ['jessica.roberts@mailplus.com.au', 'gabrielle.bathman@mailplus.com.au', 'customerservice@mailplus.com.au'],
+                        recipients: ['dora.Venieris@tollgroup.com', 'marion.abada@tollgroup.com'],
+                        subject: 'Ticket Escalated: Escalation 3- ' + ticket_name,
+                        relatedRecords: {record: ticket_id, recordtype: 1042},
+                    });
+                }
+
+                // if (ticketstatus == 11) {
+                //     email.send({
+                //         author: 112209,
+                //         body: body,
+                //         recipients: ['sruti.desai@mailplus.com.au'],
+                //         subject: 'Ticket Escalated: Escalation 1- ' + ticket_name,
+                //         relatedRecords: {record: ticket_id, recordtype: 1042}
+                //     });
+                // } else if (ticketstatus == 12) {
+                //     email.send({
+                //         author: 112209,
+                //         body: body,
+                //         recipients: ['sruti.desai@mailplus.com.au'],
+                //         subject: 'Ticket Escalated: Escalation 2- ' + ticket_name,
+                //         relatedRecords: {record: ticket_id, recordtype: 1042},
+                //     });
+                // } else if (ticketstatus == 13) {
+                //     email.send({
+                //         author: 112209,
+                //         body: body,
+                //         recipients: ['sruti.desai@mailplus.com.au'],
+                //         subject: 'Ticket Escalated: Escalation 3- ' + ticket_name,
+                //         relatedRecords: {record: ticket_id, recordtype: 1042},
+                //     });
+                // }
+                
                 console.log("upload", upload_url)
                 window.open(upload_url, '_self');
             }
             else {
                 //some code
             }
+        }
+
+        /**
+         * Function to sent emails when a customer associated ticket is escalated
+         */
+        function sendCustomerEscalateEmail(subject, recipients, template, customer_id) {
+            var sales_rep = encodeURIComponent(runtime.getCurrentUser().name);
+            var userid = encodeURIComponent(runtime.getCurrentUser().id);
+                    
+            var suiteletUrl = url.resolveScript({
+                scriptId: 'customscript_merge_email',
+                deploymentId: 'customdeploy_merge_email',
+                returnExternalUrl: true
+            });
+
+            suiteletUrl += '&rectype=customer&template=';
+            suiteletUrl += template + '&recid=' + customer_id + '&salesrep=' + sales_rep + '&dear=' + '' + '&contactid=' + null + '&userid=' + userid;
+
+            console.log(suiteletUrl);
+
+            var response = https.get({
+                url: suiteletUrl
+            });
+
+            var emailHtml = response.body;
+            
+            if (!isNullorEmpty(customer_id)) {
+                email.send({
+                    author: 112209,
+                    body: emailHtml,
+                    recipients: recipients,
+                    subject: subject,
+                    relatedRecords: { entityId: customer_id}
+                });
+            } else {
+                email.send({
+                    author: 112209,
+                    body: emailHtml,
+                    recipients: recipients,
+                    subject: subject,
+                });
+            }
+            
+        
         }
 
         function saveRecord(context) {
@@ -2655,12 +2790,16 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             var customer_id = currRec.getValue({ fieldId: 'custpage_customer_id' });
             var selector_type = currRec.getValue({ fieldId: 'custpage_selector_type' });
             var ticketSearchResults = loadTicketsSearch(customer_id);
-            ticketSearchResults.filters.push( search.createFilter({
+            
+            if (!isNullorEmpty(ticketSearchResults)) {
+                ticketSearchResults.filters.push( search.createFilter({
                     name: 'custrecord_customer1',
                     operator: search.Operator.IS,
                     values: customer_id,
                 })
-            );
+                );
+            }
+            
             
             //console.log("cnt", searchResultCount);
             console.log('update tickets datatable');
@@ -3628,6 +3767,26 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 // Save issues and resolved issues
                 ticketRecord = updateIssues(ticketRecord);
 
+                var ticket_name = ticketRecord.getText({fieldId: 'name'});
+                var customer_barcode_number = ticketRecord.getValue({ fieldId : 'custrecord_barcode_number'});
+                var customer_id = ticketRecord.getValue({fieldId: 'custrecord_customer1'});
+
+                var barcodeRecord = record.load({
+                    type: 'customrecord_customer_product_stock',
+                    id: customer_barcode_number,
+                });
+
+                var receiveremail = barcodeRecord.getValue({fieldId: 'custrecord_receiver_email'});
+                var barcodeName = barcodeRecord.getValue({fieldId: 'name'});
+
+                //Send Email To Customer
+                if (!isNullorEmpty(receiveremail)) {
+                    sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Ticket Closed - ' + barcodeName, [receiveremail], 114, customer_id);
+                }
+
+                
+                
+
                 ticketRecord.save({
                     enableSourcing: true,
                 })
@@ -3666,6 +3825,29 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 ticketRecord.save({
                     enableSourcing: true,
                 });
+
+                var ticket_name = ticketRecord.getText({fieldId: 'name'});
+                var customer_barcode_number = ticketRecord.getValue({ fieldId : 'custrecord_barcode_number'});
+                var customer_id = ticketRecord.getValue({fieldId: 'custrecord_customer1'});
+
+                var barcodeRecord = record.load({
+                    type: 'customrecord_customer_product_stock',
+                    id: customer_barcode_number,
+                });
+
+                var receiveremail = barcodeRecord.getValue({fieldId: 'custrecord_receiver_email'});
+                var barcodeName = barcodeRecord.getValue({fieldId: 'name'});
+
+                //Send Email To Customer
+                // if (!isNullorEmpty(receiveremail)) {
+                //     sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Lost In Transit - ' + barcodeName, [receiveremail], 113, customer_id);
+                // }
+
+                if (!isNullorEmpty(receiveremail)) {
+                    sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Lost In Transit - ' + barcodeName, ['sruti.desai@mailplus.com.au'], 113, customer_id);
+                }
+                
+
 
                 // Redirect to the "View MP Tickets" page
                 var output = url.resolveScript({

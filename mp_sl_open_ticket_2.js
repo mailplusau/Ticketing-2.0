@@ -791,7 +791,7 @@
 
         // ESCALATE AND CANCEL BUTTONS
         if (isTicketNotClosed(status_value) && !isNullorEmpty(ticket_id)) {
-            inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #379E8F; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalatebutton" onclick="">Escalate</button>';
+            inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #379E8F; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalatebutton" onclick="">' + escalateButton(status_value) + '</button>';
         }
         inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="cancelbutton" onclick="">Cancel</button>';
 
@@ -1239,6 +1239,10 @@
     function receiverEmailPhone(selector_type, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2) {
 
         var disabled = 'disabled';
+
+        if (isNullorEmpty(receiveremail) && isNullorEmpty(receiveraddr1) && isNullorEmpty(receiveraddr2) && isNullorEmpty(receivername) && isNullorEmpty(receiverphone) && isNullorEmpty(receiverstate) && isNullorEmpty(receiverzip) && isNullorEmpty(receiversuburb)) {
+            disabled = '';
+        }
         var inlineQty = '';
         
         
@@ -3148,6 +3152,20 @@
     function isTicketNotClosed(status_value) {
         var is_ticket_not_closed = ((status_value != 3) && (status_value != 8)) ? true : false;
         return is_ticket_not_closed;
+    }
+
+    function escalateButton(status) {
+        if (status < 11) {
+            return 'Escalate to 1st Escalation';
+        } else if (status == 11) {
+            return 'Escalate to 2nd Escalation'; 
+        }else if (status == 12) {
+            return  '<Escalate to 3rd Escalation';
+        } else if (status == 13) {
+            return '<Escalate to Final Escalation';
+        } else {
+            return 'Escalate';
+        }
     }
 
     /**

@@ -183,7 +183,7 @@
 
         $('#escalationbtn').click(function() {
             console.log("here");
-            escalateTicket(ticket_id, selector_number, selector_type, customerstatus, ticketstatus);
+            escalateTicket(ticket_id, selector_number, selector_type);
             
         });
 
@@ -200,7 +200,7 @@
       }
 
 
-      function escalateTicket(ticket_id, selector_number, selector_type, customerstatus, ticketstatus) {
+      function escalateTicket(ticket_id, selector_number, selector_type) {
         var answer = window.confirm("Are you sure you want to escalate this ticket?");
         if (answer) {
             //SET FIELDS IN RECORD
@@ -213,8 +213,11 @@
                 isDynamic: true,
             });
 
-            // var customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
-            // var ticketstatus = ticketRecord.getValue({fieldId: 'custrecord_ticket_status'});
+            var customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
+            var ticketstatus = ticketRecord.getValue({fieldId: 'custrecord_ticket_status'});
+            var customer_id = ticketRecord.getValue({fieldId: 'custrecord_customer1'});
+            var customer_barcode_number = ticketRecord.getValue({ fieldId : 'custrecord_barcode_number'});
+            var ticket_name = ticketRecord.getText({fieldId: 'name'});
 
             console.log('customerstatus', customerstatus);
             if (parseInt(customerstatus) < 4 ) {
@@ -236,13 +239,67 @@
                 enableSourcing: true,
             })
 
-            customerstatus = ticketRecord.getValue({fieldId: 'custrecord_mp_ticket_customer_status'});
-            ticketstatus = ticketRecord.getValue({fieldId: 'custrecord_ticket_status'});
+            var barcodeRecord = record.load({
+                type: 'customrecord_customer_product_stock',
+                id: customer_barcode_number,
+            });
 
-            console.log('customerstatus', customerstatus);
-            console.log('ticketstatus', ticketstatus);
+            var receiveremail = barcodeRecord.getValue({fieldId: 'custrecord_receiver_email'});
+            var barcodeName = barcodeRecord.getValue({fieldId: 'name'});
+            var ticketRecord = record.load({
+                type: 'customrecord_mp_ticket',
+                id: Math.floor(ticket_id),
+            })
+            var ticketstatus = ticketRecord.getValue({fieldId: 'custrecord_ticket_status'});
+            
 
+            if (!isNullorEmpty(receiveremail)) {
+                if (ticketstatus == 11) {
+                    sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Support enquiry | Stage 1 - ' + barcodeName, [receiveremail], 109, customer_id);
+                } else if (ticketstatus == 12) {
+                    sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Support enquiry | Stage 2 - ' + barcodeName, [receiveremail], 110, customer_id);
 
+                } else if (ticketstatus == 13) {
+                    sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Support enquiry | Stage 3 - ' + barcodeName, [receiveremail], 111, customer_id);
+                }
+                
+
+            } 
+
+            //Send email to TOLL
+            var toll_issues = ticketRecord.getText({ fieldId: 'custrecord_toll_issues' });
+            var mp_issues = ticketRecord.getText({ fieldId: 'custrecord_mp_ticket_issue' });
+
+            var body = 'MP Ticket ID: MPSD' + ticket_id + '\n Barcode: ' + barcodeName + '\nToll Issues: ' + toll_issues + '\nMP Issues: ' + mp_issues;
+
+            if (ticketstatus == 11) {
+                email.send({
+                    author: 112209,
+                    body: body,
+                    cc: ['jessica.roberts@mailplus.com.au', 'gabrielle.bathman@mailplus.com.au', 'customerservice@mailplus.com.au'],
+                    recipients: ['CorpGold.Escalations@tollgroup.com'],
+                    subject: 'Ticket Escalated: Escalation 1- MPSD' + ticket_id,
+                    relatedRecords: {record: ticket_id, recordtype: 1042}
+                });
+            } else if (ticketstatus == 12) {
+                email.send({
+                    author: 112209,
+                    body: body,
+                    cc: ['jessica.roberts@mailplus.com.au', 'gabrielle.bathman@mailplus.com.au', 'customerservice@mailplus.com.au'],
+                    recipients: ['Natalie.Yildirim@tollgroup.com', 'Bernadette.Uluinaceva@tollgroup.com', 'aaron.davis@tollgroup.com'],
+                    subject: 'Ticket Escalated: Escalation 2- MPSD' + ticket_id,
+                    relatedRecords: {record: ticket_id, recordtype: 1042},
+                });
+            } else if (ticketstatus == 13) {
+                email.send({
+                    author: 112209,
+                    body: body,
+                    cc: ['jessica.roberts@mailplus.com.au', 'gabrielle.bathman@mailplus.com.au', 'customerservice@mailplus.com.au'],
+                    recipients: ['dora.Venieris@tollgroup.com', 'marion.abada@tollgroup.com'],
+                    subject: 'Ticket Escalated: Escalation 3- MPSD' + ticket_id,
+                    relatedRecords: {record: ticket_id, recordtype: 1042},
+                });
+            }
 
             // REDIRECT TO URL
             console.log("IN HERE");
@@ -265,6 +322,50 @@
         }
     }
 
+
+    /**
+     * Function to sent emails when a customer associated ticket is escalated
+     */
+     function sendCustomerEscalateEmail(subject, recipients, template, customer_id) {
+        var sales_rep = encodeURIComponent(runtime.getCurrentUser().name);
+        var userid = encodeURIComponent(runtime.getCurrentUser().id);
+                
+        var suiteletUrl = url.resolveScript({
+            scriptId: 'customscript_merge_email',
+            deploymentId: 'customdeploy_merge_email',
+            returnExternalUrl: true
+        });
+
+        suiteletUrl += '&rectype=customer&template=';
+        suiteletUrl += template + '&recid=' + customer_id + '&salesrep=' + sales_rep + '&dear=' + '' + '&contactid=' + null + '&userid=' + userid;
+
+        console.log(suiteletUrl);
+
+        var response = https.get({
+            url: suiteletUrl
+        });
+
+        var emailHtml = response.body;
+        
+        if (!isNullorEmpty(customer_id)) {
+            email.send({
+                author: 112209,
+                body: emailHtml,
+                recipients: recipients,
+                subject: subject,
+                relatedRecords: { entityId: customer_id}
+            });
+        } else {
+            email.send({
+                author: 112209,
+                body: emailHtml,
+                recipients: recipients,
+                subject: subject,
+            });
+        }
+        
+    
+    }
 
       function deEscalateTicket(ticket_id, selector_number, selector_type, customerstatus, ticketstatus) {
         var answer = window.confirm("Are you sure you want to de-escalate this ticket?");
