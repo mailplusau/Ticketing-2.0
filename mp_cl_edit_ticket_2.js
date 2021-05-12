@@ -580,7 +580,7 @@
                     date_created = date_created.split(' ')[0];
                     date_created = dateCreated2DateSelectedFormat(date_created);
 
-                    var owners = ticketResult.getText('owner');
+                    var owners = ticketResult.getText('custrecord_owner');
                     owners = owners.split(',').join('<br>');
 
                     var status_val = ticketResult.getValue('custrecord_ticket_status');

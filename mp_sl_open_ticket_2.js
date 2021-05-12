@@ -714,15 +714,8 @@
         //inlineHtml += '<div id="demo" style="background-color: #cfeefc !important;border: 1px solid #417ed9;padding: 20px 30px 30px 30px;width:96%;position:absolute" class="collapse"><b><u>IMPORTANT INSTRUCTIONS:</u></b>';
         inlineHtml += '<div style=\"background-color: #e3e8e5 !important;border: 2px solid #379E8F;padding: 20px 30px 30px 30px; text-align: left\"><b><u>Mandatory Fields:</u></b>';
         inlineHtml += '<ul>';
-        inlineHtml += '<li><b><u>Ticket Details</u></b>: If the frequency of the service is multiple days then separate with a / i.e. Mon/Tue/Wed/Thurs/Fri. </li>';
-        inlineHtml += '<li><b><u>Issues</u></b>: Frequency field can take input of Daily and Adhoc as well</li>';
-        if (isNullorEmpty(ticket_id)) {
-            inlineHtml += '<li><b><u>Contact Details</u></b>: Please only enter in "Customer" or "Non-Customer" in this field </li>';
-        } else {
-            inlineHtml += '<li><b><u>Send Email</u></b>: For a Customer Location please enter all address details in this single field i.e. "379-381 Victoria Street, Wetherill Park, NSW, 2164" </li>';
-        }
-        inlineHtml += '<li><b><u>Previous Tickets</u></b>: For a Non-Customer Location please enter the exact name of the stop i.e. "ARNCLIFFE LPO" </li>';
-        inlineHtml += '<li><b><u>Previous Emails</u></b>: Enter length of time in seconds only i.e. "120", where 120 is equal to 2 minutes </li>';
+        inlineHtml += '<li><b><u>Ticket Details</u></b>: Total Enquiry Count must be at least 1 i.e. Chat/Email/Phone must have at least 1 incremented and Receiver Details should be filled in if blank</li>';
+        inlineHtml += '<li><b><u>Issues</u></b>: Owner and Toll Emails must have at least one selected</li>';
         inlineHtml += '<li>If you have any issues, please contact Ankith</li>';
         inlineHtml += '</ul></div></div><br/>';
         return inlineHtml;

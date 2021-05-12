@@ -272,34 +272,34 @@
 
             var body = 'MP Ticket ID: MPSD' + ticket_id + '\n Barcode: ' + barcodeName + '\nToll Issues: ' + toll_issues + '\nMP Issues: ' + mp_issues;
 
-            if (ticketstatus == 11) {
-                email.send({
-                    author: 112209,
-                    body: body,
-                    cc: ['jessica.roberts@mailplus.com.au', 'gabrielle.bathman@mailplus.com.au', 'customerservice@mailplus.com.au'],
-                    recipients: ['CorpGold.Escalations@tollgroup.com'],
-                    subject: 'Ticket Escalated: Escalation 1- MPSD' + ticket_id,
-                    relatedRecords: {record: ticket_id, recordtype: 1042}
-                });
-            } else if (ticketstatus == 12) {
-                email.send({
-                    author: 112209,
-                    body: body,
-                    cc: ['jessica.roberts@mailplus.com.au', 'gabrielle.bathman@mailplus.com.au', 'customerservice@mailplus.com.au'],
-                    recipients: ['Natalie.Yildirim@tollgroup.com', 'Bernadette.Uluinaceva@tollgroup.com', 'aaron.davis@tollgroup.com'],
-                    subject: 'Ticket Escalated: Escalation 2- MPSD' + ticket_id,
-                    relatedRecords: {record: ticket_id, recordtype: 1042},
-                });
-            } else if (ticketstatus == 13) {
-                email.send({
-                    author: 112209,
-                    body: body,
-                    cc: ['jessica.roberts@mailplus.com.au', 'gabrielle.bathman@mailplus.com.au', 'customerservice@mailplus.com.au'],
-                    recipients: ['dora.Venieris@tollgroup.com', 'marion.abada@tollgroup.com'],
-                    subject: 'Ticket Escalated: Escalation 3- MPSD' + ticket_id,
-                    relatedRecords: {record: ticket_id, recordtype: 1042},
-                });
-            }
+            // if (ticketstatus == 11) {
+            //     email.send({
+            //         author: 112209,
+            //         body: body,
+            //         cc: ['jessica.roberts@mailplus.com.au', 'gabrielle.bathman@mailplus.com.au', 'customerservice@mailplus.com.au'],
+            //         recipients: ['CorpGold.Escalations@tollgroup.com'],
+            //         subject: 'Ticket Escalated: Escalation 1- MPSD' + ticket_id,
+            //         relatedRecords: {record: ticket_id, recordtype: 1042}
+            //     });
+            // } else if (ticketstatus == 12) {
+            //     email.send({
+            //         author: 112209,
+            //         body: body,
+            //         cc: ['jessica.roberts@mailplus.com.au', 'gabrielle.bathman@mailplus.com.au', 'customerservice@mailplus.com.au'],
+            //         recipients: ['Natalie.Yildirim@tollgroup.com', 'Bernadette.Uluinaceva@tollgroup.com', 'aaron.davis@tollgroup.com'],
+            //         subject: 'Ticket Escalated: Escalation 2- MPSD' + ticket_id,
+            //         relatedRecords: {record: ticket_id, recordtype: 1042},
+            //     });
+            // } else if (ticketstatus == 13) {
+            //     email.send({
+            //         author: 112209,
+            //         body: body,
+            //         cc: ['jessica.roberts@mailplus.com.au', 'gabrielle.bathman@mailplus.com.au', 'customerservice@mailplus.com.au'],
+            //         recipients: ['dora.Venieris@tollgroup.com', 'marion.abada@tollgroup.com'],
+            //         subject: 'Ticket Escalated: Escalation 3- MPSD' + ticket_id,
+            //         relatedRecords: {record: ticket_id, recordtype: 1042},
+            //     });
+            // }
 
             // REDIRECT TO URL
             console.log("IN HERE");

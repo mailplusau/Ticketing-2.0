@@ -44,14 +44,34 @@
         var sender_or_receiver = context.request.parameters.sender_or_receiver;
         var first_name = context.request.parameters.first_name;
         var last_name = context.request.parameters.last_name;
-        var email = context.request.parameters.email;
+        var form_email = context.request.parameters.email;
         var phone = context.request.parameters.phone_number;
-        var brief_description = context.request.parameters.comments;
         var company_name = context.request.parameters.company_name;
         var issues = context.request.parameters.issues;
-        
 
+        //Delivery Addr Field
+        var addr1 = context.request.parameters.addr1;
+        var addr2 = context.request.parameters.addr2;
+        var city = context.request.parameters.city;
+        var state = context.request.parameters.state;
+        var postcode = context.request.parameters.postcode;
 
+        //Convert state to Text
+        if (state == 1) {
+            state = 'ACT';
+        } else if (state == 2) {
+            state = 'NSW';
+        } else if (state == 3) {
+            state = 'QLD';
+        } else if (state == 4) {
+            state = 'SA';
+        } else if (state == 5) {
+            state = 'TAS';
+        } else if (state == 6) {
+            state = 'VIC';
+        } else if (state == 7) {
+            state = 'WA';
+        }
         //note for user note
         var note = '';
 
@@ -63,6 +83,7 @@
         });
 
         var ticket_id = '';
+        var barcodeRecordId = '';
 
         //Check Barcode Number is valid
         //if (checkBarcodeFormat(selector_number))
@@ -76,13 +97,81 @@
                 type: 'customrecord_mp_ticket',
                 id: ticketIdIfExists,
             });
-            var customer_id = ticketRecord2.getValue({fieldId: ''});
+            var customer_id = ticketRecord2.getValue({fieldId: 'custrecord_customer1'});
             var ticket_name = ticketRecord2.getValue({fieldId: 'name'});
+            barcodeRecordId = ticketRecord2.getValue({fieldId: 'custrecord_barcode_number'});
+            sendCustomerTicketEmail('MailPlus [' + ticket_name + '] - Status Update - ' + tracking_number, [form_email], 112, customer_id);
 
-            sendCustomerTicketEmail('MailPlus [' + ticket_name + '] - Status Update - ' + tracking_number, [email], 112, customer_id);
+            //Set Receiver Details in Barcode Record
+            var barcodeRecord = record.load({ type: 'customrecord_customer_product_stock', id: barcodeRecordId });
+
+            //If sender
+            if (sender_or_receiver == 1) {
+
+                var rec_email = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_email'});
+                var rec_addr1 = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_addr1'});
+                var rec_addr2 = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_addr2'});
+                var rec_state = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_state'});
+                var rec_zip = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_postcode'});
+                var rec_suburb = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_suburb'});
+
+                                //set receiver addr
+                if (isNullorEmpty(rec_addr1) && isNullorEmpty(rec_addr2) && isNullorEmpty(rec_state) && isNullorEmpty(rec_zip) && isNullorEmpty(rec_suburb)) {
+    
+                    if (!isNullorEmpty(addr1)) {
+                        barcodeRecord.setValue({ fieldId: 'custrecord_receiver_addr1', value: addr1 });
+                    }
+                    barcodeRecord.setValue({ fieldId: 'custrecord_receiver_addr2', value: addr2 });
+                    barcodeRecord.setValue({ fieldId: 'custrecord_receiver_state', value: state });
+                    barcodeRecord.setValue({ fieldId: 'custrecord_receiver_suburb', value: city });
+                    barcodeRecord.setValue({ fieldId: 'custrecord_receiver_postcode', value: postcode });
+                }
+
+            } else if (sender_or_receiver == 2) {
+                //Only if Receiver
+                var rec_email = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_email'});
+                var rec_addr1 = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_addr1'});
+                var rec_addr2 = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_addr2'});
+                var rec_state = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_state'});
+                var rec_zip = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_postcode'});
+                var rec_suburb = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_suburb'});
+                var rec_name = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_name'});
+                var rec_phone = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_phone'});
+    
+                //set receiver email
+                if (isNullorEmpty(rec_email)) {
+                    barcodeRecord.setValue({ fieldId: 'custrecord_receiver_email', value: form_email });
+                }
+    
+                //set receiver name
+                if (isNullorEmpty(rec_name)) {
+                    barcodeRecord.setValue({ fieldId: 'custrecord_receiver_name', value: first_name + ' ' + last_name });
+                }
+    
+                //set receiver phone
+                if (isNullorEmpty(rec_phone)) {
+                    barcodeRecord.setValue({ fieldId: 'custrecord_receiver_phone', value: phone });
+                }
+    
+                //set receiver addr
+                if (isNullorEmpty(rec_addr1) && isNullorEmpty(rec_addr2) && isNullorEmpty(rec_state) && isNullorEmpty(rec_zip) && isNullorEmpty(rec_suburb)) {
+    
+                    if (!isNullorEmpty(addr1)) {
+                        barcodeRecord.setValue({ fieldId: 'custrecord_receiver_addr1', value: addr1 });
+                    }
+                    barcodeRecord.setValue({ fieldId: 'custrecord_receiver_addr2', value: addr2 });
+                    barcodeRecord.setValue({ fieldId: 'custrecord_receiver_state', value: state });
+                    barcodeRecord.setValue({ fieldId: 'custrecord_receiver_suburb', value: city });
+                    barcodeRecord.setValue({ fieldId: 'custrecord_receiver_postcode', value: postcode });
+                }
+            }
+            
+
+            barcodeRecord.save({
+                enableSourcing: true,
+            });
         } else {
             var activeBarcodeResults = getSelectorRecords(tracking_number);
-            var barcodeRecordId = '';
             var owner_list = [112209]; // MailPlus Team
             var mp_issues_list = [];
             var toll_issues = [issues];
@@ -104,6 +193,8 @@
                     activeSelectorResult = search_val;
                 });
                 barcodeRecordId = selector_id;
+
+
                 var customer_name = activeSelectorResult.getText('custrecord_cust_prod_stock_customer');
                 var customer_id = activeSelectorResult.getValue('custrecord_cust_prod_stock_customer');
 
@@ -200,7 +291,67 @@
             if (!isNullorEmpty(barcodeRecordId)) {
                 var barcodeRecord = record.load({ type: 'customrecord_customer_product_stock', id: barcodeRecordId });
                 barcodeRecord.setValue({ fieldId: 'custrecord_mp_ticket', value: ticket_id} );
-                barcodeRecord.setValue({ fieldId: 'custrecord_cust_prod_stock_toll_issues ', value: toll_issues });
+                barcodeRecord.setValue({ fieldId: 'custrecord_cust_prod_stock_toll_issues', value: toll_issues });
+                
+                //Set Receiver Details in Barcode Record
+                 //Only if Receiver
+                if(sender_or_receiver == 1){
+                     var rec_email = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_email'});
+                    var rec_addr1 = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_addr1'});
+                    var rec_addr2 = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_addr2'});
+                    var rec_state = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_state'});
+                    var rec_zip = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_postcode'});
+                    var rec_suburb = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_suburb'});
+
+                    if (isNullorEmpty(rec_addr1) && isNullorEmpty(rec_addr2) && isNullorEmpty(rec_state) && isNullorEmpty(rec_zip) && isNullorEmpty(rec_suburb)) {
+    
+                        if (!isNullorEmpty(addr1)) {
+                            barcodeRecord.setValue({ fieldId: 'custrecord_receiver_addr1', value: addr1 });
+                        }
+                        barcodeRecord.setValue({ fieldId: 'custrecord_receiver_addr2', value: addr2 });
+                        barcodeRecord.setValue({ fieldId: 'custrecord_receiver_state', value: state });
+                        barcodeRecord.setValue({ fieldId: 'custrecord_receiver_suburb', value: city });
+                        barcodeRecord.setValue({ fieldId: 'custrecord_receiver_postcode', value: postcode });
+                    }
+                } else if (sender_or_receiver == 2) {
+                    var rec_email = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_email'});
+                    var rec_addr1 = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_addr1'});
+                    var rec_addr2 = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_addr2'});
+                    var rec_state = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_state'});
+                    var rec_zip = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_postcode'});
+                    var rec_suburb = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_suburb'});
+                    var rec_name = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_name'});
+                    var rec_phone = barcodeRecord.getValue({ fieldId: 'custrecord_receiver_phone'});
+    
+                    //set receiver email
+                    if (isNullorEmpty(rec_email)) {
+                        barcodeRecord.setValue({ fieldId: 'custrecord_receiver_email', value: form_email });
+                    }
+    
+                    //set receiver name
+                    if (isNullorEmpty(rec_name)) {
+                        barcodeRecord.setValue({ fieldId: 'custrecord_receiver_name', value: first_name + ' ' + last_name });
+                    }
+    
+                    //set receiver phone
+                    if (isNullorEmpty(rec_phone)) {
+                        barcodeRecord.setValue({ fieldId: 'custrecord_receiver_phone', value: phone });
+                    }
+    
+                    //set receiver addr
+                    if (isNullorEmpty(rec_addr1) && isNullorEmpty(rec_addr2) && isNullorEmpty(rec_state) && isNullorEmpty(rec_zip) && isNullorEmpty(rec_suburb)) {
+    
+                        if (!isNullorEmpty(addr1)) {
+                            barcodeRecord.setValue({ fieldId: 'custrecord_receiver_addr1', value: addr1 });
+                        }
+                        barcodeRecord.setValue({ fieldId: 'custrecord_receiver_addr2', value: addr2 });
+                        barcodeRecord.setValue({ fieldId: 'custrecord_receiver_state', value: state });
+                        barcodeRecord.setValue({ fieldId: 'custrecord_receiver_suburb', value: city });
+                        barcodeRecord.setValue({ fieldId: 'custrecord_receiver_postcode', value: postcode });
+                    }
+                }
+                
+
                 barcodeRecord.save({
                     enableSourcing: true,
                 });
@@ -209,11 +360,11 @@
             //2. send acknowledgement email to customer (var email from above)
             if (sender_or_receiver == 1) {
                 //acknowledgement - sender template: 116
-                sendCustomerTicketEmail('MailPlus [MPSD' + ticket_id + '] - Your enquiry has been received - ' + tracking_number, [email], 116, '');
+                sendCustomerTicketEmail('MailPlus [MPSD' + ticket_id + '] - Your enquiry has been received - ' + tracking_number, [form_email], 116, '');
 
             } else {
                 // acknoledgement - receiver template: 117
-                sendCustomerTicketEmail('MailPlus [MPSD' + ticket_id + '] - Your enquiry has been received - ' + tracking_number, [email], 117, '');
+                sendCustomerTicketEmail('MailPlus [MPSD' + ticket_id + '] - Your enquiry has been received - ' + tracking_number, [form_email], 117, '');
             }
 
 
@@ -232,10 +383,10 @@
             })
 
             if (sender_or_receiver == 1) {
-                note = 'Tracking number: ' + tracking_number + '\n SenderOrReceiver: Sender\n Company Name: ' + company_name +  '\n First Name: ' + first_name + '\nLast Name: ' + last_name + '\nEmail: ' + email + '\nPhone: ' + phone + '\n Issues: ' + issues + '\n Brief Description: ' + brief_description + '\n';
+                note = 'Tracking number: ' + tracking_number + '\n SenderOrReceiver: Sender\n Company Name: ' + company_name +  '\n First Name: ' + first_name + '\nLast Name: ' + last_name + '\nEmail: ' + form_email + '\nPhone: ' + phone + '\n Issues: ' + issues + '\n Delivery Address: ' + addr1 + ', ' + addr2 + ', ' + city + ', ' + postcode + ', ' + state + '\n';
             } else {
                 //Receiver User NOte
-                note = 'Tracking number: ' + tracking_number + '\n SenderOrReceiver: Sender\nFirst Name: ' + first_name + '\nLast Name: ' + last_name + '\nEmail: ' + email + '\nPhone: ' + phone + '\n Issues: ' + issues + '\n Brief Description: ' + brief_description + '\n';
+                note = 'Tracking number: ' + tracking_number + '\n SenderOrReceiver: Receiver\nFirst Name: ' + first_name + '\nLast Name: ' + last_name + '\nEmail: ' + form_email + '\nPhone: ' + phone + '\n Issues: ' + issues + '\n Delivery Address: ' + addr1 + ', ' + addr2 + ', ' + city + ', ' + postcode + ', ' + state + '\n';
             }
 
             log.debug({
@@ -243,26 +394,50 @@
                 details: note
             })
             
+            var params = {
+                ticket_id: parseInt(ticket_id),
+                selector_number: tracking_number,
+                selector_type: 'barcode_number'
+            };
+            params = JSON.stringify(params);
+            var output = url.resolveScript({
+                deploymentId: 'customdeploy_sl_open_ticket_2',
+                scriptId: 'customscript_sl_open_ticket_2',
+            });
             
+            var ticket_url = baseURL + output + '&custparam_params=' + params;
+
             //3. send email to Gab and Jess and customerservice@mailplus.com.au with new ticket info
-            // add ticket id in subject
+            //add ticket id in subject
+            email.send({
+                author: 112209,
+                body: note + "\nTicket URL: " + ticket_url + "\nDate: " + new Date(),
+                recipients: ['ankith.ravindran@mailplus.com.au','customerservice@mailplus.com.au', 'gabrielle.bathman@mailplus.com.au', 'jessica.roberts@mailplus.com.au'],
+                subject: 'New Ticket Creation MPSD' + ticket_id,
+            })
+
+            //4. If barcode is not allocated- send email to Rianne, Ankith, Raine
+            if (mp_issues_list.length != 0) {
+                email.send({
+                    author: 112209,
+                    body: note + "\nTicket URL: " + ticket_url + "\nDate: " + new Date(),
+                    recipients: ['ankith.ravindran@mailplus.com.au', 'raine.giderson@mailplus.com.au', 'rianne.mansell@mailplus.com.au'],
+                    subject: 'Barcode not allocated - ' + tracking_number,
+                })
+            }
+            
+
+            
+
+            // //4. If barcode is not allocated- send email to Rianne, Ankith, Raine
             // email.send({
             //     author: 112209,
-            //     body: note + "\nDate: " + new Date(),
+            //     body: note + "\nTicket URL: " + ticket_url + "\nDate: " + new Date(),
             //     recipients: ['sruti.desai@mailplus.com.au'],
             //     subject: 'New Ticket Creation MPSD' + ticket_id,
             // })
-
-            //4. If barcode is not allocated- send email to Rianne, Ankith, Raine
-            // if (mp_issues_list.length != 0) {
-            //     email.send({
-            //         author: 112209,
-            //         body: note + "\nDate: " + new Date(),
-            //         recipients: ['sruti.desai@mailplus.com.au'],
-            //         subject: 'Barcode not allocated - ' + tracking_number,
-            //     })
-            // }
             
+
 
             //5. add usernote of information user provides
             var userNote = record.create({
