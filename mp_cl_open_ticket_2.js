@@ -15,6 +15,8 @@
           baseURL = 'https://1048144-sb3.app.netsuite.com';
       }
       var role = runtime.getCurrentUser().role;
+      var userRole = runtime.getCurrentUser().role;
+
       var userId = runtime.getCurrentUser().id;
       /**
        * On page initialisation
@@ -31,7 +33,7 @@
           $("#NS_MENU_ID0-item0").css("background-color", "#CFE0CE");
           $("#NS_MENU_ID0-item0 a").css("background-color", "#CFE0CE");
           $("#body").css("background-color", "#CFE0CE");
-
+          $("#tr_submitter").css("margin-left", "10px");
           
           var ticketsDataSet = [];
           var invoicesDataSet = [];
@@ -3562,6 +3564,7 @@
                   });
               }
 
+              console.log("send_to", send_to);
               var send_toll_values = $('#send_toll').val();
               var send_toll_to = [];
               if (!isNullorEmpty(send_toll_values)) {
@@ -3581,7 +3584,8 @@
               if (isNullorEmpty(cc)) {
                   cc = null;
               }
-
+              console.log("cc", cc);
+              
               // BCC Field
               var bcc_values = $('#send_bcc').val().split(',');
               var bcc = [];
@@ -3592,30 +3596,11 @@
               if (isNullorEmpty(bcc)) {
                   bcc = null;
               }
-
-              if (!isNullorEmpty(send_to)) {
-                  // Attach message to Customer / Franchisee record
-                  var emailAttach = new Object();
-                  var receiver_contact_id_array = $('#send_to').data('contact-id');
-                  if (!isNullorEmpty(receiver_contact_id_array)) {
-                      receiver_contact_id_array = JSON.parse(receiver_contact_id_array);
-
-                      receiver_contact_id_array.forEach(function(receiver_contact_id) {
-                          if (receiver_contact_id == "0") {
-                              // Partner
-                              var zee_id = currRec.getValue({ fieldId: 'custpage_zee_id' });
-                              emailAttach['entity'] = zee_id;
-                          } else if (!isNullorEmpty(receiver_contact_id)) {
-                              // Customer
-                              var customer_id = currRec.getValue({ fieldId: 'custpage_customer_id' });
-                              emailAttach['entity'] = customer_id;
-                          }
-                      });
-                  }
-              }
+              console.log("bcc", bcc);
 
               var email_subject = $('#subject').val();
               var email_body = $('#email_body').summernote('code');
+              var customer_id = currRec.getValue({ fieldId: 'custpage_customer_id' });
 
               var ticket_id = currRec.getValue({ fieldId: 'custpage_ticket_id' });
               ticket_id = parseInt(ticket_id);
@@ -3628,7 +3613,7 @@
               params_email.body = encodeURIComponent(email_body);
               params_email.cc = cc;
               params_email.bcc = bcc;
-              params_email.records = emailAttach;
+              params_email.records = {entityId: customer_id};
               var attachments_credit_memo_ids = params_email.attachments_credit_memo_ids;
               var attachments_usage_report_ids = params_email.attachments_usage_report_ids;
               var attachments_invoice_ids = params_email.attachments_invoice_ids;
@@ -3651,15 +3636,27 @@
                   // If there are no attachments, it's faster to directly use nlapiSendEmail() from the client script.
                   // console.log("email send", recipients);
 
-                  email.send({
-                      author: userId,
-                      body: email_body,
-                      recipients: send_to,
-                      subject: email_subject,
-                      relatedRecords: { entityid: emailAttach['entity']},
-                      bcc: bcc,
-                      cc: cc,
-                  })
+                  if (!isNullorEmpty(customer_id) && !isNullorEmpty(send_to)) {
+                        email.send({
+                            author: userId,
+                            body: email_body,
+                            recipients: send_to,
+                            subject: email_subject,
+                            relatedRecords: { entityId: customer_id},
+                            bcc: bcc,
+                            cc: cc,
+                        })
+                  } else {
+                        email.send({
+                            author: userId,
+                            body: email_body,
+                            recipients: send_to,
+                            subject: email_subject,
+                            bcc: bcc,
+                            cc: cc,
+                        })
+                  }
+                  
               
                   
                   // 112209 is from MailPlus Team
@@ -3881,15 +3878,88 @@
               var barcodeName = barcodeRecord.getValue({fieldId: 'name'});
 
               //Send Email To Customer
-              // if (!isNullorEmpty(receiveremail)) {
-              //     sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Lost In Transit - ' + barcodeName, [receiveremail], 113, customer_id);
-              // }
-
               if (!isNullorEmpty(receiveremail)) {
-                  sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Lost In Transit - ' + barcodeName, ['sruti.desai@mailplus.com.au'], 113, customer_id);
+                  sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Lost In Transit - ' + barcodeName, [receiveremail], 113, customer_id);
               }
-              
 
+              var product_order = barcodeRecord.getValue({fieldId: 'custrecord_prod_stock_prod_order'});  
+              var invoice = barcodeRecord.getValue({fieldId: 'custrecord_prod_stock_invoice'}); 
+              var userNoteId = barcodeRecord.getValue({fieldId: 'recordid'});
+
+              console.log("Invoice", invoice);
+              console.log("product order", product_order);
+              var params = {
+                ticket_id: parseInt(ticket_id),
+                selector_number: barcodeName,
+                selector_type: 'barcode_number'
+              };
+              params = JSON.stringify(params);
+              var output = url.resolveScript({
+                deploymentId: 'customdeploy_sl_open_ticket_2',
+                scriptId: 'customscript_sl_open_ticket_2',
+              });
+            
+              var ticket_url = baseURL + output + '&custparam_params=' + params;
+            
+              //CREDIT MEMO SECTION
+              if (!isNullorEmpty(invoice) && isNullorEmpty(product_order)) {
+                  //Error- Send Email to Ankith
+                  body = "There's an error with the barcode as only the Invoice field is filled and the Product Order field is not (within the barcode record). Please see below barcode details\n\nMP Ticket: " + ticket_name + '\nBarcode: ' + barcodeName + '\nProduct Order: ' + product_order + '\nTicket URL: ' + ticket_url;
+
+                  email.send({
+                      author: 112209,
+                      body: body,
+                      recipients: ['sruti.desai@mailplus.com.au', 'ankith.ravindran@mailplus.com.au'],
+                      subject: "Test Error MPEX Barcode Credit- LIT " + barcodeName,
+                      relatedRecords: {entityId: customer_id},
+                  });
+              } else if (!isNullorEmpty(invoice) && !isNullorEmpty(product_order)) {
+                  //SEND EMAIL TO RAINE + POPIE
+                  body = 'MP Ticket: ' + ticket_name + '\nBarcode: ' + barcodeName + '\nProduct Order: ' + product_order + '\nInvoice: ' + invoice + '\nTicket URL: ' + ticket_url;
+                  
+                  email.send({
+                    author: 112209,
+                    body: body,
+                    recipients: ['sruti.desai@mailplus.com.au', 'raine.giderson@mailplus.com.au', 'popie.popie@mailplus.com.au'],
+                    subject: "Test MPEX Barcode Credit- LIT " + barcodeName,
+                    relatedRecords: {entityId: customer_id}
+                })
+              } else {
+                    //SEND EMAIL TO RAINE
+                    console.log("in here");
+                    body = 'MP Ticket: ' + ticket_name + '\nBarcode: ' + barcodeName + '\nProduct Order: ' + product_order + '\nTicket URL: ' + ticket_url;
+                    email.send({
+                        author: 112209,
+                        body: body,
+                        recipients: ['sruti.desai@mailplus.com.au', 'raine.giderson@mailplus.com.au'],
+                        subject: "Test MPEX Barcode Credit- LIT " + barcodeName,
+                        relatedRecords: {entityId: customer_id}
+                    })
+              }
+
+              // Create User Note under Barcode Record
+              var userNote = record.create({
+                type: record.Type.NOTE,
+                isDynamic: true,
+              });
+
+              // Record Type i.e Cust Product Stock
+              userNote.setValue({fieldId: 'recordtype', value: 1014});
+              // Record ID
+              userNote.setValue({fieldId: 'record', value: parseInt(userNoteId) });
+
+              //Title
+              userNote.setValue({fieldId: 'title', value: 'Barcode Status- LIT'});
+            
+              //Memo
+              userNote.setValue({fieldId: 'note', value: 'Barcode ' + barcodeName + ' has been set to status Lost in Transit'});
+
+              userNote.save({
+                enableSourcing: true,
+                ignoreMandatoryFields: true
+              });
+
+              
 
               // Redirect to the "View MP Tickets" page
               var output = url.resolveScript({

@@ -627,6 +627,7 @@
                 var attachments_credit_memo_ids = null;
                 var attachments_usage_report_ids = null;
                 var attachments_invoice_ids = null;
+                var customer_id = context.request.parameters.custpage_customer_id;
 
                 if (!isNullorEmpty(params_email.cc)) {
                     cc = params_email.cc;
@@ -679,7 +680,7 @@
                             attachments: attachement_files,
                             bcc: bcc,
                             cc: cc,
-                            relatedRecords: { entityId: emailAttach["entity"] },
+                            relatedRecords: { entityId:  customer_id},
                         });
                         // 112209 is from MailPlus Team
                     } catch (error) {
@@ -698,12 +699,7 @@
             
          }
      }
-    //  img {
-    //     display: block;
-    //     margin-left: auto;
-    //     margin-right: auto;
-    //     width: 40%;
-    //   }
+    
      
      function instructionsBox(ticket_id) {
         //Important Instructions box
@@ -755,7 +751,7 @@
 
      function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, customer_ticket_status, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2, prod_stock_invoice, barcodempdl, barcodesource, list_mp_ticket_issues, list_resolved_mp_ticket_issues, list_invoice_issues, list_resolved_invoice_issues) {
         
-        var inlineQty = '<div style="margin-top: -40px"><br/>';
+        var inlineQty = '<div style="margin-top: -10px"><br/>';
         // BUTTONS
         if (!isNullorEmpty(ticket_id)) {
             if (isTicketNotClosed(status_value)) {
@@ -771,8 +767,8 @@
 
         if (isTicketNotClosed(status_value)) {
             if (!isNullorEmpty(ticket_id)) {
-                inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closeticketbutton" onclick="">Close Ticket</button>';
-                inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closelostbutton" onclick="">Close Ticket - Lost Item</button>';
+                inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #f4524d; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closeticketbutton" onclick="">Close Ticket</button>';
+                inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #f4524d; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closelostbutton" onclick="">Close Ticket - Lost Item</button>';
 
                 if (userId == 409635 || userId == 696992 || userId == 766498) {
                     inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closeunallocatedbutton" onclick="">Close Unallocated Ticket</button>';
@@ -791,7 +787,7 @@
 
         // Title
         if (!isNullorEmpty(ticket_id)) {
-            inlineQty += '<h1 style="display: inline-block; font-size: 25px; font-weight: 700; color: #103D39; text-align: center; width: 100%">Edit Ticket - MPSD' + ticket_id + '</h1>'
+            inlineQty += '<h1 style="display: inline-block; font-size: 25px; margin-top: 20px; font-weight: 700; color: #103D39; text-align: center; width: 100%">Edit Ticket - MPSD' + ticket_id + '</h1>'
 
         } else {
             inlineQty += '<h1 style="display: inline-block; font-size: 25px; font-weight: 700; color: #103D39; text-align: center; width: 100%">Open New Ticket</h1>'
@@ -1249,28 +1245,27 @@
             inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">RECEIVER DETAILS</span></h4>';
             inlineQty += '</div></div></div>';
             
+            //First Row
             inlineQty += '<div class="form-group container receivercontact_section">';
             inlineQty += '<div class="row">';
     
             // name field
-            inlineQty += '<div class="col-xs-6 receivername_div">';
+            inlineQty += '<div class="col-xs-4 receivername_div">';
             inlineQty += '<div class="input-group">';
             inlineQty += '<span class="input-group-addon" id="receivername_text">NAME</span>';
             inlineQty += '<input id="receivername" value="' + receivername + '" class="form-control receivername" ' + disabled + ' />';
             inlineQty += '</div></div>';
 
-            // state field
-            inlineQty += '<div class="col-xs-6 receiverstate_div">';
+            // Day to day phone field
+            inlineQty += '<div class="col-xs-4 receiverphone_div">';
             inlineQty += '<div class="input-group">';
-            inlineQty += '<span class="input-group-addon" id="receiverstate_text">STATE</span>';
-            inlineQty += '<input id="receiverstate" value="' + receiverstate + '" class="form-control receiverstate" ' + disabled + ' />';
-            inlineQty += '</div></div></div></div>';
+            inlineQty += '<span class="input-group-addon" id="receiverphone_text">PHONE</span>';
+            inlineQty += '<input id="receiverphone" type="tel" value="' + receiverphone + '" class="form-control receiverphone" ' + disabled + ' />';
+            inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #379E8F" class="btn btn-success" id="call_receiver_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
+            inlineQty += '</div></div>';
 
-            inlineQty += '<div class="form-group container receivercontact2_section">';
-            inlineQty += '<div class="row">';
-    
             // Day to day email field
-            inlineQty += '<div class="col-xs-6 receiveremail_div">';
+            inlineQty += '<div class="col-xs-4 receiveremail_div">';
             inlineQty += '<div class="input-group">';
             inlineQty += '<span class="input-group-addon" id="receiveremail_text">EMAIL</span>';
             inlineQty += '<input id="receiveremail" type="email" value="' + receiveremail + '" class="form-control receiveremail" ' + disabled + ' />';
@@ -1280,33 +1275,11 @@
             inlineQty += '</button>';
             inlineQty += '</div>';
             inlineQty += '</div></div>';
-    
-            // Day to day phone field
-            inlineQty += '<div class="col-xs-6 receiverphone_div">';
-            inlineQty += '<div class="input-group">';
-            inlineQty += '<span class="input-group-addon" id="receiverphone_text">PHONE</span>';
-            inlineQty += '<input id="receiverphone" type="tel" value="' + receiverphone + '" class="form-control receiverphone" ' + disabled + ' />';
-            inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #379E8F" class="btn btn-success" id="call_receiver_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
-            inlineQty += '</div></div></div></div>';
 
-            inlineQty += '<div class="form-group container receivercontact3_section">';
-            inlineQty += '<div class="row">';
-    
-            // suburb field
-            inlineQty += '<div class="col-xs-6 receiversuburb_div">';
-            inlineQty += '<div class="input-group">';
-            inlineQty += '<span class="input-group-addon" id="receiversuburb_text">SUBURB</span>';
-            inlineQty += '<input id="receiversuburb" value="' + receiversuburb + '" class="form-control receiversuburb" ' + disabled + ' />';
             inlineQty += '</div></div>';
 
-            // postcode field
-            inlineQty += '<div class="col-xs-6 receiverzip_div">';
-            inlineQty += '<div class="input-group">';
-            inlineQty += '<span class="input-group-addon" id="receiverzip_text">POSTCODE</span>';
-            inlineQty += '<input id="receiverzip" value="' + receiverzip + '" class="form-control receiverzip" ' + disabled + ' />';
-            inlineQty += '</div></div></div></div>';
-
-            inlineQty += '<div class="form-group container receivercontact4_section">';
+            //2nd Row
+            inlineQty += '<div class="form-group container receivercontact2_section">';
             inlineQty += '<div class="row">';
     
             // address1 field
@@ -1321,7 +1294,38 @@
             inlineQty += '<div class="input-group">';
             inlineQty += '<span class="input-group-addon" id="receiveraddr2_text">ADDRESS2</span>';
             inlineQty += '<input id="receiveraddr2" value="' + receiveraddr2 + '" class="form-control receiveraddr2" ' + disabled + ' />';
-            inlineQty += '</div></div></div></div>';
+            inlineQty += '</div></div>';
+            
+            inlineQty += '</div></div>';
+
+            //3rd Row
+            inlineQty += '<div class="form-group container receivercontact3_section">';
+            inlineQty += '<div class="row">';
+    
+            // suburb field
+            inlineQty += '<div class="col-xs-4 receiversuburb_div">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="receiversuburb_text">SUBURB</span>';
+            inlineQty += '<input id="receiversuburb" value="' + receiversuburb + '" class="form-control receiversuburb" ' + disabled + ' />';
+            inlineQty += '</div></div>';
+
+            // postcode field
+            inlineQty += '<div class="col-xs-4 receiverzip_div">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="receiverzip_text">POSTCODE</span>';
+            inlineQty += '<input id="receiverzip" value="' + receiverzip + '" class="form-control receiverzip" ' + disabled + ' />';
+            inlineQty += '</div></div>';
+
+            // state field
+            inlineQty += '<div class="col-xs-4 receiverstate_div">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="receiverstate_text">STATE</span>';
+            inlineQty += '<input id="receiverstate" value="' + receiverstate + '" class="form-control receiverstate" ' + disabled + ' />';
+            inlineQty += '</div></div>';
+            
+            inlineQty += '</div></div>';
+
+            
         }
         
 

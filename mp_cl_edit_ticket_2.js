@@ -127,6 +127,7 @@
                         var select = {
                             style: 'multi',
                         };
+
                         break;
 
                     case 'invoices':
@@ -225,6 +226,7 @@
                     orderCellsTop: true,
                     fixedHeader: true,
                     columns: columns,
+                    order: [[1, "desc"]],
                     columnDefs: columnDefs,
                     select: select,
                     pageLength: 100,
