@@ -432,7 +432,8 @@
         });
         var upload_url = baseURL + output + '&custparam_params=' + params;
         
-        window.open(upload_url, '_blank');
+        //window.open(upload_url, '_blank');
+        window.open(upload_url, '_self');
     }
 
     function openTicket() {
@@ -441,7 +442,8 @@
             deploymentId: 'customdeploy_sl_open_ticket_2',
             scriptId: 'customscript_sl_open_ticket_2',
         });
-        window.open(upload_url, '_blank');
+        //window.open(upload_url, '_blank');
+        window.open(upload_url, '_self');
     }
     /**
      * Redirect to the "View Closed Tickets" page.
@@ -451,7 +453,8 @@
             deploymentId: 'customdeploy_sl_edit_closed_ticket_2',
             scriptId: 'customscript_sl_edit_closed_ticket_2',
         });
-        window.open(upload_url, '_blank');
+        //window.open(upload_url, '_blank');
+        window.open(upload_url, '_self');
     }
 
     /**
@@ -463,7 +466,8 @@
             scriptId: 'customscript_sl_edit_lost_ticket_2',
         });
         var upload_url = baseURL + upload_url;
-        window.open(upload_url, '_blank');
+        //window.open(upload_url, '_blank');
+        window.open(upload_url, '_self');
     }
 
     /**

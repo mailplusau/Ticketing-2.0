@@ -557,7 +557,7 @@
                      form.addSubmitButton({ label: 'Reopen Ticket' });
                  }
             } else {
-                 form.addSubmitButton({ label: 'Open Ticket' });
+                 form.addSubmitButton({ label: 'Save Ticket' });
             //     form.addButton({ id: 'custpage_openandnew', label: 'Open & New Ticket', functionName: 'openAndNew()' });
             // }
             // if (isTicketNotClosed(status_value)) {
@@ -628,6 +628,7 @@
                 var attachments_usage_report_ids = null;
                 var attachments_invoice_ids = null;
                 var customer_id = context.request.parameters.custpage_customer_id;
+                var open_new_ticket = context.request.parameters.custpage_open_new_ticket;
 
                 if (!isNullorEmpty(params_email.cc)) {
                     cc = params_email.cc;
@@ -690,11 +691,32 @@
                     }
                 }
 
-                // If the ticket was updated, the user is redirected to the "View MP Tickets" page
-                redirect.toSuitelet({
-                    scriptId: 'customscript_sl_edit_ticket_2',
-                    deploymentId: 'customdeploy_sl_edit_ticket_2',
+
+                log.debug({
+                    title: 'open_new_ticket',
+                    details: open_new_ticket
                 });
+                if (open_new_ticket == 'T') {
+                    log.debug({
+                        title: 'open ticket page',
+                        details: 'open ticket page'
+                    })
+                    // If the ticket was just updated, and the user clicked on 'Updated & New Ticket',
+                    // The user is redirected to a new "Open Ticket" page.
+                    redirect.toSuitelet({
+                        scriptId: 'customscript_sl_open_ticket_2',
+                        deploymentId: 'customdeploy_sl_open_ticket_2',
+                    });
+
+                } else {
+                    // If the ticket was updated, the user is redirected to the "View MP Tickets" page
+                    redirect.toSuitelet({
+                        scriptId: 'customscript_sl_edit_ticket_2',
+                        deploymentId: 'customdeploy_sl_edit_ticket_2',
+                    });
+                }
+
+                
             }
             
          }
@@ -755,13 +777,13 @@
         // BUTTONS
         if (!isNullorEmpty(ticket_id)) {
             if (isTicketNotClosed(status_value)) {
-                inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="updateticketbutton" onclick="">Update Ticket</button>';
+                inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="updateticketbutton" onclick="">Update & New Ticket</button>';
             } else {
-                inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="reopenticketbutton" onclick="">Reopen Ticket</button>';
+                //inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="reopenticketbutton" onclick="">Reopen Ticket</button>';
             }
         } else {
-            inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="openticketbutton" onclick="">Save Ticket</button>';
-            inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="opennewticketbutton" onclick="">Save & New Ticket</button>';
+            //inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="openticketbutton" onclick="">Save Ticket</button>';
+            inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="opennewticketbutton" onclick="">Save & New Ticket</button>';
         }
         
 
@@ -782,7 +804,14 @@
         if (isTicketNotClosed(status_value) && !isNullorEmpty(ticket_id)) {
             inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #379E8F; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalatebutton" onclick="">' + escalateButton(status_value) + '</button>';
         }
-        inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="cancelbutton" onclick="">Cancel</button>';
+
+        if (!isNullorEmpty(ticket_id) && !isTicketNotClosed(status_value)) {
+            inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="cancelbutton" onclick="">Cancel</button>';
+
+        } else {
+            inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="cancelbutton" onclick="">Cancel</button>';
+
+        }
 
 
         // Title

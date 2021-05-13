@@ -649,7 +649,7 @@
           });
 
           $('#updateticketbutton').click(function() {
-              $('#submitter').trigger('click');
+              updateAndNew();
           });
 
           $('#openticketbutton').click(function() {
@@ -1709,6 +1709,13 @@
           // Trigger the submit function.
           $('#submitter').trigger('click');
       }
+
+      function updateAndNew() {
+        var currRec = currentRecord.get();
+        currRec.setValue({ fieldId: 'custpage_open_new_ticket', value: 'T' });
+        // Trigger the submit function.
+        $('#submitter').trigger('click');
+    }
 
       /**
        * Function to save the medium list depending on chat, phone and email enquiry values
@@ -3921,7 +3928,7 @@
                     author: 112209,
                     body: body,
                     recipients: ['sruti.desai@mailplus.com.au', 'raine.giderson@mailplus.com.au', 'popie.popie@mailplus.com.au'],
-                    subject: "Test MPEX Barcode Credit- LIT " + barcodeName,
+                    subject: "MPEX Barcode Credit- LIT " + barcodeName,
                     relatedRecords: {entityId: customer_id}
                 })
               } else {
@@ -3932,7 +3939,7 @@
                         author: 112209,
                         body: body,
                         recipients: ['sruti.desai@mailplus.com.au', 'raine.giderson@mailplus.com.au'],
-                        subject: "Test MPEX Barcode Credit- LIT " + barcodeName,
+                        subject: "MPEX Barcode Credit- LIT " + barcodeName,
                         relatedRecords: {entityId: customer_id}
                     })
               }
