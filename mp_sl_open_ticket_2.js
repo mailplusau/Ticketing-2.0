@@ -553,9 +553,10 @@
                  if (isTicketNotClosed(status_value)) {
                     
                      form.addSubmitButton({ label: 'Update Ticket' });
-                 } else {
-                     form.addSubmitButton({ label: 'Reopen Ticket' });
-                 }
+                } 
+                // else {
+                //      form.addSubmitButton({ label: 'Reopen Ticket' });
+                //  }
             } else {
                  form.addSubmitButton({ label: 'Save Ticket' });
             //     form.addButton({ id: 'custpage_openandnew', label: 'Open & New Ticket', functionName: 'openAndNew()' });
@@ -779,7 +780,7 @@
             if (isTicketNotClosed(status_value)) {
                 inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="updateticketbutton" onclick="">Update & New Ticket</button>';
             } else {
-                //inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="reopenticketbutton" onclick="">Reopen Ticket</button>';
+                inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="reopenticketbutton" onclick="">Reopen Ticket</button>';
             }
         } else {
             //inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="openticketbutton" onclick="">Save Ticket</button>';
@@ -3186,9 +3187,9 @@
         } else if (status == 11) {
             return 'Escalate to 2nd Escalation'; 
         }else if (status == 12) {
-            return  '<Escalate to 3rd Escalation';
+            return  'Escalate to 3rd Escalation';
         } else if (status == 13) {
-            return '<Escalate to Final Escalation';
+            return 'Escalate to Final Escalation';
         } else {
             return 'Escalate';
         }

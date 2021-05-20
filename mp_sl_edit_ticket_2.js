@@ -25,142 +25,171 @@
      function onRequest(context) {  
          
          if (context.request.method === 'GET') {
-             var form = ui.createForm({
-                 title: ' ',
-             });
- 
-             // Load jQuery
-             var inlineHtml = '<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>';
-             // Load Tooltip
-             inlineHtml += '<script src="https://unpkg.com/@popperjs/core@2"></script>';
- 
-             // Load Bootstrap
-             inlineHtml += '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">';
-             inlineHtml += '<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>';
-             
-             // Load DataTables
-             inlineHtml += '<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">';
-             inlineHtml += '<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>';
- 
-             // Load Bootstrap-Select
-             inlineHtml += '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">';
-             inlineHtml += '<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>';
- 
-             // Load Netsuite stylesheet and script
-             inlineHtml += '<link rel="stylesheet" href="https://1048144.app.netsuite.com/core/media/media.nl?id=2060796&c=1048144&h=9ee6accfd476c9cae718&_xt=.css"/>';
-             inlineHtml += '<script src="https://1048144.app.netsuite.com/core/media/media.nl?id=2060797&c=1048144&h=ef2cda20731d146b5e98&_xt=.js"></script>';
-             inlineHtml += '<link type="text/css" rel="stylesheet" href="https://1048144.app.netsuite.com/core/media/media.nl?id=2090583&c=1048144&h=a0ef6ac4e28f91203dfe&_xt=.css">';
-             inlineHtml += '<style>.mandatory{color:red;}</style>'; 
-             
- 
-             // Load "FixedHeader" Datatable extension
-             inlineHtml += '<link type="text/css" href="https://cdn.datatables.net/fixedheader/3.1.7/css/fixedHeader.dataTables.min.css" rel="stylesheet" />';
-             inlineHtml += '<script type="text/javascript" src="https://cdn.datatables.net/fixedheader/3.1.7/js/dataTables.fixedHeader.min.js"></script>';
- 
-             //Load gyrocode extension for Datatbles
-             inlineHtml += '<link type="text/css" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/css/dataTables.checkboxes.css" rel="stylesheet" />';
-             inlineHtml += '<script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>';
- 
-             // Load Netsuite stylesheet and script
-             inlineHtml += '<link rel="stylesheet" href="https://1048144.app.netsuite.com/core/media/media.nl?id=2060796&c=1048144&h=9ee6accfd476c9cae718&_xt=.css"/>';
-             inlineHtml += '<script src="https://1048144.app.netsuite.com/core/media/media.nl?id=2060797&c=1048144&h=ef2cda20731d146b5e98&_xt=.js"></script>';
-             inlineHtml += '<link type="text/css" rel="stylesheet" href="https://1048144.app.netsuite.com/core/media/media.nl?id=2090583&c=1048144&h=a0ef6ac4e28f91203dfe&_xt=.css">';
-             inlineHtml += '<style>.mandatory{color:red;} </style>';
- 
-             // Define alert window.
-             inlineHtml += '<div class="container" style="margin-top:14px;" hidden><div id="alert" class="alert alert-danger fade in"></div></div>';
- 
-             // Define information window.
-             inlineHtml += '<div class="container" hidden><p id="info" class="alert alert-info"></p></div>';
- 
-             //inlineHtml += '<div style="background-color: #CFE0CE; min-height: 100vh; margin-top: -15px"><br/>';
-             inlineHtml += '<div style="margin-top: -40px"><br/>';
-             inlineHtml += '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="opennewticket" onclick="">Open New Ticket</button>';
-             inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="viewclosedtickets" onclick="">View Closed Tickets</button>';
-             inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="viewlosttickets" onclick="">View Lost Tickets</button>';
-             inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="sendbulkemails" onclick="">Send Bulk Emails</button>';
+
+            if (!isNullorEmpty(context.request.parameters.custpage_selected_id)) {
+                var param_selected_ticket_id = context.request.parameters.custpage_selected_id;
+                log.debug({
+                    title: 'param_selected_ticket_id',
+                    details: param_selected_ticket_id
+                });
+    
+                
+                var params = {
+                    custscript_selected_ticket_id: param_selected_ticket_id,
+                };
+
+                task.create({
+                    taskType: task.TaskType.SCHEDULED_SCRIPT,
+                    deploymentId: 'customdeploy_ss_ticket_under_investigati',
+                    params: params,
+                    scriptId: 'customscript_ss_ticket_under_investigati',
+                });
+
+                redirect.toSuitelet({
+                    scriptId:'customscript_sl_edit_ticket_2',
+                    deploymentId: 'customdeploy_sl_edit_ticket_2',
+                });
+                
+            } else {
+                var form = ui.createForm({
+                    title: ' ',
+                });
+    
+                // Load jQuery
+                var inlineHtml = '<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>';
+                // Load Tooltip
+                inlineHtml += '<script src="https://unpkg.com/@popperjs/core@2"></script>';
+    
+                // Load Bootstrap
+                inlineHtml += '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">';
+                inlineHtml += '<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>';
+                
+                // Load DataTables
+                inlineHtml += '<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">';
+                inlineHtml += '<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>';
+    
+                // Load Bootstrap-Select
+                inlineHtml += '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">';
+                inlineHtml += '<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>';
+    
+                // Load Netsuite stylesheet and script
+                inlineHtml += '<link rel="stylesheet" href="https://1048144.app.netsuite.com/core/media/media.nl?id=2060796&c=1048144&h=9ee6accfd476c9cae718&_xt=.css"/>';
+                inlineHtml += '<script src="https://1048144.app.netsuite.com/core/media/media.nl?id=2060797&c=1048144&h=ef2cda20731d146b5e98&_xt=.js"></script>';
+                inlineHtml += '<link type="text/css" rel="stylesheet" href="https://1048144.app.netsuite.com/core/media/media.nl?id=2090583&c=1048144&h=a0ef6ac4e28f91203dfe&_xt=.css">';
+                inlineHtml += '<style>.mandatory{color:red;}</style>'; 
+                
+    
+                // Load "FixedHeader" Datatable extension
+                inlineHtml += '<link type="text/css" href="https://cdn.datatables.net/fixedheader/3.1.7/css/fixedHeader.dataTables.min.css" rel="stylesheet" />';
+                inlineHtml += '<script type="text/javascript" src="https://cdn.datatables.net/fixedheader/3.1.7/js/dataTables.fixedHeader.min.js"></script>';
+    
+                //Load gyrocode extension for Datatbles
+                inlineHtml += '<link type="text/css" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/css/dataTables.checkboxes.css" rel="stylesheet" />';
+                inlineHtml += '<script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>';
+    
+                // Load Netsuite stylesheet and script
+                inlineHtml += '<link rel="stylesheet" href="https://1048144.app.netsuite.com/core/media/media.nl?id=2060796&c=1048144&h=9ee6accfd476c9cae718&_xt=.css"/>';
+                inlineHtml += '<script src="https://1048144.app.netsuite.com/core/media/media.nl?id=2060797&c=1048144&h=ef2cda20731d146b5e98&_xt=.js"></script>';
+                inlineHtml += '<link type="text/css" rel="stylesheet" href="https://1048144.app.netsuite.com/core/media/media.nl?id=2090583&c=1048144&h=a0ef6ac4e28f91203dfe&_xt=.css">';
+                inlineHtml += '<style>.mandatory{color:red;} </style>';
+    
+                // Define alert window.
+                inlineHtml += '<div class="container" style="margin-top:14px;" hidden><div id="alert" class="alert alert-danger fade in"></div></div>';
+    
+                // Define information window.
+                inlineHtml += '<div class="container" hidden><p id="info" class="alert alert-info"></p></div>';
+    
+                //inlineHtml += '<div style="background-color: #CFE0CE; min-height: 100vh; margin-top: -15px"><br/>';
+                inlineHtml += '<div style="margin-top: -40px"><br/>';
+                inlineHtml += '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="opennewticket" onclick="">Open New Ticket</button>';
+                inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="viewclosedtickets" onclick="">View Closed Tickets</button>';
+                inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="viewlosttickets" onclick="">View Lost Tickets</button>';
+                inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="sendbulkemails" onclick="">Send Bulk Emails</button>';
+   
+                
+                //  form.addSubmitButton({
+               //      label: 'Open New Ticket'
+               //  });
+    
+    
+               //  form.addButton({
+               //      id: 'custpage_view_closed_tickets',
+               //      label: 'View Closed Tickets',
+               //      functionName: 'viewClosedTickets()'
+               //  });
+    
+               //  form.addButton({
+               //      id: 'custpage_view_lost_tickets',
+               //      label: 'View Closed-Lost Tickets',
+               //      functionName: 'viewLostTickets()'
+               //  });
+    
+               //  form.addButton({
+               //      id: 'custpage_bulk_email',
+               //      label: 'Send Bulk Emails',
+               //      functionName: 'onSendBulkEmails()'
+               //  });
+   
+                inlineHtml += '<h1 style="font-size: 25px; font-weight: 700; color: #103D39; text-align: center">View MP Tickets</h1>'
+                
+                //inlineHtml += dataTablePreview('test');
+                inlineHtml += dateCreatedSection();
+                inlineHtml += tabsSection(parseInt(role));
+                inlineHtml += '</div>'
+                form.addField({
+                    id: 'preview_table',
+                    type: ui.FieldType.INLINEHTML,
+                    label: 'preview_table'
+                }).updateBreakType({
+                    breakType: ui.FieldBreakType.STARTROW
+                }).defaultValue = inlineHtml;
+    
+    
+                form.addField({
+                    id: 'custpage_selected_id',
+                    type: ui.FieldType.TEXT,
+                    label: 'Selected ID'
+                }).updateDisplayType({
+                    displayType: ui.FieldDisplayType.HIDDEN
+                });
+    
+                form.addField({
+                    id: 'custpage_selector_type',
+                    type: ui.FieldType.TEXT,
+                    label: 'Selector Type'
+                }).updateDisplayType({
+                    displayType: ui.FieldDisplayType.HIDDEN
+                });
+    
+    
+               //  form.addSubmitButton({
+               //      label: 'Open New Ticket'
+               //  });
+    
+    
+               //  form.addButton({
+               //      id: 'custpage_view_closed_tickets',
+               //      label: 'View Closed Tickets',
+               //      functionName: 'viewClosedTickets()'
+               //  });
+    
+               //  form.addButton({
+               //      id: 'custpage_view_lost_tickets',
+               //      label: 'View Closed-Lost Tickets',
+               //      functionName: 'viewLostTickets()'
+               //  });
+    
+               //  form.addButton({
+               //      id: 'custpage_bulk_email',
+               //      label: 'Send Bulk Emails',
+               //      functionName: 'onSendBulkEmails()'
+               //  });
+                
+                form.clientScriptFileId = 4813449;//SB=4796342 PROD = 4813449
+                context.response.writePage(form);
+            }
 
              
-             //  form.addSubmitButton({
-            //      label: 'Open New Ticket'
-            //  });
- 
- 
-            //  form.addButton({
-            //      id: 'custpage_view_closed_tickets',
-            //      label: 'View Closed Tickets',
-            //      functionName: 'viewClosedTickets()'
-            //  });
- 
-            //  form.addButton({
-            //      id: 'custpage_view_lost_tickets',
-            //      label: 'View Closed-Lost Tickets',
-            //      functionName: 'viewLostTickets()'
-            //  });
- 
-            //  form.addButton({
-            //      id: 'custpage_bulk_email',
-            //      label: 'Send Bulk Emails',
-            //      functionName: 'onSendBulkEmails()'
-            //  });
-
-             inlineHtml += '<h1 style="font-size: 25px; font-weight: 700; color: #103D39; text-align: center">View MP Tickets</h1>'
-             
-             //inlineHtml += dataTablePreview('test');
-             inlineHtml += dateCreatedSection();
-             inlineHtml += tabsSection(parseInt(role));
-             inlineHtml += '</div>'
-             form.addField({
-                 id: 'preview_table',
-                 type: ui.FieldType.INLINEHTML,
-                 label: 'preview_table'
-             }).updateBreakType({
-                 breakType: ui.FieldBreakType.STARTROW
-             }).defaultValue = inlineHtml;
- 
- 
-             form.addField({
-                 id: 'custpage_selected_id',
-                 type: ui.FieldType.TEXT,
-                 label: 'Selected ID'
-             }).updateDisplayType({
-                 displayType: ui.FieldDisplayType.HIDDEN
-             });
- 
-             form.addField({
-                 id: 'custpage_selector_type',
-                 type: ui.FieldType.TEXT,
-                 label: 'Selector Type'
-             }).updateDisplayType({
-                 displayType: ui.FieldDisplayType.HIDDEN
-             });
- 
- 
-            //  form.addSubmitButton({
-            //      label: 'Open New Ticket'
-            //  });
- 
- 
-            //  form.addButton({
-            //      id: 'custpage_view_closed_tickets',
-            //      label: 'View Closed Tickets',
-            //      functionName: 'viewClosedTickets()'
-            //  });
- 
-            //  form.addButton({
-            //      id: 'custpage_view_lost_tickets',
-            //      label: 'View Closed-Lost Tickets',
-            //      functionName: 'viewLostTickets()'
-            //  });
- 
-            //  form.addButton({
-            //      id: 'custpage_bulk_email',
-            //      label: 'Send Bulk Emails',
-            //      functionName: 'onSendBulkEmails()'
-            //  });
-             
-             form.clientScriptFileId = 4813449;//SB=4796342 PROD = 4813449
-             context.response.writePage(form);
  
          } else {
  
@@ -186,9 +215,9 @@
  
                  task.create({
                      taskType: task.TaskType.SCHEDULED_SCRIPT,
-                     deploymentId: 'customdeploy_ss_ticket_under_investigati_2',
+                     deploymentId: 'customdeploy_ss_ticket_under_investigati',
                      params: params,
-                     scriptId: 'customscript_ss_ticket_under_investigati_2',
+                     scriptId: 'customscript_ss_ticket_under_investigati',
                  });
  
                  redirect.toSuitelet({

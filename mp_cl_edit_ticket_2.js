@@ -389,7 +389,7 @@
             viewLostTickets();
         });
         $('#sendbulkemails').click(function() {
-            //onSendBulkEmails();
+            onSendBulkEmails();
         });
        
 
@@ -483,8 +483,21 @@
         var param_selected_ticket_id = JSON.stringify(selected_tickets_id);
         console.log("Send bulk emails = " + param_selected_ticket_id);
         var currRec = currentRecord.get();
-        currRec.getValue({ fieldId: 'custpage_selected_id', value: param_selected_ticket_id });
-        $('#submitter').trigger('click');
+        currRec.setValue({ fieldId: 'custpage_selected_id', value: param_selected_ticket_id });
+        
+        var params = {
+            custpage_selected_id: param_selected_ticket_id,
+        };
+        params = JSON.stringify(params);
+        var output = url.resolveScript({
+            deploymentId: 'customdeploy_sl_edit_ticket_2',
+            scriptId: 'customscript_sl_edit_ticket_2',
+        });
+        
+        var upload_url = baseURL + output + '&custparam_params=' + params;
+        window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
+
+        //$('#submitter').trigger('click');
         return true;
     }
 

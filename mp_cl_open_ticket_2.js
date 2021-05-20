@@ -4222,11 +4222,14 @@
        * Set the status as "Open".
        */
       function reopenTicket() {
-          
+          console.log("in reopen");
+          console.log("customer number");
           var ticket_id = currRec.getValue({ fieldId: 'custpage_ticket_id' });
           ticket_id = parseInt(ticket_id);
           var selector_number = currRec.getValue({ fieldId: 'custpage_selector_number' });
           var selector_type = currRec.getValue({ fieldId: 'custpage_selector_type' });
+          var customer_number = currRec.getValue({ fieldId: 'custpage_customer_number' });
+
           var ticketRecord = record.load({ type: 'customrecord_mp_ticket', id: ticket_id });
           ticketRecord.setValue({ fieldId: 'custrecord_date_closed', value: null });
           ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 1 });
@@ -4265,6 +4268,7 @@
           });
           var upload_url = baseURL + output + '&custparam_params=' + params;
           window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
+          console.log("in reopen");
       }
 
       /**
