@@ -652,6 +652,16 @@
               updateAndNew();
           });
 
+          $('#updatecloseticketbutton').click(function() {
+            console.log("btn clicked");
+            if (confirm("Are you sure you want to update and close this ticket?\n\nThis action cannot be undone.")) {
+                saveRecord();
+                console.log("update finished")
+                updateCloseTicket();
+            }
+            
+          });
+
           $('#openticketbutton').click(function() {
               console.log("hi");
               //saveRecord();
@@ -3793,6 +3803,63 @@
       }
 
       /**
+       * Triggered by a click on the button 'UPDATE CLOSE TICKET' ('#close_ticket')
+       * Set the date of closure, and the status as "Closed".
+       */
+      function updateCloseTicket() {
+        
+        var date = new Date;
+        var dnow = format.parse({ value: date, type: format.Type.DATETIMETZ });
+
+        var ticket_id = currRec.getValue({ fieldId: 'custpage_ticket_id' });
+        ticket_id = parseInt(ticket_id);
+        var ticketRecord = record.load({ type: 'customrecord_mp_ticket', id: ticket_id });
+        ticketRecord.setValue({ fieldId: 'custrecord_date_closed', value: dnow });
+        ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 3 });
+        ticketRecord.setValue({ fieldId: 'custrecord_mp_ticket_customer_status', value: 5 });
+        ticketRecord.setValue({ fieldId: 'custrecord_reminder', value: null });
+
+        // Save issues and resolved issues
+        ticketRecord = updateIssues(ticketRecord);
+
+        var ticket_name = ticketRecord.getText({fieldId: 'name'});
+        var customer_barcode_number = ticketRecord.getValue({ fieldId : 'custrecord_barcode_number'});
+        var customer_id = ticketRecord.getValue({fieldId: 'custrecord_customer1'});
+
+        try {
+        var barcodeRecord = record.load({
+            type: 'customrecord_customer_product_stock',
+            id: customer_barcode_number,
+        });
+
+        var receiveremail = barcodeRecord.getValue({fieldId: 'custrecord_receiver_email'});
+        var barcodeName = barcodeRecord.getValue({fieldId: 'name'});
+
+        //Send Email To Customer
+        if (!isNullorEmpty(receiveremail)) {
+            sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Ticket Closed - ' + barcodeName, [receiveremail], 114, customer_id);
+        }
+        } catch(e) {
+            console.log("Failed to load barcode because no customer linked");
+        } 
+
+        ticketRecord.save({
+            enableSourcing: true,
+        })
+
+        // Redirect to the "View MP Tickets" page
+        var output = url.resolveScript({
+            deploymentId: 'customdeploy_sl_edit_ticket_2',
+            scriptId: 'customscript_sl_edit_ticket_2',
+        })
+        var upload_url = baseURL + output;
+        window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
+        
+        
+    
+      }
+      
+      /**
        * Triggered by a click on the button 'CLOSE TICKET' ('#close_ticket')
        * Set the date of closure, and the status as "Closed".
        */
@@ -3817,22 +3884,23 @@
               var customer_barcode_number = ticketRecord.getValue({ fieldId : 'custrecord_barcode_number'});
               var customer_id = ticketRecord.getValue({fieldId: 'custrecord_customer1'});
 
-              var barcodeRecord = record.load({
-                  type: 'customrecord_customer_product_stock',
-                  id: customer_barcode_number,
-              });
-
-              var receiveremail = barcodeRecord.getValue({fieldId: 'custrecord_receiver_email'});
-              var barcodeName = barcodeRecord.getValue({fieldId: 'name'});
-
-              //Send Email To Customer
-              if (!isNullorEmpty(receiveremail)) {
-                  sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Ticket Closed - ' + barcodeName, [receiveremail], 114, customer_id);
-              }
-
-              
-              
-
+              try {
+                var barcodeRecord = record.load({
+                    type: 'customrecord_customer_product_stock',
+                    id: customer_barcode_number,
+                });
+  
+                var receiveremail = barcodeRecord.getValue({fieldId: 'custrecord_receiver_email'});
+                var barcodeName = barcodeRecord.getValue({fieldId: 'name'});
+  
+                //Send Email To Customer
+                if (!isNullorEmpty(receiveremail)) {
+                    sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Ticket Closed - ' + barcodeName, [receiveremail], 114, customer_id);
+                }
+              } catch(e) {
+                    console.log("Failed to load barcode because no customer linked");
+              } 
+  
               ticketRecord.save({
                   enableSourcing: true,
               })
@@ -3844,6 +3912,8 @@
               })
               var upload_url = baseURL + output;
               window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
+              
+              
           }
       }
 

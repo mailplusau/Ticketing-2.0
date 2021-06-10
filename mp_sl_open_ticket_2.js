@@ -779,6 +779,8 @@
         if (!isNullorEmpty(ticket_id)) {
             if (isTicketNotClosed(status_value)) {
                 inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="updateticketbutton" onclick="">Update & New Ticket</button>';
+                inlineQty += '<button style="float: left; margin-left: 5x; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="updatecloseticketbutton" onclick="">Update & Close Ticket</button>';
+
             } else {
                 inlineQty += '<button style="float: left; margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="reopenticketbutton" onclick="">Reopen Ticket</button>';
             }

@@ -510,7 +510,7 @@
 
         // Load the Barcodes MP Tickets
         var ticketSearch = search.load({
-            id: 'customsearch_mp_ticket',
+            id: 'customsearch_mp_ticket_4',
             type: 'customrecord_mp_ticket'
         })
 
@@ -574,7 +574,7 @@
      * @param   {Set}       customer_has_mpex_contact_set
      */
     function loadTicketsTable(selector_list, customer_has_mpex_contact_set) {
-        var ticketSearch = search.load({ type: 'customrecord_mp_ticket', id: 'customsearch_mp_ticket' });
+        var ticketSearch = search.load({ type: 'customrecord_mp_ticket', id: 'customsearch_mp_ticket_4' });
         var ticketResultSet = ticketSearch.run();
 
         var ticketsDataSetArrays = [];
