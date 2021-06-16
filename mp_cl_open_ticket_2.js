@@ -3991,24 +3991,24 @@
                       relatedRecords: {entityId: customer_id},
                   });
               } else if (!isNullorEmpty(invoice) && !isNullorEmpty(product_order)) {
-                  //SEND EMAIL TO RAINE + POPIE
+                  //SEND EMAIL TO FIONA + POPIE --> change to raine after mat leave
                   body = 'MP Ticket: ' + ticket_name + '\nBarcode: ' + barcodeName + '\nProduct Order: ' + product_order + '\nInvoice: ' + invoice + '\nTicket URL: ' + ticket_url;
                   
                   email.send({
                     author: 112209,
                     body: body,
-                    recipients: ['sruti.desai@mailplus.com.au', 'raine.giderson@mailplus.com.au', 'popie.popie@mailplus.com.au'],
+                    recipients: ['sruti.desai@mailplus.com.au', 'fiona.harrison@mailplus.com.au', 'popie.popie@mailplus.com.au'],
                     subject: "MPEX Barcode Credit- LIT " + barcodeName,
                     relatedRecords: {entityId: customer_id}
                 })
               } else {
-                    //SEND EMAIL TO RAINE
+                    //SEND EMAIL TO FIONA
                     console.log("in here");
                     body = 'MP Ticket: ' + ticket_name + '\nBarcode: ' + barcodeName + '\nProduct Order: ' + product_order + '\nTicket URL: ' + ticket_url;
                     email.send({
                         author: 112209,
                         body: body,
-                        recipients: ['sruti.desai@mailplus.com.au', 'raine.giderson@mailplus.com.au'],
+                        recipients: ['sruti.desai@mailplus.com.au', 'fiona.harrison@mailplus.com.au'],
                         subject: "MPEX Barcode Credit- LIT " + barcodeName,
                         relatedRecords: {entityId: customer_id}
                     })
