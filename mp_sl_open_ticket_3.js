@@ -567,7 +567,7 @@
             }
             
             // form.addButton({ id: 'custpage_cancel', label: 'Cancel', functionName: 'onCancel()' });
-            form.clientScriptFileId = 4796340;//SB=4796340 PROD=4813453
+            form.clientScriptFileId = 4813453;//SB=4796340 PROD=4813453
             context.response.writePage(form);
             
 
