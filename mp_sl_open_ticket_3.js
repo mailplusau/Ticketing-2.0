@@ -416,7 +416,8 @@
             // Define information window.
             inlineHtml += '<div class="container" hidden><p id="info" class="alert alert-info"></p></div>';
     
-            inlineHtml += tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, customer_ticket_status, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2, prod_stock_invoice, barcodempdl, barcodesource, list_mp_ticket_issues, list_resolved_mp_ticket_issues, list_invoice_issues, list_resolved_invoice_issues);
+            inlineHtml += tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, customer_ticket_status, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2, prod_stock_invoice, barcodempdl, barcodesource, list_mp_ticket_issues, list_resolved_mp_ticket_issues, list_invoice_issues, list_resolved_invoice_issues, selected_invoice_method_id, accounts_cc_email, mpex_po_number, customer_po_number, selected_invoice_cycle_id, terms, customer_terms);
+
             // inlineHtml += customerNumberSection(customer_number, ticket_id);
             // inlineHtml += selectorSection(ticket_id, selector_number, selector_id, selector_type, status_value);
     
@@ -566,7 +567,7 @@
             }
             
             // form.addButton({ id: 'custpage_cancel', label: 'Cancel', functionName: 'onCancel()' });
-            form.clientScriptFileId = 4813453;//SB=4796340 PROD=4813453
+            form.clientScriptFileId = 4796340;//SB=4796340 PROD=4813453
             context.response.writePage(form);
             
 
@@ -772,7 +773,7 @@
         return inlineQty;
      }
 
-     function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, customer_ticket_status, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2, prod_stock_invoice, barcodempdl, barcodesource, list_mp_ticket_issues, list_resolved_mp_ticket_issues, list_invoice_issues, list_resolved_invoice_issues) {
+     function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, customer_ticket_status, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2, prod_stock_invoice, barcodempdl, barcodesource, list_mp_ticket_issues, list_resolved_mp_ticket_issues, list_invoice_issues, list_resolved_invoice_issues, selected_invoice_method_id, accounts_cc_email, mpex_po_number, customer_po_number, selected_invoice_cycle_id, terms, customer_terms) {
         
         var inlineQty = '<div style="margin-top: -10px"><br/>';
         // BUTTONS
@@ -889,8 +890,23 @@
         inlineQty += mpexStockUsedSection(selector_type, date_stock_used, time_stock_used);
         inlineQty += finalDeliveryEnquirySection(status_value, selector_type, final_delivery_text, selected_enquiry_status_id, prod_stock_invoice);
         inlineQty += attachmentsSection(attachments_hyperlink, status_value);
-        inlineQty += enquiryMediumSection(list_enquiry_mediums, selected_enquiry_status_id, selector_type);
-        inlineQty += enquiryCountSection( total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selector_type);
+        
+        if (isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && (selector_type == 'invoice_number'))) {
+            inlineQty += otherInvoiceFieldsSection(selected_invoice_method_id, accounts_cc_email, mpex_po_number, customer_po_number, selected_invoice_cycle_id, terms, customer_terms, status_value, selector_type);
+            inlineQty += enquiryMediumSection(list_enquiry_mediums, selected_enquiry_status_id, selector_type);
+            inlineQty += enquiryCountSection( total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selector_type);
+            inlineQty += openInvoicesSection(ticket_id, selector_type);
+            if (!isNullorEmpty(ticket_id)) {
+                inlineQty += creditMemoSection(selector_type);
+                inlineQty += usageReportSection(selector_type);
+            }
+        }
+
+        if (selector_type != 'invoice_number') {
+            inlineQty += enquiryMediumSection(list_enquiry_mediums, selected_enquiry_status_id, selector_type);
+            inlineQty += enquiryCountSection( total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selector_type);
+        }
+        
         
         if(!isNullorEmpty(ticket_id)) {
             inlineQty += receiverEmailPhone(selector_type, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2);
@@ -997,7 +1013,7 @@
         inlineQty += '<div class="form-group container customer_number_tickets">';
         inlineQty += '<style> table {font-size: 12px;text-align: center;border: none;} {font-size: 14px;} table th{text-align: center;} .dataTables_wrapper{width:78%; margin-bottom:40px; margin-left: auto; margin-right: auto; margin-top: auto;} </style>';
         inlineQty += '<table cellpadding="15" id="customer_number_tickets_preview" class="table table-responsive table-striped customer tablesorter" cellspacing="0" style="width: 100%;">';
-        inlineQty += '<thead style="color: white;background-color: #607799;">';
+        inlineQty += '<thead style="color: white;background-color: #379E8F;">';
         inlineQty += '<tr class="text-center">';
         inlineQty += '</tr>';
         inlineQty += '</thead></table>';
@@ -1402,7 +1418,7 @@
         inlineQty += '<span class="input-group-addon" id="accountsemail_text">ACCOUNTS EMAIL</span>';
         inlineQty += '<input id="accountsemail" type="email" value="' + accountsemail + '" class="form-control accountsemail" ' + disabled + ' />';
         inlineQty += '<div class="input-group-btn">';
-        inlineQty += '<button type="button" class="btn btn-success add_as_recipient" data-email="' + accountsemail + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
+        inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success add_as_recipient" data-email="' + accountsemail + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
         inlineQty += '<span class="glyphicon glyphicon-envelope"></span>';
         inlineQty += '</button>';
         inlineQty += '</div>';
@@ -2115,7 +2131,7 @@
         var inlineQty = '<div class="form-group container open_invoices open_invoices_header ' + hide_class_section + '">';
         inlineQty += '<div class="row">';
         inlineQty += '<div class="col-xs-12 heading2">';
-        inlineQty += '<h4><span class="label label-default col-xs-12">OPEN INVOICES</span></h4>';
+        inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">OPEN INVOICES</span></h4>';
         inlineQty += '</div></div></div>';
 
         // Open invoices dropdown field
@@ -2146,7 +2162,7 @@
     function dataTable() {
         var inlineQty = '<style>table#invoices-preview {font-size: 12px;text-align: center;border: none;}.dataTables_wrapper {font-size: 14px;}table#invoices-preview th{text-align: center;} .bolded{font-weight: bold;}</style>';
         inlineQty += '<table id="invoices-preview" class="table table-responsive table-striped customer tablesorter" style="width: 100%; table-layout: fixed">';
-        inlineQty += '<thead style="color: white;background-color: #607799;">';
+        inlineQty += '<thead style="color: white;background-color: #379E8F;">';
         inlineQty += '<tr class="text-center">';
         inlineQty += '</tr>';
         inlineQty += '</thead>';
@@ -2171,7 +2187,7 @@
             inlineQty += '<div class="form-group container credit_memo credit_memo_header">';
             inlineQty += '<div class="row">';
             inlineQty += '<div class="col-xs-12 heading2">';
-            inlineQty += '<h4><span class="label label-default col-xs-12">CREDIT MEMO</span></h4>';
+            inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">CREDIT MEMO</span></h4>';
             inlineQty += '</div></div></div>';
             // Credit Memo table
             inlineQty += '<div class="form-group container credit_memo credit_memo_section" style="font-size: small;">';
@@ -2192,7 +2208,7 @@
             inlineQty += '<div class="form-group container usage_report usage_report_header">';
             inlineQty += '<div class="row">';
             inlineQty += '<div class="col-xs-12 heading2">';
-            inlineQty += '<h4><span class="label label-default col-xs-12">USAGE REPORT</span></h4>';
+            inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">USAGE REPORT</span></h4>';
             inlineQty += '</div></div></div>';
             // Usage Report table
             inlineQty += '<div class="form-group container usage_report usage_report_section" style="font-size: small;">';
@@ -2883,6 +2899,8 @@
             } else {
                 inlineQty += '<option value="' + issue_id + '">' + issue_name + '</option>';
             }
+
+            return true;
         });
 
         inlineQty += '</select>';
@@ -2945,6 +2963,7 @@
             } else {
                 inlineQty += '<option value="' + title_id + '">' + title_name + '</option>';
             }
+            return true;
         });
         inlineQty += '</select>';
         inlineQty += '</div></div></div></div>';
@@ -3051,7 +3070,7 @@
         inlineQty += '</div></div></div>';
         inlineQty += '<style>table#tickets-preview {font-size: 12px;text-align: center;border: none; background-color: #379E8F}.dataTables_wrapper {font-size: 12px;}table#tickets-preview th{background-color: #379E8F; text-align: center;}</style>';
         inlineQty += '<table cellpadding="15" id="tickets-preview" class="table table-responsive table-striped customer tablesorter" cellspacing="0" style="width: 100%;">';
-        inlineQty += '<thead style="color: white;background-color: #607799;">';
+        inlineQty += '<thead style="color: white;background-color: #379E8F;">';
         inlineQty += '<tr class="text-center">';
         inlineQty += '</tr>';
         inlineQty += '</thead>';
