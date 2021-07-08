@@ -9,10 +9,10 @@
  */
 
 
- define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/http', 'N/log', 'N/redirect', 'N/format'], 
- function(ui, email, runtime, search, record, http, log, redirect, format) {
+ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/http', 'N/log', 'N/redirect', 'N/format', 'N/task'], 
+ function(ui, email, runtime, search, record, http, log, redirect, format, task) {
      var baseURL = 'https://1048144.app.netsuite.com';
-     if (runtime.EnvType == "SANDBOX") {
+     if (runtime.envType == "SANDBOX") {
          baseURL = 'https://1048144-sb3.app.netsuite.com';
      }
      var zee = 0;
@@ -25,31 +25,69 @@
      function onRequest(context) {  
          
          if (context.request.method === 'GET') {
+            
+            var params = context.request.parameters.custparam_params;
+            log.debug({
+                title: 'Params',
+                details: params
+            })
 
-            if (!isNullorEmpty(context.request.parameters.custpage_selected_id)) {
-                var param_selected_ticket_id = context.request.parameters.custpage_selected_id;
-                log.debug({
-                    title: 'param_selected_ticket_id',
-                    details: param_selected_ticket_id
-                });
+            if (!isNullorEmpty(params)) {
+                params = JSON.parse(params);
+                if (!isNullorEmpty(params.custpage_bulk_escalate)) {
+                    var param_selected_ticket_id = params.custpage_bulk_escalate;
+                    log.debug({
+                        title: 'Bulk escalate: param_selected_ticket_id',
+                        details: param_selected_ticket_id
+                    });
     
-                
-                var params = {
-                    custscript_selected_ticket_id: param_selected_ticket_id,
-                };
-
-                task.create({
-                    taskType: task.TaskType.SCHEDULED_SCRIPT,
-                    deploymentId: 'customdeploy_ss_ticket_under_investigati',
-                    params: params,
-                    scriptId: 'customscript_ss_ticket_under_investigati',
-                });
-
-                redirect.toSuitelet({
-                    scriptId:'customscript_sl_edit_ticket_2',
-                    deploymentId: 'customdeploy_sl_edit_ticket_2',
-                });
-                
+                    var params2 = {
+                        custscript_ticket_id_set: param_selected_ticket_id,
+                    };
+    
+                    var t_id = task.create({
+                        taskType: task.TaskType.SCHEDULED_SCRIPT,
+                        deploymentId: 'customdeploy_ss_bulk_escalate_2',
+                        params: params2,
+                        scriptId: 'customscript_ss_bulk_escalate_2',
+                    });
+    
+                    t_id.submit();
+                    
+                    log.debug({
+                        title: 'It WORKED 2',
+                        details: params2
+                    })
+                    redirect.toSuitelet({
+                        scriptId:'customscript_sl_edit_ticket_2',
+                        deploymentId: 'customdeploy_sl_edit_ticket_2',
+                    });
+                    
+                } else if (!isNullorEmpty(params.custpage_selected_id)) {
+                    var param_selected_ticket_id = params.custpage_selected_id;
+                    log.debug({
+                        title: 'param_selected_ticket_id',
+                        details: param_selected_ticket_id
+                    });
+        
+                    
+                    var params2 = {
+                        custscript_selected_ticket_id: param_selected_ticket_id,
+                    };
+    
+                    task.create({
+                        taskType: task.TaskType.SCHEDULED_SCRIPT,
+                        deploymentId: 'customdeploy_ss_ticket_under_investigati',
+                        params: params2,
+                        scriptId: 'customscript_ss_ticket_under_investigati',
+                    });
+    
+                    redirect.toSuitelet({
+                        scriptId:'customscript_sl_edit_ticket_2',
+                        deploymentId: 'customdeploy_sl_edit_ticket_2',
+                    });
+                    
+                }
             } else {
                 var form = ui.createForm({
                     title: ' ',
@@ -99,40 +137,15 @@
                 // Define information window.
                 inlineHtml += '<div class="container" hidden><p id="info" class="alert alert-info"></p></div>';
     
-                //inlineHtml += '<div style="background-color: #CFE0CE; min-height: 100vh; margin-top: -15px"><br/>';
                 inlineHtml += '<div style="margin-top: -40px"><br/>';
                 inlineHtml += '<button style="margin-left: 10px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="opennewticket" onclick="">Open New Ticket</button>';
                 inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="viewclosedtickets" onclick="">View Closed Tickets</button>';
                 inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="viewlosttickets" onclick="">View Lost Tickets</button>';
                 inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="sendbulkemails" onclick="">Send Bulk Emails</button>';
-   
-                
-                //  form.addSubmitButton({
-               //      label: 'Open New Ticket'
-               //  });
-    
-    
-               //  form.addButton({
-               //      id: 'custpage_view_closed_tickets',
-               //      label: 'View Closed Tickets',
-               //      functionName: 'viewClosedTickets()'
-               //  });
-    
-               //  form.addButton({
-               //      id: 'custpage_view_lost_tickets',
-               //      label: 'View Closed-Lost Tickets',
-               //      functionName: 'viewLostTickets()'
-               //  });
-    
-               //  form.addButton({
-               //      id: 'custpage_bulk_email',
-               //      label: 'Send Bulk Emails',
-               //      functionName: 'onSendBulkEmails()'
-               //  });
-   
+                inlineHtml += '<button style="margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="bulkescalatebtn" onclick="">Bulk Escalate</button>';
+
                 inlineHtml += '<h1 style="font-size: 25px; font-weight: 700; color: #103D39; text-align: center">View MP Tickets</h1>'
                 
-                //inlineHtml += dataTablePreview('test');
                 inlineHtml += dateCreatedSection();
                 inlineHtml += tabsSection(parseInt(role));
                 inlineHtml += '</div>'
@@ -152,6 +165,14 @@
                 }).updateDisplayType({
                     displayType: ui.FieldDisplayType.HIDDEN
                 });
+
+                form.addField({
+                    id: 'custpage_bulk_escalate',
+                    type: ui.FieldType.TEXT,
+                    label: 'Bulk Escalate ID'
+                }).updateDisplayType({
+                    displayType: ui.FieldDisplayType.HIDDEN
+                });
     
                 form.addField({
                     id: 'custpage_selector_type',
@@ -160,31 +181,11 @@
                 }).updateDisplayType({
                     displayType: ui.FieldDisplayType.HIDDEN
                 });
-    
-    
-               //  form.addSubmitButton({
-               //      label: 'Open New Ticket'
-               //  });
-    
-    
-               //  form.addButton({
-               //      id: 'custpage_view_closed_tickets',
-               //      label: 'View Closed Tickets',
-               //      functionName: 'viewClosedTickets()'
-               //  });
-    
-               //  form.addButton({
-               //      id: 'custpage_view_lost_tickets',
-               //      label: 'View Closed-Lost Tickets',
-               //      functionName: 'viewLostTickets()'
-               //  });
-    
-               //  form.addButton({
-               //      id: 'custpage_bulk_email',
-               //      label: 'Send Bulk Emails',
-               //      functionName: 'onSendBulkEmails()'
-               //  });
-                
+
+                log.debug({
+                    title: 'testing',
+                    details: 'testing'
+                })
                 form.clientScriptFileId = 4813449;//SB=4796342 PROD = 4813449
                 context.response.writePage(form);
             }
@@ -194,36 +195,63 @@
          } else {
  
              var param_selected_ticket_id = context.request.parameters.custpage_selected_id;
+             var param_escalate_ticket_id = context.request.parameters.custpage_bulk_escalate;
+
              log.debug({
                  title: 'param_selected_ticket_id',
                  details: param_selected_ticket_id
              });
+
+             log.debug({
+                title: 'param_escalate_ticket_id',
+                details: param_escalate_ticket_id
+            });
  
-             if (isNullorEmpty(param_selected_ticket_id)) {
+            if (!isNullorEmpty(param_escalate_ticket_id)) {
+                var params = {
+                    custscript_ticket_id_set: param_escalate_ticket_id,
+                };
+
+                task.create({
+                    taskType: task.TaskType.SCHEDULED_SCRIPT,
+                    deploymentId: 'customdeploy_ss_bulk_escalate_2',
+                    params: params,
+                    scriptId: 'customscript_ss_bulk_escalate_2',
+                });
+                log.debug({
+                    title: 'IT WORKED',
+                    params: params
+                });
+
+                redirect.toSuitelet({
+                    scriptId:'customscript_sl_edit_ticket_2',
+                    deploymentId: 'customdeploy_sl_edit_ticket_2',
+                });
+            } else if (!isNullorEmpty(param_selected_ticket_id)) {
+                var params = {
+                    custscript_selected_ticket_id: param_selected_ticket_id,
+                };
+
+                task.create({
+                    taskType: task.TaskType.SCHEDULED_SCRIPT,
+                    deploymentId: 'customdeploy_ss_ticket_under_investigati',
+                    params: params,
+                    scriptId: 'customscript_ss_ticket_under_investigati',
+                });
+
+                redirect.toSuitelet({
+                    scriptId:'customscript_sl_edit_ticket_2',
+                    deploymentId: 'customdeploy_sl_edit_ticket_2',
+                });
                  
-                 redirect.toSuitelet({
-                     scriptId: 'customscript_sl_open_ticket_2',
-                     deploymentId: 'customdeploy_sl_open_ticket_2',
-                     isExternal: null,
-                     parameters: null
-                 });
  
              } else {
-                 var params = {
-                     custscript_selected_ticket_id: param_selected_ticket_id,
-                 };
- 
-                 task.create({
-                     taskType: task.TaskType.SCHEDULED_SCRIPT,
-                     deploymentId: 'customdeploy_ss_ticket_under_investigati',
-                     params: params,
-                     scriptId: 'customscript_ss_ticket_under_investigati',
-                 });
- 
-                 redirect.toSuitelet({
-                     scriptId:'customscript_sl_edit_ticket_2',
-                     deploymentId: 'customdeploy_sl_edit_ticket_2',
-                 });
+                redirect.toSuitelet({
+                    scriptId: 'customscript_sl_open_ticket_2',
+                    deploymentId: 'customdeploy_sl_open_ticket_2',
+                    isExternal: null,
+                    parameters: null
+                });
              }
  
          }
@@ -309,25 +337,6 @@
      
          return inlineQty;
      }
-
-//      <div class="tab-content">
-//     <div role="tabpanel" class="tab-pane fade in active" id="Commentary">Commentary WP_Query goes here.</div>
-//     <div role="tabpanel" class="tab-pane fade" id="Videos">Videos WP_Query goes here.</div>
-//     <div role="tabpanel" class="tab-pane fade" id="Events">Events WP_Query goes here.</div>
-//   </div>
- 
-     function tabs2() {
-         var inlineQty = '<div class="tabs" style:"overflow: hidden">';
-         inlineQty += '<ul class="nav nav-pills" style:"overflow: hidden">';
-         inlineQty += '<li class="active"><a href="#barcodes">BARCODES</a></li>';
-         inlineQty += '<li><a href="#invoices">INVOICES</a></li>';
-         inlineQty += '<li><a href="#customers">CUSTOMERS</a></li>';
-         inlineQty += '</ul>';
-         inlineQty += '</div>';
- 
-         return inlineQty;
- 
-      }
       
      /**
       * The table that will display the tickets, based on their type.

@@ -38,6 +38,8 @@
                 switch (selector) {
                     case 'barcodes':
                         var columns = [{
+                            title: 'Bulk Escalate'
+                        }, {
                             title: ''
                         }, {
                             title: "Ticket ID",
@@ -72,8 +74,47 @@
                         var columnDefs = [{
                             targets: 0,
                             render: function(data, type, row, meta) {
-                                var status = row[7];
-                                var has_mpex_contact = row[10];
+                                var status = row[8];
+                                var has_mpex_contact = row[11];
+                                console.log("meta", meta);
+                                console.log("type", type);
+                                console.log("data", data);
+                                console.log("row", row);
+
+                                data = '<input type="checkbox" class="dt-checkboxes">'
+                                if (status === "Closed") {
+                                    data = '';
+                                }
+                                return data;
+                            },
+                            orderable: false,
+                            checkboxes: {
+                                selectRow: true,
+                                selectAllCallback: function(nodes, flag, inderminate){
+                                    console.log("Select all callback");
+                                    console.log(nodes);
+                                    var table_barcodes = $('#tickets-preview-barcodes').DataTable();
+                                    var rows = table_barcodes.rows().nodes().to$();
+                                    // $.each(rows, function(index){
+                                    //     if($(rows[index]).hasClass('ignoreme')){
+                                    //         $(rows[index]).removeClass('selected');                                }
+                                    // });
+
+                                },
+                                selectCallback: function(nodes,flag){
+                                    console.log('flag', flag)
+                                    if(flag){
+                                        $(nodes).closest('tr').addClass('selected');
+                                    }else{
+                                        $(nodes).closest('tr').removeClass('selected');
+                                    }
+                                }
+                            }
+                        }, {
+                            targets: 1,
+                            render: function(data, type, row, meta) {
+                                var status = row[8];
+                                var has_mpex_contact = row[11];
 
                                 data = '<input type="checkbox" class="dt-checkboxes">'
                                 if (status === "Closed" || status === "In progress - IT" || !has_mpex_contact) {
@@ -113,9 +154,9 @@
                             render: function(data, type, row, meta) {
                                 var icon = 'glyphicon-pencil';
                                 var title = 'Edit';
-                                if (data[7] == "Open") {
+                                if (data[8] == "Open") {
                                     var button_style = 'btn-primary';
-                                } else if (data[7] == "In Progress - Customer Service") {
+                                } else if (data[8] == "In Progress - Customer Service") {
                                     var button_style = 'btn-warning';
                                 } else {
                                     var button_style = 'btn-danger';
@@ -226,7 +267,7 @@
                     orderCellsTop: true,
                     fixedHeader: true,
                     columns: columns,
-                    order: [[1, "desc"]],
+                    order: [[2, "desc"]],
                     columnDefs: columnDefs,
                     select: select,
                     pageLength: 100,
@@ -240,7 +281,13 @@
                 $(table_id + ' thead tr:eq(3) th').each(function(i) {
                     var title = $(this).text();
                     if (title == '') {
-                        $(this).html('');
+                        //$(this).html('');
+                        if (i == 0) {
+                            $(this).html('Bulk Escalate');
+                        } else {
+                            $(this).html('Bulk Emails'); 
+                        }
+
                     } else {
                         $(this).html('<input style="width: 90%" type="text" placeholder="Search ' + title + '" />');
                         $('input', this).on('keyup change', function() {
@@ -287,8 +334,8 @@
         var table_barcodes = $('#tickets-preview-barcodes').DataTable();
         console.log("table2", table_barcodes)
         var rows = table_barcodes.rows().nodes().to$();
-        var status = table_barcodes.column(7).data().toArray();;
-        var has_mpex_contact = table_barcodes.column(10).data().toArray()        
+        var status = table_barcodes.column(8).data().toArray();;
+        var has_mpex_contact = table_barcodes.column(11).data().toArray()        
 
         //Mark all tickets that are Closed with class 'ignoreme'
         $.each(rows, function(index) {
@@ -309,8 +356,8 @@
                 var selector = $('div.tab-pane.active').attr('id');
                 switch (selector) {
                     case 'barcodes':
-                        var ticket_id = $(this).parent().siblings().eq(1).text().split('MPSD')[1];
-                        var selector_number = $(this).parent().siblings().eq(3).text();
+                        var ticket_id = $(this).parent().siblings().eq(2).text().split('MPSD')[2];
+                        var selector_number = $(this).parent().siblings().eq(4).text();
                         var selector_type = 'barcode_number';
                         break;
     
@@ -365,7 +412,7 @@
                 // select the index of the date_created column
                 switch (settings.nTable.id) {
                     case 'tickets-preview-barcodes':
-                        var date_created_column_nb = 2;
+                        var date_created_column_nb = 3;
                         break;
 
                     case 'tickets-preview-invoices':
@@ -391,11 +438,44 @@
         $('#sendbulkemails').click(function() {
             onSendBulkEmails();
         });
+        $('#bulkescalatebtn').click(function() {
+            
+            onBulkEscalate();
+        });
        
 
         
     }
     
+    function onBulkEscalate() {
+        console.log('hello');
+        var table = $('#tickets-preview-barcodes').DataTable();
+        var selected_tickets_id = table.cells('.selected', 2).data().toArray();
+        console.log('sel tic id', selected_tickets_id);
+        selected_tickets_id = selected_tickets_id.map(
+            function(ticket_number) {
+                return ticket_number.split('MPSD')[1];
+            });
+        var param_selected_ticket_id = JSON.stringify(selected_tickets_id);
+        console.log("start bulk escalate = " + param_selected_ticket_id);
+
+        var currRec = currentRecord.get();
+        currRec.setValue({ fieldId: 'custpage_bulk_escalate', value: param_selected_ticket_id });
+        
+        var params = {
+            custpage_bulk_escalate: param_selected_ticket_id,
+        };
+        params = JSON.stringify(params);
+        var output = url.resolveScript({
+            deploymentId: 'customdeploy_sl_edit_ticket_2',
+            scriptId: 'customscript_sl_edit_ticket_2',
+        });
+        
+        var upload_url = baseURL + output + '&custparam_params=' + params;
+        window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
+
+
+    }
     function saveRecord(context) {
         var selector = $('div.tab-pane.active').attr('id');
         switch (selector) {
@@ -475,7 +555,7 @@
      */
     function onSendBulkEmails() {
         var table = $('#tickets-preview-barcodes').DataTable();
-        var selected_tickets_id = table.cells('.selected', 1).data().toArray();
+        var selected_tickets_id = table.cells('.selected', 2).data().toArray();
         selected_tickets_id = selected_tickets_id.map(
             function(ticket_number) {
                 return ticket_number.split('MPSD')[1];
@@ -698,7 +778,7 @@
                         case 'barcode':
                             if(status_val != 9) {
                                 //Push tickets that do not have status Closed-Lost
-                                ticketsDataSetArrays[0].push(['', ticket_id, date_created, barcode_number, customer_name, franchise_name, owners, status, toll_issues, mp_ticket_issues, has_mpex_contact]);
+                                ticketsDataSetArrays[0].push(['', '', ticket_id, date_created, barcode_number, customer_name, franchise_name, owners, status, toll_issues, mp_ticket_issues, has_mpex_contact]);
                             }
                             break;
 

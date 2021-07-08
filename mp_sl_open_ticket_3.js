@@ -794,6 +794,7 @@
         if (isTicketNotClosed(status_value)) {
             if (!isNullorEmpty(ticket_id)) {
                 inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #f4524d; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closeticketbutton" onclick="">Close Ticket</button>';
+                inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #f4524d; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closenewticketbutton" onclick="">Close & New Ticket</button>';
                 inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #f4524d; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closelostbutton" onclick="">Close Ticket - Lost Item</button>';
 
                 if (userId == 409635 || userId == 696992 || userId == 766498) {
@@ -893,8 +894,8 @@
         
         if (isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && (selector_type == 'invoice_number'))) {
             inlineQty += otherInvoiceFieldsSection(selected_invoice_method_id, accounts_cc_email, mpex_po_number, customer_po_number, selected_invoice_cycle_id, terms, customer_terms, status_value, selector_type);
-            inlineQty += enquiryMediumSection(list_enquiry_mediums, selected_enquiry_status_id, selector_type);
-            inlineQty += enquiryCountSection( total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selector_type);
+            // inlineQty += enquiryMediumSection(list_enquiry_mediums, selected_enquiry_status_id, selector_type);
+            // inlineQty += enquiryCountSection( total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selector_type);
             inlineQty += openInvoicesSection(ticket_id, selector_type);
             if (!isNullorEmpty(ticket_id)) {
                 inlineQty += creditMemoSection(selector_type);
@@ -902,11 +903,9 @@
             }
         }
 
-        if (selector_type != 'invoice_number') {
-            inlineQty += enquiryMediumSection(list_enquiry_mediums, selected_enquiry_status_id, selector_type);
-            inlineQty += enquiryCountSection( total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selector_type);
-        }
-        
+        inlineQty += enquiryMediumSection(list_enquiry_mediums, selected_enquiry_status_id, selector_type);
+        inlineQty += enquiryCountSection( total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selector_type);
+
         
         if(!isNullorEmpty(ticket_id)) {
             inlineQty += receiverEmailPhone(selector_type, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2);
@@ -2148,14 +2147,14 @@
 
         // Open Invoices Datatable
         //inlineQty += '<div class="form-group container open_invoices open_invoices_datatable>';
-        inlineQty += dataTable();
         //inlineQty += '</div>';
-        // inlineQty += '<div class="form-group open_invoices open_invoices_table ' + hide_class_section + '">';
+        inlineQty += '<div class="form-group open_invoices open_invoices_table ' + hide_class_section + '">';
+        inlineQty += dataTable();
         // inlineQty += '<div class="row">';
         // inlineQty += '<div class="col-xs-18" id="open_invoice_dt_div">';
         // // It is inserted as inline html in the script mp_cl_open_ticket
         // inlineQty += '</div></div></div>';
-
+        inlineQty += '</div>'
         return inlineQty;
     }
 
