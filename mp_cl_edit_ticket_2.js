@@ -11,7 +11,7 @@
   define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/email', 'N/currentRecord'],
   function(error, runtime, search, url, record, format, email, currentRecord) {
       var baseURL = 'https://1048144.app.netsuite.com';
-      if (runtime.EnvType == "SANDBOX") {
+      if (runtime.envType == "SANDBOX") {
           baseURL = 'https://1048144-sb3.app.netsuite.com';
       }
       var role = runtime.getCurrentUser().role;
@@ -356,7 +356,7 @@
                 var selector = $('div.tab-pane.active').attr('id');
                 switch (selector) {
                     case 'barcodes':
-                        var ticket_id = $(this).parent().siblings().eq(2).text().split('MPSD')[2];
+                        var ticket_id = $(this).parent().siblings().eq(2).text().split('MPSD')[1];
                         var selector_number = $(this).parent().siblings().eq(4).text();
                         var selector_type = 'barcode_number';
                         break;
@@ -499,7 +499,7 @@
      * @param   {String}    selector_type
      */
     function editTicket(ticket_id, selector_number, selector_type) {
-        console.log("IN HERE");
+        console.log("IN HERE", parseInt(ticket_id));
         var params = {
             ticket_id: parseInt(ticket_id),
             selector_number: selector_number,
