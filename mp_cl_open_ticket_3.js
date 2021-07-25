@@ -660,7 +660,8 @@
             if (confirm("Are you sure you want to update and close this ticket?\n\nThis action cannot be undone.")) {
                 console.log('Update & Closed Started');
                 updateSaveRecord();
-                console.log("Update finished")
+                updateCloseTicket();
+                console.log("Update finished");
                 //updateCloseTicket();
             }
             
@@ -4350,9 +4351,9 @@
             }
         }
 
-        updateCloseTicket();
+        
         return true;
-    }
+        }
       /**
        * Triggered by a click on the button 'UPDATE CLOSE TICKET' ('#close_ticket')
        * Set the date of closure, and the status as "Closed".
@@ -4421,6 +4422,7 @@
       function closeTicket() {
           
           if (confirm("Are you sure you want to close this ticket?\n\nThis action cannot be undone.")) {
+              updateSaveRecord();
               var date = new Date;
               var dnow = format.parse({ value: date, type: format.Type.DATETIMETZ });
 
@@ -4479,6 +4481,7 @@
       function closeNewTicket() {
           
         if (confirm("Are you sure you want to close this ticket and open a new ticket?\n\nThis action cannot be undone.")) {
+            updateSaveRecord();
             var date = new Date;
             var dnow = format.parse({ value: date, type: format.Type.DATETIMETZ });
 
@@ -4541,6 +4544,7 @@
       function closeTicketLost() {
           
           if (confirm("Are you sure you want to close this ticket and set it as Closed-Lost?\n\nThis action cannot be undone.")) {
+              updateSaveRecord();  
               var date = new Date;
               var dnow = format.parse({ value: date, type: format.Type.DATETIMETZ });
 
@@ -4672,6 +4676,7 @@
       function closeUnallocatedTicket() {
           
           if (confirm("Are you sure you want to close this ticket?\n\nThis action cannot be undone.")) {
+              updateSaveRecord();  
               var date = new Date;
               var dnow = format.parse({ value: date, type: format.Type.DATETIMETZ });
 
