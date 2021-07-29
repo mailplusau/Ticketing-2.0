@@ -30,11 +30,27 @@
             inlineHtml += '</script><script src="https://code.highcharts.com/modules/export-data.js"></script><script src="https://code.highcharts.com/modules/accessibility.js"></script><style>.mandatory{color:red;} .body{background-color: #CFE0CE !important;}</style>';
 
             var form = ui.createForm({
-                title: 'MP Ticketing - Reporting'
+                title: 'MP Ticketing - Weekly Reporting'
             });
 
+            inlineHtml += dateFilterSection();
+            inlineHtml += '<br></br><br></br>';
             inlineHtml += tabsSection();
+            inlineHtml += '<div class="loader"></div>';
+            inlineHtml += '<style> .loader { border: 14px solid #f3f3f3; border-radius: 50%; border-top: 14px solid #379E8F; width: 90px; height: 90px; -webkit-animation: spin 2s linear infinite; /* Safari */ animation: spin 2s linear infinite;';
+            inlineHtml += 'position: fixed; z-index: 1000; left: 50%; }'
+            /* Safari */
+            inlineHtml += '@-webkit-keyframes spin {0% { -webkit-transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); } }';
+
+            inlineHtml += '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+            inlineHtml += '</style>';
             
+            form.addButton({
+                id: 'submit',
+                label: 'Submit Search'
+            });
+
+
             form.addField({
                 id: 'preview_table',
                 label: 'inlinehtml',
@@ -130,6 +146,87 @@
         inlineQty += '</div>'
         return inlineQty;
     }
+
+    /**
+		 * The date input fields to filter the invoices.
+		 * Even if the parameters `date_from` and `date_to` are defined, they can't be initiated in the HTML code.
+		 * They are initiated with jQuery in the `pageInit()` function.
+		 * @return  {String} `inlineHtml`
+		 */
+		function dateFilterSection(start_date, last_date) {
+			var inlineHtml = '<div class="form-group container date_filter_section">';
+			inlineHtml += '<div class="row">';
+			inlineHtml += '<div class="col-xs-12 heading1"><h4><span class="label label-default col-xs-12" style="background-color: #103D39;">DATE FILTER</span></h4></div>';
+			inlineHtml += '</div>';
+			inlineHtml += '</div>';
+
+
+			inlineHtml += periodDropdownSection(start_date, last_date);
+
+			inlineHtml += '<div class="form-group container date_filter_section">';
+			inlineHtml += '<div class="row">';
+			// Date from field
+			inlineHtml += '<div class="col-xs-6 date_from">';
+			inlineHtml += '<div class="input-group">';
+			inlineHtml += '<span class="input-group-addon" id="date_from_text">From</span>';
+			if (isNullorEmpty(start_date)) {
+				inlineHtml += '<input id="date_from" class="form-control date_from" type="date" />';
+			} else {
+				inlineHtml += '<input id="date_from" class="form-control date_from" type="date" value="' + start_date + '"/>';
+			}
+
+			inlineHtml += '</div></div>';
+			// Date to field
+			inlineHtml += '<div class="col-xs-6 date_to">';
+			inlineHtml += '<div class="input-group">';
+			inlineHtml += '<span class="input-group-addon" id="date_to_text">To</span>';
+			if (isNullorEmpty(last_date)) {
+				inlineHtml += '<input id="date_to" class="form-control date_to" type="date">';
+			} else {
+				inlineHtml += '<input id="date_to" class="form-control date_to" type="date" value="' + last_date + '">';
+			}
+
+			inlineHtml += '</div></div></div></div>';
+
+			return inlineHtml;
+		}
+
+        /**
+		 * The period dropdown field.
+		 * @param   {String}    date_from
+		 * @param   {String}    date_to
+		 * @return  {String}    `inlineHtml`
+		 */
+		function periodDropdownSection(date_from, date_to) {
+			var selected_option = (isNullorEmpty(date_from) && isNullorEmpty(date_to)) ? 'selected' : '';
+			var inlineHtml = '<div class="form-group container period_dropdown_section">';
+			inlineHtml += '<div class="row">';
+			// Period dropdown field
+			inlineHtml += '<div class="col-xs-12 period_dropdown_div">';
+			inlineHtml += '<div class="input-group">';
+			inlineHtml += '<span class="input-group-addon" id="period_dropdown_text">Period</span>';
+			inlineHtml += '<select id="period_dropdown" class="form-control">';
+			if (selected_option == '') {
+				inlineHtml += '<option selected></option>';
+				inlineHtml += '<option value="this_week">This Week</option>';
+				inlineHtml += '<option value="last_week">Last Week</option>';
+				inlineHtml += '<option value="this_month" >This Month</option>';
+				inlineHtml += '<option value="last_month" >Last Month</option>';
+			} else {
+				inlineHtml += '<option selected></option>';
+				inlineHtml += '<option value="this_week">This Week</option>';
+				inlineHtml += '<option value="last_week">Last Week</option>';
+				inlineHtml += '<option value="this_month">This Month</option>';
+				inlineHtml += '<option value="last_month" >Last Month</option>';
+			}
+
+			inlineHtml += '<option value="full_year">Full Year (1 Jan -)</option>';
+			inlineHtml += '<option value="financial_year">Financial Year (1 Jul -)</option>';
+			inlineHtml += '</select>';
+			inlineHtml += '</div></div></div></div>';
+
+			return inlineHtml;
+		}
 
      function isNullorEmpty(strVal) {
          return (strVal == null || strVal == '' || strVal == 'null' || strVal == undefined || strVal == 'undefined' || strVal == '- None -');

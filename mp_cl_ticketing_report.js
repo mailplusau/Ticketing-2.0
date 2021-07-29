@@ -20,11 +20,6 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
         * On page initialisation
         */
         function pageInit() {
-            //background-colors
-            // $("#NS_MENU_ID0-item0").css("background-color", "#CFE0CE");
-            // $("#NS_MENU_ID0-item0 a").css("background-color", "#CFE0CE");
-            // $("#body").css("background-color", "#CFE0CE");
-
             // Tickets Created
             $(document).ready(function() {
                 var tableDataSet = [];
@@ -48,6 +43,10 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                         title: 'Tickets in Progress'
                     }, {
                         title: 'Tickets Open'
+                    }, {
+                        title: 'Number of Customers'
+                    }, {
+                        title: 'Number of Zees'
                     }]
     
                 });
@@ -98,22 +97,47 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
     
                 });
             });
-            
 
+            overviewChart();
+            customerChart();
+            staffChart();
+            sourceChart();
+
+            $('#submit').click(function() {
+                // Ajax request
+                var fewSeconds = 10;
+                var btn = $(this);
+                btn.addClass('disabled');
+                // btn.addClass('')
+                setTimeout(function() {
+                    btn.removeClass('disabled');
+                }, fewSeconds * 1000);
+
+                debtDataSet = [];
+                debt_set = [];
+
+                beforeSubmit();
+                submitSearch();
+
+                return true;
+            });
+        }
+
+        function overviewChart() {
             var cnt_set_created = [];
             var date_set_created = [];
             var progress_data = {};
             var source_sender_data = {};
             var cnt_set_closed = [];
-            var cnt_set_source_system2 = [];
+            var cnt_set_cust = [];
+            var cnt_set_zee = [];
+
 
             var ticketCreatedRes = search.load({
                 type: 'customrecord_mp_ticket',
                 id: 'customsearch_ticket_created_report_week'
             });          
 
-            var i = 0;
-            console.log('prog1', progress_data);
             ticketCreatedRes.run().each(function(ticket) {
                 var dateCreated = ticket.getValue({
                     name: 'created',
@@ -124,17 +148,31 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     summary: 'COUNT'
                 });
 
+                var custCount = ticket.getValue({
+                    name: "internalid",
+                    join: "CUSTRECORD_CUSTOMER1",
+                    summary: "COUNT",
+                });
+                var zeeCount = ticket.getValue({
+                    name: "internalid",
+                    join: "CUSTRECORD_ZEE",
+                    summary: "COUNT",
+                });
+
                 cnt_set_created.push(parseInt(ticketsCount));
-                date_set_created.push(dateCreated);
+                if (!(date_set_created.includes(dateCreated))) {
+                    date_set_created.push(dateCreated);
+                }
                 progress_data[dateCreated] = 0;
                 source_sender_data[dateCreated] = 0;
+
+                cnt_set_cust.push(parseInt(custCount));
+                cnt_set_zee.push(parseInt(zeeCount));
+
                 return true;
             
             });    
             
-            var source_data = progress_data;
-            console.log('sourcesend print', source_sender_data);
-            var source_recv_data = progress_data;
             var open_data = progress_data;
             // Tickets Closed
             var ticketClosedRes = search.load({
@@ -211,37 +249,13 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
             var cnt_set_open = Object.values(open_data);
 
-            // //Source 2
-            // var ticketSourceRes2 = search.load({
-            //     type: 'customrecord_mp_ticket',
-            //     id: 'customsearch_ticket_source_report_week_2'
-            // });
-
-            // ticketSourceRes2.run().each(function(ticket) {
-            //     var ticketsCount = ticket.getValue({
-            //         name: 'name',
-            //         summary: 'COUNT'
-            //     });
-            //     cnt_set_source_system2.push(parseInt(ticketsCount));                
-            //     return true;
-            
-            // }); 
-
-
-            overviewChart(date_set_created, cnt_set_created, cnt_set_open, cnt_set_progress, cnt_set_closed);
-            customerChart();
-            staffChart();
-            sourceChart();
-        }
-
-        function overviewChart(date_set_created, cnt_set_created, cnt_set_open, cnt_set_progress, cnt_set_closed ) {
-            
-
             var colors = Highcharts.getOptions().colors;
-            console.log("dates", date_set_created);
+            console.log('cust', cnt_set_cust);
+            console.log('cust', cnt_set_zee);
+
             Highcharts.chart('container', {
                 chart: {
-                    height: (7 / 16 * 100) + '%',
+                    height: (9 / 16 * 100) + '%',
                     zoomType: 'xy'
                 },
                 legend: {
@@ -287,10 +301,6 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                             x: -10
                         }
                     },
-                    column: {
-                        stacking: 'normal',
-                        colorByPoint: false
-                    },
                     pointPadding: 0.1,
                 },
 
@@ -303,26 +313,38 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                         type: 'spline'
                     }, 
                     {
+                        name: 'Closed Tickets',
+                        data: cnt_set_closed,
+                        dashStyle: 'Dash',
+                        color: colors[4],
+                        type: 'spline'
+                    },
+                    {
+                        name: 'Number of Customers',
+                        type: 'column',
+                        data: cnt_set_cust,
+                        color: colors[8],
+                    },
+                    {
+                        name: 'Number of Zees',
+                        type: 'column',
+                        data: cnt_set_zee,
+                        color: colors[7],
+                    },
+                    {
                         name: 'Open Tickets',
                         data: cnt_set_open,
-                        //website: 'https://www.freedomscientific.com/Products/Blindness/JAWS',
                         dashStyle: 'ShortDashDot',
-                        color: '#108372'
+                        color: colors[9]
                     }, 
                     {
                         name: 'In Progress Tickets',
                         data: cnt_set_progress,
                         dashStyle: 'ShortDot',
-                        color: '#F15628',
+                        color: colors[6],
                         type: 'spline'
                     }, 
-                    {
-                        name: 'Closed Tickets',
-                        data: cnt_set_closed,
-                        dashStyle: 'Dash',
-                        color: colors[9],
-                        type: 'spline'
-                    }
+
                 ],
 
                 responsive: {
@@ -349,7 +371,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             dataTable.clear();
             var tableDataSet = [];
             date_set_created.forEach(function(date, index) {
-                tableDataSet.push(['Link', dateCreated2DateSelectedFormat(date), cnt_set_created[index], cnt_set_closed[index], cnt_set_progress[index], cnt_set_open[index]]);
+                tableDataSet.push(['Link', dateCreated2DateSelectedFormat(date), cnt_set_created[index], cnt_set_closed[index], cnt_set_progress[index], cnt_set_open[index], cnt_set_cust[index], cnt_set_zee[index]]);
             });
              
             dataTable.rows.add(tableDataSet);
@@ -473,16 +495,19 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 return true;
             });
 
+            
+            
+
             //Customer Chart
             Highcharts.chart('container2', {
 
                 chart: {
                     type: 'bar',
-                    height: (7 / 16 * 100) + '%',
+                    height: (9 / 16 * 100) + '%',
                     zoomType: 'xy'
                 },
                 title: {
-                    text: 'Number of Tickets per Customer'
+                    text: 'Number of Tickets per Customer (' + getFirstDay() + ' - ' + getLastDay() + ')'
                 },
                 xAxis: {
                     categories: customer_set_chart,
@@ -579,11 +604,11 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
                 chart: {
                     type: 'bar',
-                    height: (7 / 16 * 100) + '%',
+                    height: (9 / 16 * 100) + '%',
                     zoomType: 'xy'
                 },
                 title: {
-                    text: 'Number of Tickets per Zee'
+                    text: 'Number of Tickets per Zee (' + getFirstDay() + ' - ' + getLastDay() + ')'
                 },
                 xAxis: {
                     categories: zee_set_chart,
@@ -696,25 +721,40 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 type: 'customrecord_mp_ticket',
                 id: 'customsearch_ticket_source_report_week_3'
             });  
+
+            var dateSet = [];
             staffSearch.run().each(function(ticket) {
                  var cnt = ticket.getValue({ name: "name", summary: "COUNT"});
                  var date = ticket.getValue({ name: "created", summary: "GROUP" });
                  var status = ticket.getValue({ name: "custrecord_ticket_status", summary: "GROUP" });
                  var owner = ticket.getValue({ name: "owner", summary: "GROUP"});
 
+                 if (!(dateSet.includes(date))) {
+                    dateSet.push(date);
+                 }
                  if (owner == 386344) {     // Jess
                      if (status == 1) {     // Open
-                         jOpen += parseInt(cnt);
-                         jOpenData.push([date, parseInt(cnt)]);
+                        if (firstCompare(date) && secondCompare(date)) {
+                            jOpen += parseInt(cnt);
+                        }
+                         if (date in jOpenData) {
+                            jOpenData[date] = jOpenData[date] + parseInt(cnt);
+                        } else {
+                            jOpenData[date] = parseInt(cnt);
+                        }
                      } else if (status == 3 || status == 9) {   // Closed or Closed-Lost
-                        jClo += parseInt(cnt);
+                        if (firstCompare(date) && secondCompare(date)) {
+                            jClo += parseInt(cnt);
+                        }
                         if (date in jCloData) {
                             jCloData[date] = jCloData[date] + parseInt(cnt);
                         } else {
                             jCloData[date] = parseInt(cnt);
                         }
                      } else {
-                        jProg += parseInt(cnt);
+                        if (firstCompare(date) && secondCompare(date)) {
+                            jProg += parseInt(cnt);
+                        }
                         if (date in jProgData) {
                             jProgData[date] = jProgData[date] + parseInt(cnt);
                         } else {
@@ -723,17 +763,27 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                      }
                  } else if (owner == 1565545) {     // Kaley
                     if (status == 1) {     // Open
-                        kOpen += parseInt(cnt);
-                        kOpenData.push([date, parseInt(cnt)]);
+                        if (firstCompare(date) && secondCompare(date)) {
+                            kOpen += parseInt(cnt);
+                        }
+                        if (date in kOpenData) {
+                            kOpenData[date] = kOpenData[date] + parseInt(cnt);
+                        } else {
+                            kOpenData[date] = parseInt(cnt);
+                        }
                     } else if (status == 3 || status == 9) {   // Closed or Closed-Lost
-                        kClo += parseInt(cnt);
+                        if (firstCompare(date) && secondCompare(date)) {
+                            kClo += parseInt(cnt);
+                        }
                         if (date in kCloData) {
                             kCloData[date] = kCloData[date] + parseInt(cnt);
                         } else {
                             kCloData[date] = parseInt(cnt);
                         }
                     } else {
-                        kProg += parseInt(cnt);
+                        if (firstCompare(date) && secondCompare(date)) {
+                            kProg += parseInt(cnt);
+                        }
                         if (date in kProgData) {
                             kProgData[date] = kProgData[date] + parseInt(cnt);
                         } else {
@@ -742,17 +792,27 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     }
                 }else if (owner == 1154991) {     // Gab
                     if (status == 1) {     // Open
-                        gOpen += parseInt(cnt);
-                        gOpenData.push([date, parseInt(cnt)]);
+                        if (firstCompare(date) && secondCompare(date)) {
+                            gOpen += parseInt(cnt);
+                        }
+                        if (date in gOpenData) {
+                            gOpenData[date] = gOpenData[date] + parseInt(cnt);
+                        } else {
+                            gOpenData[date] = parseInt(cnt);
+                        }
                     } else if (status == 3 || status == 9) {   // Closed or Closed-Lost
-                        gClo += parseInt(cnt);
+                        if (firstCompare(date) && secondCompare(date)) {
+                            gClo += parseInt(cnt);
+                        }
                         if (date in gCloData) {
                             gCloData[date] = gCloData[date] + parseInt(cnt);
                         } else {
                             gCloData[date] = parseInt(cnt);
                         }
                     } else {
-                        gProg += parseInt(cnt);
+                        if (firstCompare(date) && secondCompare(date)) {
+                            gProg += parseInt(cnt);
+                        }
                         if (date in gProgData) {
                             gProgData[date] = gProgData[date] + parseInt(cnt);
                         } else {
@@ -761,17 +821,27 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     }
                 }else {     // Other
                     if (status == 1) {     // Open
-                        oOpen += parseInt(cnt);
-                        oOpenData.push([date, parseInt(cnt)]);
+                        if (firstCompare(date) && secondCompare(date)) {
+                            oOpen += parseInt(cnt);
+                        }
+                        if (date in oOpenData) {
+                            oOpenData[date] = oOpenData[date] + parseInt(cnt);
+                        } else {
+                            oOpenData[date] = parseInt(cnt);
+                        }
                     } else if (status == 3 || status == 9) {   // Closed or Closed-Lost
-                        oClo += parseInt(cnt);
+                        if (firstCompare(date) && secondCompare(date)) {
+                            oClo += parseInt(cnt);
+                        }
                         if (date in oCloData) {
                             oCloData[date] = oCloData[date] + parseInt(cnt);
                         } else {
                             oCloData[date] = parseInt(cnt);
                         }
                     } else {
-                        oProg += parseInt(cnt);
+                        if (firstCompare(date) && secondCompare(date)) {
+                            oProg += parseInt(cnt);
+                        }
                         if (date in oProgData) {
                             oProgData[date] = oProgData[date] + parseInt(cnt);
                         } else {
@@ -783,12 +853,15 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             
             }); 
 
-            console.log('jOpendata', jOpenData)
+            
+
+
+            console.log('jOpendata', jOpenData);
 
             var colors = Highcharts.getOptions().colors;
             $('#container4').highcharts({
                 chart: {
-                    height: (7 / 16 * 100) + '%',
+                    height: (9 / 16 * 100) + '%',
                     zoomType: 'xy',
                     type: 'column',
                     events: {
@@ -800,68 +873,68 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                                         'Jess': {
                                             name: 'Open',
                                             color: '#F2C80F',
-                                            data: jOpenData,
-                                            drilldowns: true
+                                            data: convertArrObj(dateSet, jOpenData),
+                                            //drilldowns: true
                                         },
                                         'Gab': {
                                             name: 'Open',
                                             color: '#F2C80F',
-                                            data: gOpenData,
-                                            drilldown: true
+                                            data: convertArrObj(dateSet, gOpenData),
+                                            //drilldown: true
                                         },
                                         'Kaley': {
                                             name: 'Open',
                                             color: '#F2C80F',
-                                            data: kOpenData
+                                            data: convertArrObj(dateSet, kOpenData)
                                         },
                                         'Other': {
                                             name: 'Open',
                                             color: '#F2C80F',
-                                            data: oOpenData
+                                            data: convertArrObj(dateSet, oOpenData)
                                         }
                                     },
                                     drilldowns2 = {
                                         'Jess': {
                                             name: 'Closed',
                                             color: '#108372',
-                                            data: Object.entries(jCloData)
+                                            data: convertArrObj(dateSet, jCloData)
                                         },
                                         'Gab': {
                                             name: 'Closed',
                                             color: '#108372',
-                                            data: Object.entries(gCloData)
+                                            data: convertArrObj(dateSet, gCloData)
                                         },
                                         'Kaley': {
                                             name: 'Closed',
                                             color: '#108372',
-                                            data: Object.entries(kCloData)
+                                            data: convertArrObj(dateSet, kCloData)
                                         },
                                         'Other': {
                                             name: 'Closed',
                                             color: '#108372',
-                                            data: Object.entries(oCloData)
+                                            data: convertArrObj(dateSet, oCloData)
                                         }
                                     },
                                     drilldowns3 = {
                                         'Jess': {
                                             name: 'In Progress',
                                             color: '#F15628',
-                                            data: Object.entries(jProgData)
+                                            data: convertArrObj(dateSet, jProgData)
                                         },
                                         'Gab': {
                                             name: 'In Progress',
                                             color: '#F15628',
-                                            data: Object.entries(gProgData)
+                                            data: convertArrObj(dateSet, gProgData)
                                         },
                                         'Kaley': {
                                             name: 'In Progress',
                                             color: '#F15628',
-                                            data: Object.entries(kProgData)
+                                            data: convertArrObj(dateSet, kProgData)
                                         },
                                         'Other': {
                                             name: 'In Progress',
                                             color: '#F15628',
-                                            data: Object.entries(oProgData)
+                                            data: convertArrObj(dateSet, oProgData)
                                         }
                                     },
                                     series = drilldowns[e.point.name],
@@ -878,7 +951,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     }
                 },
                 title: {
-                    text: 'Staff Breakdown'
+                    text: 'Staff Breakdown (' + getFirstDay() + ' - ' + getLastDay() + ')'
                 },
                 xAxis: {
                     type: 'category'
@@ -896,9 +969,13 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                         borderWidth: 0,
                         dataLabels: {
                             enabled: true,
-                            style: { textShadow: false, fontWeight: 'bold' }
+                            color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'black',
+                            formatter: function(){
+                            return (this.y!=0)?this.y:"";
+                            }
                         }
                     }
+                    
                 },
         
                 series: [{
@@ -1011,7 +1088,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             Highcharts.chart('container5', {
                 chart: {
                     type: 'column',
-                    height: (7 / 16 * 100) + '%',
+                    height: (9 / 16 * 100) + '%',
                     zoomType: 'xy'
                 },
                 title: {
@@ -1067,7 +1144,8 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 }, {
                     name: 'Website- Receiver',
                     data: web_recv,
-                    stack: colors[3]
+                    stack: 1,
+                    color: colors[3]
                 }, {
                     name: 'Non Website- Sender',
                     data: nonweb_send,
@@ -1100,6 +1178,90 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 day = '0' + day;
             }
             return year + '-' + month + '-' + day;
+        }
+
+        function convertDate(date) {
+            var dd = String(date.getDate()).padStart(2, '0');
+            var mm = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy = date.getFullYear();
+
+            date = dd + '/' + mm + '/' + yyyy;
+            return date;
+        }
+
+        function getFirstDay() {
+            var curr = new Date; // get current date
+            var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+
+            var firstday = new Date(curr.setDate(first));
+            return convertDate(firstday);
+        }
+
+        
+
+        function getLastDay() {
+            var curr = new Date; // get current date
+            var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+            var last = first + 6; // last day is the first day + 6
+
+            var lastday = new Date(curr.setDate(last));
+            return convertDate(lastday);
+
+        }
+
+        function firstCompare(date) {
+            //Get start of week
+            var curr = new Date; // get current date
+            var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+            var firstday = new Date(curr.setDate(first));
+            var dd = String(firstday.getDate()).padStart(2, '0');
+            var mm = String(firstday.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy = firstday.getFullYear();
+
+            var dateSplit = date.split('/');
+            var firstDate = new Date(dateSplit[2], dateSplit[1], dateSplit[0]);
+            var secondDate = new Date(yyyy, mm, dd);
+
+            // 20/06
+            //25/06
+            //28/06
+            return (firstDate >= secondDate);
+        }
+
+        function secondCompare(date) {
+            //Get start of week
+            var curr = new Date; // get current date
+            var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+            var last = first + 6; // last day is the first day + 6
+            var lastday = new Date(curr.setDate(last));
+            var dd = String(lastday.getDate()).padStart(2, '0');
+            var mm = String(lastday.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy = lastday.getFullYear();
+
+            var dateSplit = date.split('/');
+            var firstDate = new Date(dateSplit[2], dateSplit[1], dateSplit[0]);
+            var secondDate = new Date(yyyy, mm, dd);
+
+            // 20/06
+            //25/06
+            //28/06
+            return (firstDate <= secondDate);
+
+        }
+
+        function convertArrObj(dateSet, origData) {
+            var arr = [];
+
+            dateSet.forEach(function(date, index) {
+                if (date in origData) {
+                    arr.push([date, origData[date]]);
+                } else {
+                    arr.push([date, 0]);
+                }
+            });
+
+            return arr;
+
         }
         function saveRecord(context) {
 
