@@ -98,32 +98,48 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 });
             });
 
-            overviewChart();
-            customerChart();
-            staffChart();
-            sourceChart();
+            if (!isNullorEmpty($('#period_dropdown option:selected').val())) {
+                selectDate();
+            }
+            $('#period_dropdown').change(function() {
+                selectDate();
+            });
+
+            var currRec = currentRecord.get();
+            var date_from = currRec.getValue({ fieldId: 'custpage_date_from' });
+            var date_to = currRec.getValue({ fieldId: 'custpage_date_to' });
+            console.log('date', date_from);
+            console.log('to', date_to);
+
+            overviewChart(date_from, date_to);
+            customerChart(date_from, date_to);
+            staffChart(date_from, date_to);
+            sourceChart(date_from, date_to);
 
             $('#submit').click(function() {
-                // Ajax request
-                var fewSeconds = 10;
-                var btn = $(this);
-                btn.addClass('disabled');
-                // btn.addClass('')
-                setTimeout(function() {
-                    btn.removeClass('disabled');
-                }, fewSeconds * 1000);
+                console.log('submit clicked');
+                var date_from = $('#date_from').val();
+                var date_to = $('#date_to').val();
+                date_from = dateISOToNetsuite(date_from);
+                date_to = dateISOToNetsuite(date_to);
 
-                debtDataSet = [];
-                debt_set = [];
-
-                beforeSubmit();
-                submitSearch();
-
-                return true;
+                if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+                    var params = {
+                        date_from:date_from,
+                        date_to: date_to
+                    };
+                    params = JSON.stringify(params);
+                    var output = url.resolveScript({
+                        deploymentId: 'customdeploy_sl_ticketing_report',
+                        scriptId: 'customscript_sl_ticketing_report',
+                    });
+                    var upload_url = baseURL + output + '&custparam_params=' + params;
+                    window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
+                }
             });
         }
 
-        function overviewChart() {
+        function overviewChart(date_from, date_to) {
             var cnt_set_created = [];
             var date_set_created = [];
             var progress_data = {};
@@ -137,6 +153,21 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 type: 'customrecord_mp_ticket',
                 id: 'customsearch_ticket_created_report_week'
             });          
+
+            if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+                ticketCreatedRes.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORAFTER,
+                    values: date_from,
+                }));
+    
+                ticketCreatedRes.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORBEFORE,
+                    values: date_to,
+                }));
+            }
+            
 
             ticketCreatedRes.run().each(function(ticket) {
                 var dateCreated = ticket.getValue({
@@ -180,7 +211,19 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 id: 'customsearch_ticket_closed_report_week2'
             });
 
-            
+            if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+                ticketClosedRes.filters.push(search.createFilter({
+                    name: "custrecord_date_closed",
+                    operator: search.Operator.ONORAFTER,
+                    values: date_from,
+                }));
+    
+                ticketClosedRes.filters.push(search.createFilter({
+                    name: "custrecord_date_closed",
+                    operator: search.Operator.ONORBEFORE,
+                    values: date_to,
+                }));
+            }
             ticketClosedRes.run().each(function(ticket) {
                 var ticketsCount = ticket.getValue({
                     name: 'name',
@@ -199,7 +242,19 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 id: 'customsearch_ticket_progres_report_week3'
             });
 
-            
+            if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+                ticketProgressRes.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORAFTER,
+                    values: date_from,
+                }));
+    
+                ticketProgressRes.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORBEFORE,
+                    values: date_to,
+                }));
+            }
             ticketProgressRes.run().each(function(ticket) {
                 var ticketsCount = ticket.getValue({
                     name: 'name',
@@ -227,7 +282,20 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 id: 'customsearch_ticket_open_report_week'
             });
 
-            
+            if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+                ticketOpenRes.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORAFTER,
+                    values: date_from,
+                }));
+    
+                ticketOpenRes.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORBEFORE,
+                    values: date_to,
+                }));
+            }
+
             ticketOpenRes.run().each(function(ticket) {
                 var ticketsCount = ticket.getValue({
                     name: 'name',
@@ -248,10 +316,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             }); 
 
             var cnt_set_open = Object.values(open_data);
-
             var colors = Highcharts.getOptions().colors;
-            console.log('cust', cnt_set_cust);
-            console.log('cust', cnt_set_zee);
 
             Highcharts.chart('container', {
                 chart: {
@@ -371,7 +436,14 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             dataTable.clear();
             var tableDataSet = [];
             date_set_created.forEach(function(date, index) {
-                tableDataSet.push(['Link', dateCreated2DateSelectedFormat(date), cnt_set_created[index], cnt_set_closed[index], cnt_set_progress[index], cnt_set_open[index], cnt_set_cust[index], cnt_set_zee[index]]);
+                var created = (isNullorEmpty(cnt_set_created[index])) ? 0 : cnt_set_created[index];
+                var closed = (isNullorEmpty(cnt_set_closed[index])) ? 0 : cnt_set_closed[index];
+                var progress = (isNullorEmpty(cnt_set_progress[index])) ? 0 : cnt_set_progress[index];
+                var open = (isNullorEmpty(cnt_set_open[index])) ? 0 : cnt_set_open[index];
+                var cust = (isNullorEmpty(cnt_set_cust[index])) ? 0 : cnt_set_cust[index];
+                var zee = (isNullorEmpty(cnt_set_zee[index])) ? 0 : cnt_set_zee[index];
+
+                tableDataSet.push(['Link', dateCreated2DateSelectedFormat(date), created, closed, progress, open, cust, zee]);
             });
              
             dataTable.rows.add(tableDataSet);
@@ -379,7 +451,8 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
         }
 
-        function customerChart() {
+
+        function customerChart(date_from, date_to) {
             // For Customer Chart
             var customer_set_chart = [];
             var cust_count_open = [];
@@ -416,6 +489,36 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             // Open = 1
             // In Progress = 2 CS, 4 IT 
 
+            var title = 'Number of Tickets per Customer (' + getFirstDay() + ' - ' + getLastDay() + ')';
+            var title2 = 'Number of Tickets per Zee (' + getFirstDay() + ' - ' + getLastDay() + ')';
+            if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+                title = 'Number of Tickets per Customer (' + date_from + ' - ' + date_to + ')';
+                title2 = 'Number of Tickets per Zee (' + date_from + ' - ' + date_to + ')';
+                custSearch.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORAFTER,
+                    values: date_from,
+                }));
+    
+                custSearch.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORBEFORE,
+                    values: date_to,
+                }));
+            } else {
+                custSearch.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORAFTER,
+                    values: getFirstDay(),
+                }));
+    
+                custSearch.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORBEFORE,
+                    values: getLastDay(),
+                }));
+
+            }
             custSearch.run().each(function(ticket) {
             
                 var count = ticket.getValue({ name: "name", summary: "COUNT"});
@@ -436,7 +539,6 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     customer_set_chart.push(cust);
                     cust_ids.push (parseInt(ticket.getValue({ name: "custrecord_customer1", summary: "GROUP"})));
                     cust_zee.push(zee);
-                    
                 }
 
                 //Array of unique zees- no duplicates
@@ -497,7 +599,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
             
             
-
+            
             //Customer Chart
             Highcharts.chart('container2', {
 
@@ -507,7 +609,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     zoomType: 'xy'
                 },
                 title: {
-                    text: 'Number of Tickets per Customer (' + getFirstDay() + ' - ' + getLastDay() + ')'
+                    text: title
                 },
                 xAxis: {
                     categories: customer_set_chart,
@@ -608,7 +710,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     zoomType: 'xy'
                 },
                 title: {
-                    text: 'Number of Tickets per Zee (' + getFirstDay() + ' - ' + getLastDay() + ')'
+                    text: title2
                 },
                 xAxis: {
                     categories: zee_set_chart,
@@ -684,7 +786,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
         }
 
-        function staffChart() {
+        function staffChart(date_from, date_to) {
             var jOpen = 0;
             var jProg = 0;
             var jClo = 0;
@@ -722,6 +824,26 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 id: 'customsearch_ticket_source_report_week_3'
             });  
 
+            var title = 'Staff Breakdown (' + getFirstDay() + ' - ' + getLastDay() + ')';
+            var firstDate = getFirstDay();
+            var lastDate = getLastDay();
+            if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+                title = 'Staff Breakdown (' + date_from + ' - ' + date_to + ')';
+                firstDate = date_from;
+                lastDate = date_to;
+                staffSearch.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORAFTER,
+                    values: date_from,
+                }));
+    
+                staffSearch.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORBEFORE,
+                    values: date_to,
+                }));
+            }
+
             var dateSet = [];
             staffSearch.run().each(function(ticket) {
                  var cnt = ticket.getValue({ name: "name", summary: "COUNT"});
@@ -734,7 +856,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                  }
                  if (owner == 386344) {     // Jess
                      if (status == 1) {     // Open
-                        if (firstCompare(date) && secondCompare(date)) {
+                        if (firstCompare(date, firstDate) && secondCompare(date, lastDate)) {
                             jOpen += parseInt(cnt);
                         }
                          if (date in jOpenData) {
@@ -743,7 +865,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                             jOpenData[date] = parseInt(cnt);
                         }
                      } else if (status == 3 || status == 9) {   // Closed or Closed-Lost
-                        if (firstCompare(date) && secondCompare(date)) {
+                        if (firstCompare(date, firstDate) && secondCompare(date, lastDate)) {
                             jClo += parseInt(cnt);
                         }
                         if (date in jCloData) {
@@ -752,7 +874,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                             jCloData[date] = parseInt(cnt);
                         }
                      } else {
-                        if (firstCompare(date) && secondCompare(date)) {
+                        if (firstCompare(date, firstDate) && secondCompare(date, lastDate)) {
                             jProg += parseInt(cnt);
                         }
                         if (date in jProgData) {
@@ -763,7 +885,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                      }
                  } else if (owner == 1565545) {     // Kaley
                     if (status == 1) {     // Open
-                        if (firstCompare(date) && secondCompare(date)) {
+                        if (firstCompare(date, firstDate) && secondCompare(date, lastDate)) {
                             kOpen += parseInt(cnt);
                         }
                         if (date in kOpenData) {
@@ -772,7 +894,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                             kOpenData[date] = parseInt(cnt);
                         }
                     } else if (status == 3 || status == 9) {   // Closed or Closed-Lost
-                        if (firstCompare(date) && secondCompare(date)) {
+                        if (firstCompare(date, firstDate) && secondCompare(date, lastDate)) {
                             kClo += parseInt(cnt);
                         }
                         if (date in kCloData) {
@@ -781,7 +903,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                             kCloData[date] = parseInt(cnt);
                         }
                     } else {
-                        if (firstCompare(date) && secondCompare(date)) {
+                        if (firstCompare(date, firstDate) && secondCompare(date, lastDate)) {
                             kProg += parseInt(cnt);
                         }
                         if (date in kProgData) {
@@ -792,7 +914,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     }
                 }else if (owner == 1154991) {     // Gab
                     if (status == 1) {     // Open
-                        if (firstCompare(date) && secondCompare(date)) {
+                        if (firstCompare(date, firstDate) && secondCompare(date, lastDate)) {
                             gOpen += parseInt(cnt);
                         }
                         if (date in gOpenData) {
@@ -801,7 +923,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                             gOpenData[date] = parseInt(cnt);
                         }
                     } else if (status == 3 || status == 9) {   // Closed or Closed-Lost
-                        if (firstCompare(date) && secondCompare(date)) {
+                        if (firstCompare(date, firstDate) && secondCompare(date, lastDate)) {
                             gClo += parseInt(cnt);
                         }
                         if (date in gCloData) {
@@ -810,7 +932,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                             gCloData[date] = parseInt(cnt);
                         }
                     } else {
-                        if (firstCompare(date) && secondCompare(date)) {
+                        if (firstCompare(date, firstDate) && secondCompare(date, lastDate)) {
                             gProg += parseInt(cnt);
                         }
                         if (date in gProgData) {
@@ -821,7 +943,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     }
                 }else {     // Other
                     if (status == 1) {     // Open
-                        if (firstCompare(date) && secondCompare(date)) {
+                        if (firstCompare(date, firstDate) && secondCompare(date, lastDate)) {
                             oOpen += parseInt(cnt);
                         }
                         if (date in oOpenData) {
@@ -830,7 +952,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                             oOpenData[date] = parseInt(cnt);
                         }
                     } else if (status == 3 || status == 9) {   // Closed or Closed-Lost
-                        if (firstCompare(date) && secondCompare(date)) {
+                        if (firstCompare(date, firstDate) && secondCompare(date, lastDate)) {
                             oClo += parseInt(cnt);
                         }
                         if (date in oCloData) {
@@ -839,7 +961,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                             oCloData[date] = parseInt(cnt);
                         }
                     } else {
-                        if (firstCompare(date) && secondCompare(date)) {
+                        if (firstCompare(date, firstDate) && secondCompare(date, lastDate)) {
                             oProg += parseInt(cnt);
                         }
                         if (date in oProgData) {
@@ -951,10 +1073,16 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     }
                 },
                 title: {
-                    text: 'Staff Breakdown (' + getFirstDay() + ' - ' + getLastDay() + ')'
+                    text: title
                 },
                 xAxis: {
                     type: 'category'
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Number of Tickets'
+                    }
                 },
                 tooltip: {
                     shared: true
@@ -1009,8 +1137,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
         }
 
-        function sourceChart() {
-            var colors = Highcharts.getOptions().colors;
+        function sourceChart(date_from, date_to) {
             var colors = Highcharts.getOptions().colors;
             var web_send = [];
             var web_recv = [];
@@ -1024,6 +1151,21 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 type: 'customrecord_mp_ticket',
                 id: 'customsearch_ticket_source_report_week'
             });
+
+            
+            if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+                ticketSourceRes.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORAFTER,
+                    values: date_from,
+                }));
+    
+                ticketSourceRes.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORBEFORE,
+                    values: date_to,
+                }));
+            }
 
             ticketSourceRes.run().each(function(ticket) {
                 var ticketsCount = ticket.getValue({
@@ -1209,46 +1351,102 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
         }
 
-        function firstCompare(date) {
-            //Get start of week
-            var curr = new Date; // get current date
-            var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
-            var firstday = new Date(curr.setDate(first));
-            var dd = String(firstday.getDate()).padStart(2, '0');
-            var mm = String(firstday.getMonth() + 1).padStart(2, '0'); //January is 0!
-            var yyyy = firstday.getFullYear();
-
+        function firstCompare(date, first) {
             var dateSplit = date.split('/');
+            var firstSplit = first.split('/');
             var firstDate = new Date(dateSplit[2], dateSplit[1], dateSplit[0]);
-            var secondDate = new Date(yyyy, mm, dd);
-
-            // 20/06
-            //25/06
-            //28/06
+            var secondDate = new Date(firstSplit[2], firstSplit[1], firstSplit[0]);
             return (firstDate >= secondDate);
         }
 
-        function secondCompare(date) {
-            //Get start of week
-            var curr = new Date; // get current date
-            var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
-            var last = first + 6; // last day is the first day + 6
-            var lastday = new Date(curr.setDate(last));
-            var dd = String(lastday.getDate()).padStart(2, '0');
-            var mm = String(lastday.getMonth() + 1).padStart(2, '0'); //January is 0!
-            var yyyy = lastday.getFullYear();
-
+        function secondCompare(date, last) {
             var dateSplit = date.split('/');
+            var lastSplit = last.split('/');
             var firstDate = new Date(dateSplit[2], dateSplit[1], dateSplit[0]);
-            var secondDate = new Date(yyyy, mm, dd);
-
-            // 20/06
-            //25/06
-            //28/06
+            var secondDate = new Date(lastSplit[2], lastSplit[1], lastSplit[0]);
             return (firstDate <= secondDate);
-
         }
 
+        function selectDate() {
+            var period_selected = $('#period_dropdown option:selected').val();
+            var today = new Date();
+            var today_day_in_month = today.getDate();
+            var today_day_in_week = today.getDay();
+            var today_month = today.getMonth();
+            var today_year = today.getFullYear();
+
+            var today_date = new Date(Date.UTC(today_year, today_month, today_day_in_month))
+
+            switch (period_selected) {
+                case "this_week":
+                    // This method changes the variable "today" and sets it on the previous monday
+                    if (today_day_in_week == 0) {
+                        var monday = new Date(Date.UTC(today_year, today_month, today_day_in_month - 7));
+                    } else {
+                        var monday = new Date(Date.UTC(today_year, today_month, today_day_in_month - today_day_in_week));
+                    }
+                    today_date = new Date(Date.UTC(today_year, today_month, today_day_in_month + 1));
+                    var date_from = monday.toISOString().split('T')[0];
+                    var date_to = today_date.toISOString().split('T')[0];
+                    break;
+
+                case "last_week":
+                    var today_day_in_month = today.getDate();
+                    var today_day_in_week = today.getDay();
+                    // This method changes the variable "today" and sets it on the previous monday
+                    if (today_day_in_week == 0) {
+                        var previous_sunday = new Date(Date.UTC(today_year, today_month, today_day_in_month - 7));
+                    } else {
+                        var previous_sunday = new Date(Date.UTC(today_year, today_month, today_day_in_month - today_day_in_week));
+                    }
+
+                    var previous_sunday_year = previous_sunday.getFullYear();
+                    var previous_sunday_month = previous_sunday.getMonth();
+                    var previous_sunday_day_in_month = previous_sunday.getDate();
+
+                    var monday_before_sunday = new Date(Date.UTC(previous_sunday_year, previous_sunday_month, previous_sunday_day_in_month - 7));
+
+                    var date_from = monday_before_sunday.toISOString().split('T')[0];
+                    var date_to = previous_sunday.toISOString().split('T')[0];
+                    break;
+
+                case "this_month":
+                    var first_day_month = new Date(Date.UTC(today_year, today_month));
+                    var date_from = first_day_month.toISOString().split('T')[0];
+                    var date_to = today_date.toISOString().split('T')[0];
+                    break;
+
+                case "last_month":
+                    var first_day_previous_month = new Date(Date.UTC(today_year, today_month - 1));
+                    var last_day_previous_month = new Date(Date.UTC(today_year, today_month, 0));
+                    var date_from = first_day_previous_month.toISOString().split('T')[0];
+                    var date_to = last_day_previous_month.toISOString().split('T')[0];
+                    break;
+
+                case "full_year":
+                    var first_day_in_year = new Date(Date.UTC(today_year, 0));
+                    var date_from = first_day_in_year.toISOString().split('T')[0];
+                    var date_to = today_date.toISOString().split('T')[0];
+                    break;
+
+                case "financial_year":
+                    if (today_month >= 6) {
+                        var first_july = new Date(Date.UTC(today_year, 6));
+                    } else {
+                        var first_july = new Date(Date.UTC(today_year - 1, 6));
+                    }
+                    var date_from = first_july.toISOString().split('T')[0];
+                    var date_to = today_date.toISOString().split('T')[0];
+                    break;
+
+                default:
+                    var date_from = '';
+                    var date_to = '';
+                    break;
+            }
+            $('#date_from').val(date_from);
+            $('#date_to').val(date_to);
+        }
         function convertArrObj(dateSet, origData) {
             var arr = [];
 
@@ -1263,6 +1461,25 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             return arr;
 
         }
+
+        /**
+         * Used to pass the values of `date_from` and `date_to` between the scripts and to Netsuite for the records and the search.
+         * @param   {String} date_iso       "2020-06-01"
+         * @returns {String} date_netsuite  "1/6/2020"
+         */
+         function dateISOToNetsuite(date_iso) {
+            var date_netsuite = '';
+            if (!isNullorEmpty(date_iso)) {
+                var date_utc = new Date(date_iso);
+                // var date_netsuite = nlapiDateToString(date_utc);
+                var date_netsuite = format.format({
+                    value: date_utc,
+                    type: format.Type.DATE
+                });
+            }
+            return date_netsuite;
+        }
+
         function saveRecord(context) {
 
             return true;

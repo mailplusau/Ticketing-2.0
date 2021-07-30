@@ -50,14 +50,29 @@
                 label: 'Submit Search'
             });
 
+            var params = context.request.parameters.custparam_params;
+            log.debug({
+                title: 'Params',
+                details: params
+            });
 
-            form.addField({
-                id: 'preview_table',
-                label: 'inlinehtml',
-                type: 'inlinehtml'
-            }).updateLayoutType({
-                layoutType: ui.FieldLayoutType.STARTROW
-            }).defaultValue = inlineHtml;
+            if (!isNullorEmpty(params)) {
+                params = JSON.parse(params);
+                log.debug({ title: 'params.date_from', details: params.date_from});
+                log.debug({ title: 'params.date_to', details: params.date_to});
+                if (!isNullorEmpty(params.date_from) && !isNullorEmpty(params.date_to)) {
+                    form.addField({ id: 'custpage_date_from', type: ui.FieldType.TEXT, label: 'Selected ID'}).updateDisplayType({displayType: ui.FieldDisplayType.HIDDEN}).defaultValue = params.date_from;
+                    form.addField({id: 'custpage_date_to',type: ui.FieldType.TEXT,label: 'Selected ID'}).updateDisplayType({displayType: ui.FieldDisplayType.HIDDEN}).defaultValue = params.date_to;
+                } else {
+                    form.addField({ id: 'custpage_date_from', type: ui.FieldType.TEXT, label: 'Selected ID'}).updateDisplayType({displayType: ui.FieldDisplayType.HIDDEN});
+                    form.addField({id: 'custpage_date_to',type: ui.FieldType.TEXT,label: 'Selected ID'}).updateDisplayType({displayType: ui.FieldDisplayType.HIDDEN});    
+                }
+            } else {
+                form.addField({ id: 'custpage_date_from', type: ui.FieldType.TEXT, label: 'Selected ID'}).updateDisplayType({displayType: ui.FieldDisplayType.HIDDEN});
+                form.addField({id: 'custpage_date_to',type: ui.FieldType.TEXT,label: 'Selected ID'}).updateDisplayType({displayType: ui.FieldDisplayType.HIDDEN});
+            }
+            
+            form.addField({ id: 'preview_table', label: 'inlinehtml', type: 'inlinehtml'}).updateLayoutType({layoutType: ui.FieldLayoutType.STARTROW}).defaultValue = inlineHtml;
 
             form.clientScriptFileId = 4989483;
 
