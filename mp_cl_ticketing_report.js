@@ -208,7 +208,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             // Tickets Closed
             var ticketClosedRes = search.load({
                 type: 'customrecord_mp_ticket',
-                id: 'customsearch_ticket_closed_report_week2'
+                id: 'customsearch_ticket_closed_report_week'
             });
 
             if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
@@ -239,7 +239,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             // Tickets Progress
             var ticketProgressRes = search.load({
                 type: 'customrecord_mp_ticket',
-                id: 'customsearch_ticket_progres_report_week3'
+                id: 'customsearch_ticket_prog_report_week'
             });
 
             if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
@@ -821,7 +821,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             // Gab 1154991 
             var staffSearch = search.load({
                 type: 'customrecord_mp_ticket',
-                id: 'customsearch_ticket_source_report_week_3'
+                id: 'customsearch_ticket_source3_report_week'
             });  
 
             var title = 'Staff Breakdown (' + getFirstDay() + ' - ' + getLastDay() + ')';
