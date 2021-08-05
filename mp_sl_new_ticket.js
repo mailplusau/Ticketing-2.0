@@ -562,9 +562,12 @@
          * @returns {nlobjSearchResult[]}   An array of nlobjSearchResult objects corresponding to the searched records.
          */
       function getSelectorRecords(selector_number) {
+
         var filterExpression = [
-            ["name", "is", selector_number], 'AND', ["isinactive", "is", 'F']
+            [["name", "is", selector_number], "OR", ["custrecord_connote_number", "is", selector_number]], 'AND', ["isinactive", "is", 'F']
         ];
+
+       
         var activeBarcodeColumns = new Array();
         
         activeBarcodeColumns[0] = search.createColumn({ name: 'custrecord_cust_prod_stock_customer', join: null, summary: null });
@@ -575,11 +578,23 @@
         activeBarcodeColumns[5] = search.createColumn({ name: 'custrecord_cust_time_stock_used', join: null, summary: null });
         activeBarcodeColumns[6] = search.createColumn({ name: 'custrecord_cust_prod_stock_final_del', join: null, summary: null });
         var activeSelectorResults = search.create({ type: 'customrecord_customer_product_stock', filterExpression: filterExpression, columns: activeBarcodeColumns });
-        activeSelectorResults.filters.push(search.createFilter({
-            name: 'name',
-            operator: search.Operator.IS,
-            values: selector_number,
-        }));
+        var connoteFormat = /^MPXL\d{6}$/;
+        
+        if (connoteFormat.test(selector_number)) {          
+          activeSelectorResults.filters.push(search.createFilter({
+              name: 'custrecord_connote_number',
+              operator: search.Operator.IS,
+              values: selector_number,
+          }));
+          
+       } else {
+          activeSelectorResults.filters.push(search.createFilter({
+              name: 'name',
+              operator: search.Operator.IS,
+              values: selector_number,
+          }));
+       }
+        
 
         activeSelectorResults.filters.push(search.createFilter({
             name: 'isinactive',
@@ -631,7 +646,7 @@
      * @param {String} selector_number
      * @returns {Boolean}
      */
-      function ticketLinkedToSelector(selector_number) {
+    function ticketLinkedToSelector(selector_number) {
         var ticketIdIfExists = '';
         // checks all tickets
         var ticketSearch = search.load({
@@ -652,6 +667,54 @@
                 ticketIdIfExists = ticket.getValue('internalid');
             });
         }
+
+        //Check if connote is passed
+        if (isNullorEmpty(ticketIdIfExists)) {
+            var filterExpression = [
+                [["name", "is", selector_number], "OR", ["custrecord_connote_number", "is", selector_number]], 'AND', ["isinactive", "is", 'F']
+            ];
+
+           
+            var activeBarcodeColumns = new Array();
+            activeBarcodeColumns[0] = search.createColumn({ name: 'custrecord_cust_prod_stock_customer', join: null, summary: null });
+            activeBarcodeColumns[1] = search.createColumn({ name: 'custrecord_mp_ticket', join: null, summary: null });
+            var activeSelectorResults = search.create({ type: 'customrecord_customer_product_stock', filterExpression: filterExpression, columns: activeBarcodeColumns });
+            var connoteFormat = /^MPXL\d{6}$/;
+            
+            if (connoteFormat.test(selector_number)) {
+              activeSelectorResults.filters.push(search.createFilter({
+                  name: 'custrecord_connote_number',
+                  operator: search.Operator.IS,
+                  values: selector_number,
+              }));
+              
+           } else {
+              activeSelectorResults.filters.push(search.createFilter({
+                  name: 'name',
+                  operator: search.Operator.IS,
+                  values: selector_number,
+              }));
+           }
+            
+            activeSelectorResults.filters.push(search.createFilter({
+                name: 'isinactive',
+                operator: search.Operator.IS,
+                values: false,
+            }));
+
+            if (!isNullorEmpty(activeSelectorResults)) {
+                activeSelectorResults.run().each(function(search_res) {
+                    ticketIdIfExists = search_res.getValue({ name: 'custrecord_mp_ticket'});
+        
+                    return true;
+                });
+                
+            }
+        
+        }
+
+
+
 
         return ticketIdIfExists;
         

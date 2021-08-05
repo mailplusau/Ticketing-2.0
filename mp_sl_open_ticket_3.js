@@ -215,7 +215,11 @@
                                 operator: 'haskeywords',
                                 values: customer_number,
                             }));
-                            customer_id = customer_search.run().getRange({ start: 0,end:1 })[0].getId();
+                            log.debug({
+                                title: 'customer_search.run().getRange({ start: 0,end:1 })[0].id',
+                                details: customer_search.run().getRange({ start: 0,end:1 })[0].id
+                            });
+                            customer_id = customer_search.run().getRange({ start: 0,end:1 })[0].id;
                         }
 
                         if (!isNullorEmpty(customer_id)) {
@@ -416,7 +420,7 @@
             // Define information window.
             inlineHtml += '<div class="container" hidden><p id="info" class="alert alert-info"></p></div>';
     
-            inlineHtml += tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, customer_ticket_status, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2, prod_stock_invoice, barcodempdl, barcodesource, list_mp_ticket_issues, list_resolved_mp_ticket_issues, list_invoice_issues, list_resolved_invoice_issues, selected_invoice_method_id, accounts_cc_email, mpex_po_number, customer_po_number, selected_invoice_cycle_id, terms, customer_terms);
+            inlineHtml += tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, customer_ticket_status, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2, prod_stock_invoice, barcodempdl, barcodesource, list_mp_ticket_issues, list_resolved_mp_ticket_issues, list_invoice_issues, list_resolved_invoice_issues, selected_invoice_method_id, accounts_cc_email, mpex_po_number, customer_po_number, selected_invoice_cycle_id, terms, customer_terms, screenshot_file, browser, login_email_used, operating_system, phone_used, old_sender_name, old_sender_phone);
 
             // inlineHtml += customerNumberSection(customer_number, ticket_id);
             // inlineHtml += selectorSection(ticket_id, selector_number, selector_id, selector_type, status_value);
@@ -773,8 +777,8 @@
         return inlineQty;
      }
 
-     function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, customer_ticket_status, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2, prod_stock_invoice, barcodempdl, barcodesource, list_mp_ticket_issues, list_resolved_mp_ticket_issues, list_invoice_issues, list_resolved_invoice_issues, selected_invoice_method_id, accounts_cc_email, mpex_po_number, customer_po_number, selected_invoice_cycle_id, terms, customer_terms) {
-        
+     function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, customer_ticket_status, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2, prod_stock_invoice, barcodempdl, barcodesource, list_mp_ticket_issues, list_resolved_mp_ticket_issues, list_invoice_issues, list_resolved_invoice_issues, selected_invoice_method_id, accounts_cc_email, mpex_po_number, customer_po_number, selected_invoice_cycle_id, terms, customer_terms, screenshot_file, browser, login_email_used, operating_system, phone_used, old_sender_name, old_sender_phone) {
+         
         var inlineQty = '<div style="margin-top: -10px"><br/>';
         // BUTTONS
         if (!isNullorEmpty(ticket_id)) {
@@ -918,7 +922,10 @@
         // ISSUES TAB
         inlineQty += '<div role="tabpanel" class="tab-pane" id="issues">';
         inlineQty += issuesHeader();
-        inlineQty += reminderSection(status_value);
+        inlineQty += customerIssuesSection(ticket_id, selector_type, selector_number, screenshot_file, browser, login_email_used, operating_system, phone_used, old_sender_name, old_sender_phone, status_value);
+        if(selector_type == "barcode_number" || selector_type == "invoice_number"){
+            inlineQty += reminderSection(status_value);
+        }
         inlineQty += ownerSection(ticket_id, owner_list, status_value);
         inlineQty += tollIssuesSection(list_toll_issues, list_resolved_toll_issues, status_value, selector_type);
         inlineQty += mpTicketIssuesSection(list_mp_ticket_issues, list_resolved_mp_ticket_issues, status_value, selector_type);
@@ -1103,7 +1110,7 @@
             inlineQty += '<li><a href="#">INVOICE NUMBER</a></li>';
             inlineQty += '<li><a href="#">CUSTOMER APP</a></li>';
             inlineQty += '<li><a href="#">CUSTOMER PORTAL</a></li>';
-            inlineQty += '<li><a href="#">UPDATE LABEL</a></li>';
+            //inlineQty += '<li><a href="#">UPDATE LABEL</a></li>';
             inlineQty += '</ul>';
             inlineQty += '</div>';
             //Input text
@@ -2711,7 +2718,7 @@
         return inlineQty;
     }
 
-
+    
     /**
      * The multiselect TOLL issues dropdown
      * @param   {Array}     list_toll_issues
