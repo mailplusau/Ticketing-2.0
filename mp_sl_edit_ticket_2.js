@@ -148,6 +148,16 @@
                 
                 inlineHtml += dateCreatedSection();
                 inlineHtml += tabsSection(parseInt(role));
+
+                inlineHtml += '<div class="loader"></div>';
+                inlineHtml += '<style> .loader { border: 14px solid #f3f3f3; border-radius: 50%; border-top: 14px solid #379E8F; width: 90px; height: 90px; -webkit-animation: spin 2s linear infinite; /* Safari */ animation: spin 2s linear infinite;';
+                inlineHtml += 'position: fixed; z-index: 1000; left: 50%; }'
+                /* Safari */
+                inlineHtml += '@-webkit-keyframes spin {0% { -webkit-transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); } }';
+
+                inlineHtml += '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+                inlineHtml += '</style>';
+                
                 inlineHtml += '</div>'
                 form.addField({
                     id: 'preview_table',
@@ -352,8 +362,8 @@
          inlineQty += '</tr>';
          inlineQty += '</thead>';
  
-         inlineQty += '<tbody id="result_tickets_' + selector + '"></tbody>';
- 
+         inlineQty += '<tbody id="result_tickets_' + selector + '" style="word-break: break-word;"></tbody>';
+         
          inlineQty += '</table>';
          inlineQty += '</div>'
          return inlineQty;

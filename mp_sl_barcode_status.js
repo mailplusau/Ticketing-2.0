@@ -70,26 +70,50 @@
             }));
         } else {
             if (!isNullorEmpty(getSelectorRecords(tracking_number))) {
+
                 openTicketSearch.filters.push(search.createFilter({
-                    name: 'formulatext',
+                    name: 'internalid',
                     operator: search.Operator.IS,
-                    values: getSelectorRecords(tracking_number),
-                    formula: '{name}'
+                    values: parseInt(getSelectorRecords(tracking_number))
                 }));
+                log.debug({
+                    title: 'found tick',
+                    details: getSelectorRecords(tracking_number)
+                });
 
             } else {
                 openTicketSearch.filters.push(search.createFilter({
                     name: 'formulatext',
                     operator: search.Operator.IS,
                     values: tracking_number,
-                    formula: '{custrecord_barcode_number}'
+                    formula: '{altname}'
                 }));
+                log.debug({
+                    title: 'no barcode found',
+                    details: getSelectorRecords(tracking_number)
+                });
+            }
+
+            if (openTicketSearch.runPaged().count < 1) {
+                openTicketSearch.filters.push(search.createFilter({
+                    name: 'formulatext',
+                    operator: search.Operator.IS,
+                    values: tracking_number,
+                    formula: '{name}'
+                }));
+                log.debug({
+                    title: 'no barcode found 2',
+                });
             }
             
         }
 
         // count of results for search
         var openTicketsCount = openTicketSearch.runPaged().count;
+        log.debug({
+            title: 'openTicketsCount',
+            details: openTicketsCount
+        });
 
         if (openTicketsCount > 0) {
             // run search for open and in progress tickets
@@ -290,18 +314,21 @@
             operator: search.Operator.IS,
             values: false,
         }));
-        
+        var selector_id;
         if (!isNullorEmpty(activeSelectorResults)) {
-            var selector_id;
             activeSelectorResults.run().each(function(search_res) {
-                selector_id = search_res.id;
+                selector_id = search_res.getValue({name: 'custrecord_mp_ticket'});
 
                 return true;
             });
             
         }
+        log.debug({
+            title: 'ticket id',
+            details: selector_id
+        });
 
-        return activeSelectorResults;
+        return selector_id;
     }
 
      function isNullorEmpty(strVal) {

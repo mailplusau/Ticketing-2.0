@@ -50,6 +50,8 @@
                         }, {
                             title: "Barcode"
                         }, {
+                            title: "Connote Number"
+                        }, {
                             title: "Customer"
                         }, {
                             title: "Franchise"
@@ -74,12 +76,8 @@
                         var columnDefs = [{
                             targets: 0,
                             render: function(data, type, row, meta) {
-                                var status = row[8];
-                                var has_mpex_contact = row[11];
-                                console.log("meta", meta);
-                                console.log("type", type);
-                                console.log("data", data);
-                                console.log("row", row);
+                                var status = row[9];
+                                var has_mpex_contact = row[12];
 
                                 data = '<input type="checkbox" class="dt-checkboxes">'
                                 if (status === "Closed") {
@@ -92,7 +90,6 @@
                                 selectRow: true,
                                 selectAllCallback: function(nodes, flag, inderminate){
                                     console.log("Select all callback");
-                                    console.log(nodes);
                                     var table_barcodes = $('#tickets-preview-barcodes').DataTable();
                                     var rows = table_barcodes.rows().nodes().to$();
                                     // $.each(rows, function(index){
@@ -113,8 +110,8 @@
                         }, {
                             targets: 1,
                             render: function(data, type, row, meta) {
-                                var status = row[8];
-                                var has_mpex_contact = row[11];
+                                var status = row[9];
+                                var has_mpex_contact = row[12];
 
                                 data = '<input type="checkbox" class="dt-checkboxes">'
                                 if (status === "Closed" || status === "In progress - IT" || !has_mpex_contact) {
@@ -154,9 +151,9 @@
                             render: function(data, type, row, meta) {
                                 var icon = 'glyphicon-pencil';
                                 var title = 'Edit';
-                                if (data[8] == "Open") {
+                                if (data[9] == "Open") {
                                     var button_style = 'btn-primary';
-                                } else if (data[8] == "In Progress - Customer Service") {
+                                } else if (data[9] == "In Progress - Customer Service") {
                                     var button_style = 'btn-warning';
                                 } else {
                                     var button_style = 'btn-danger';
@@ -164,7 +161,7 @@
                                 return '<button class="btn ' + button_style + ' edit_class glyphicon ' + icon + '" type="button" data-toggle="tooltip" data-placement="right" title="' + title + '"></button>';
                             }
                         }];
-
+                        
                         var select = {
                             style: 'multi',
                         };
@@ -334,8 +331,8 @@
         var table_barcodes = $('#tickets-preview-barcodes').DataTable();
         console.log("table2", table_barcodes)
         var rows = table_barcodes.rows().nodes().to$();
-        var status = table_barcodes.column(8).data().toArray();;
-        var has_mpex_contact = table_barcodes.column(11).data().toArray()        
+        var status = table_barcodes.column(9).data().toArray();;
+        var has_mpex_contact = table_barcodes.column(12).data().toArray()        
 
         //Mark all tickets that are Closed with class 'ignoreme'
         $.each(rows, function(index) {
@@ -685,15 +682,9 @@
                     var status_val = ticketResult.getValue('custrecord_ticket_status');
 
                     var ticket_type = getTicketType(ticketResult);
-
-                    // if(ticket_type == 'customer'){
-                    //     console.log(ticket_id + "," + date_created + "," + owners + "," + status_val + "," + ticket_type); 
-                    // }
-                
-
+                    
                     switch (ticket_type) {
                         case 'barcode':
-                            // Barcode number
                             var barcode_number = ticketResult.getText('custrecord_barcode_number');
                             if (isNullorEmpty(barcode_number)) {
                                 barcode_number = ticketResult.getValue('altname');
@@ -703,7 +694,7 @@
                             // TOLL Issues
                             var toll_issues = ticketResult.getText('custrecord_toll_issues');
                             toll_issues = toll_issues.split(',').join('<br>');
-
+                            var connote_number = ticketResult.getValue({ name: "custrecord_connote_number", join: "CUSTRECORD_BARCODE_NUMBER"});
                             // Resolved TOLL Issues
                             var resolved_toll_issues = ticketResult.getText('custrecord_resolved_toll_issues');
                             if (!isNullorEmpty(resolved_toll_issues)) {
@@ -778,7 +769,8 @@
                         case 'barcode':
                             if(status_val != 9) {
                                 //Push tickets that do not have status Closed-Lost
-                                ticketsDataSetArrays[0].push(['', '', ticket_id, date_created, barcode_number, customer_name, franchise_name, owners, status, toll_issues, mp_ticket_issues, has_mpex_contact]);
+                               
+                                ticketsDataSetArrays[0].push(['', '', ticket_id, date_created, barcode_number, connote_number, customer_name, franchise_name, owners, status, toll_issues, mp_ticket_issues, has_mpex_contact]);
                             }
                             break;
 

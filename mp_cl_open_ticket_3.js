@@ -270,6 +270,7 @@
                       $('.enquiry_status_div').removeClass('hide');
                       $('.enquiry_count_section').removeClass('hide');
                       $('.enquiry_count_breakdown_section').removeClass('hide');
+                      $('.interaction_count_breakdown_section').removeClass('hide');
 
                       $('.invoice_method_accounts_cc_email_section').addClass('hide');
                       $('.mpex_customer_po_number_section').addClass('hide');
@@ -348,6 +349,7 @@
                       $('.enquiry_status_div').addClass('hide');
                       $('.enquiry_count_section').addClass('hide');
                       $('.enquiry_count_breakdown_section').addClass('hide');
+                      $('.interaction_count_breakdown_section').addClass('hide');
 
                       $('.ss_section').addClass('hide');
                       $('.browser_os_section').addClass('hide');
@@ -414,6 +416,7 @@
                       $('.enquiry_status_div').removeClass('hide');
                       $('.enquiry_count_section').removeClass('hide');
                       $('.enquiry_count_breakdown_section').removeClass('hide');
+                      $('.interaction_count_breakdown_section').removeClass('hide');
 
                       $('.reminder_section').addClass('hide');
                       $('.toll_issues_section').addClass('hide');
@@ -609,34 +612,19 @@
           $('#mp_issues').change(function() {
               selectOwner();
               hideCloseTicketButton();
-          });
-
-          // $('#open_and_new_ticket_btn').click(function() {
-          //     openAndNew()
-          // });
-
-          //openticketbutton
-          //opennewticketbutton
-          //updateticketbutton
-          //reopenticketbutton
-          //closeticketbutton
-          //closelostbutton
-          //closeunallocatedbutton
-          //escalatebutton
-          //cancelbutton
-          
+          });          
 
           $('#cancelbutton').click(function() {
               onCancel()
           });
 
           $('#closeticketbutton').click(function() {
-              closeTicket()
+              closeTicket(selector_type, '')
           });
 
           $('#closenewticketbutton').click(function() {
-                console.log("in close new");
-                closeNewTicket()
+              console.log("in close new");
+              closeNewTicket()
           });
           
           $('#closelostbutton').click(function() {
@@ -675,21 +663,105 @@
 
           $('#opennewticketbutton').click(function() {
               openAndNew();
-          });
-
-          
-          // $('#submit_ticket').click(function() {
-          //     $('#submitter').trigger('click');
-          // });
-
-          
+          });        
 
           $('#escalatebutton').click(function() {
-              console.log("here");
               escalateTicket(ticket_id, selector_number, selector_type);
               
           });
 
+          $('#escalaterianne').click(function() {
+            console.log("Escalating to rianne");
+            var ticketRecord = record.load({
+                type: 'customrecord_mp_ticket',
+                id: parseInt(ticket_id),
+            });
+            if (isNullorEmpty(ticketRecord.getValue({fieldId: 'custrecord_date_escalated_it'}))) {
+                ticketRecord.setValue({fieldId: 'custrecord_date_escalated_it', value: new Date()});
+                var owner_list = ['1132504'];
+                $('#owner').selectpicker('val', owner_list);
+                ticketRecord.setValue({fieldId: 'custrecord_owner', value: owner_list});
+                ticketRecord.save({
+                    enableSourcing: true,
+                    ignoreMandatoryFields: true
+                });
+                sendCustomerTicketEmail('', parseInt(ticket_id), customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), $('#os_value option:selected').text(), $('#login_email_text').val(), '', '', ["rianne.mansell@mailplus.com.au"]);
+                var output = url.resolveScript({
+                    deploymentId: 'customdeploy_sl_edit_ticket_2',
+                    scriptId: 'customscript_sl_edit_ticket_2',
+                });
+                var upload_url = baseURL + output;
+                window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
+            } else {
+                console.log('didnt work for some reason');
+            }
+
+            
+          });
+
+          $('#escalateankith').click(function() {
+            var ticketRecord = record.load({
+                type: 'customrecord_mp_ticket',
+                id: parseInt(ticket_id),
+            });
+            ticketRecord.setValue({fieldId: 'custrecord_ticket_status', value: 10});
+            var owner_list = ['409635'];
+            $('#owner').selectpicker('val', owner_list);
+            ticketRecord.setValue({fieldId: 'custrecord_owner', value: owner_list});
+            ticketRecord.save({
+                enableSourcing: true,
+                ignoreMandatoryFields: true
+            });
+            var subject = 'MPSD' + ticket_id + ' - Customer Issue Ticket Escalated';
+            
+            sendCustomerTicketEmail(subject, parseInt(ticket_id), customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), $('#os_value option:selected').text(), $('#login_email_text').val(), '', '', ["ankith.ravindran@mailplus.com.au"]);
+
+            var output = url.resolveScript({
+                deploymentId: 'customdeploy_sl_edit_ticket_2',
+                scriptId: 'customscript_sl_edit_ticket_2',
+            });
+            var upload_url = baseURL + output;
+            window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
+            
+          });
+          $('#escalateunderdev').click(function() {
+            var ticketRecord = record.load({
+                type: 'customrecord_mp_ticket',
+                id: parseInt(ticket_id),
+            });
+            ticketRecord.setValue({fieldId: 'custrecord_ticket_status', value: 17});
+            ticketRecord.save({
+                enableSourcing: true,
+                ignoreMandatoryFields: true
+            });
+            location.reload();
+            
+          });
+          $('#escalateremoveunderdev').click(function() {
+            var ticketRecord = record.load({
+                type: 'customrecord_mp_ticket',
+                id: parseInt(ticket_id),
+            });
+            ticketRecord.setValue({fieldId: 'custrecord_ticket_status', value: 10});
+            ticketRecord.save({
+                enableSourcing: true,
+                ignoreMandatoryFields: true
+            });
+            location.reload();
+            
+          });
+          $('#closeresolvedbutton').click(function() {
+              closeTicket(selector_type, 15);
+          });
+          $('#closeunresolvedbutton').click(function() {
+              closeTicket(selector_type, 16);
+          });
+          
+          
+          
+          
+
+          
           // Prevent the ticket to be submitted on enter.
           $('input, textarea').keydown(function(e) {
               if (e.keyCode == 13) {
@@ -982,7 +1054,6 @@
               });
               currRec.setValue({ fieldId: 'custpage_created_ticket', value: 'T' });
               ticketRecord.setValue({ fieldId: 'custrecord_email_sent', value: false });
-              console.log("DOES FALSE WORK", ticketRecord.getValue({ fieldId: 'custrecord_email_sent' }))
           } else {
               ticket_id = parseInt(ticket_id);
               try {
@@ -1062,6 +1133,23 @@
               ticketRecord.setValue({ fieldId: 'custrecord_email_enquiry_count', value: enquiry_count_by_email });
           }
 
+          var interaction_count_by_phone = $('#interaction_count_by_phone').val();
+          var interaction_count_by_email = $('#interaction_count_by_email').val();
+
+          if (isNullorEmpty(ticketRecord.getValue({ fieldId: 'custrecord_first_interaction_date'}))) {
+              if (!isNullorEmpty(interaction_count_by_email) || !isNullorEmpty(interaction_count_by_phone)) {
+                  ticketRecord.setValue({ fieldId: 'custrecord_first_interaction_date', value: new Date()});
+              }
+          }
+          if (!isNullorEmpty(interaction_count_by_phone)) {
+              ticketRecord.setValue({ fieldId: 'custrecord_phone_interaction_count', value: interaction_count_by_phone });
+          }
+
+          if (!isNullorEmpty(interaction_count_by_email)) {
+              ticketRecord.setValue({ fieldId: 'custrecord_email_interaction_count', value: interaction_count_by_email });
+          }
+
+
 
           //Check Enquiry is Selected
           if (isNullorEmpty(enquiry_count_by_chat) && isNullorEmpty(enquiry_count_by_phone) && isNullorEmpty(enquiry_count_by_email)) {
@@ -1089,7 +1177,6 @@
 
           console.log("sending email..." + selector_type);
           if (!isNullorEmpty(selector_type)) {
-              console.log("in if ");
               switch (selector_type) {
                   case 'barcode_number':
                       ticketRecord.setValue({ fieldId: 'custrecord_barcode_number', value: selector_id });
@@ -1098,11 +1185,7 @@
                       var reminder_date = $('#reminder').val();
                       if (!isNullorEmpty(reminder_date)) {
                           reminder_date = new Date(reminder_date);
-                          console.log(reminder_date);
-
-                          reminder_date = format.parse({ value: reminder_date, type: format.Type.DATE });
-                          console.log("rem date", reminder_date);
-                          
+                          reminder_date = format.parse({ value: reminder_date, type: format.Type.DATE });                         
                           ticketRecord.setValue({ fieldId: 'custrecord_reminder', value: reminder_date });
                           
 
@@ -1157,7 +1240,6 @@
                       break;
 
                   case 'customer_issue':
-                      console.log('in case');
                       var screenshot_image = currRec.getValue({ fieldId: 'custpage_ss_image' });
 
                       if (!isNullorEmpty(screenshot_image)) {
@@ -1194,7 +1276,7 @@
                               }
 
                               if (is_customer_number_email_sent == 'F' && !isNullorEmpty(ticket_id)) {
-                                  sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, '', '', login_email_used, '', '', owner_email_list);
+                                  sendCustomerTicketEmail('',ticket_id, customer_number, selector_type, selector_number, '', '', login_email_used, '', '', owner_email_list);
                                   ticketRecord.setValue({ fieldId: 'custrecord_customer_number_email_sent', value: true });
                               }
 
@@ -1214,10 +1296,10 @@
                               }
                             
 
-                              //if (is_customer_number_email_sent == 'F' && !isNullorEmpty(ticket_id)) {
-                                  sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), $('#os_value option:selected').text(), login_email_used, '', '', owner_email_list);
+                              if (is_customer_number_email_sent == 'F' && !isNullorEmpty(ticket_id)) {
+                                  sendCustomerTicketEmail('',ticket_id, customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), $('#os_value option:selected').text(), login_email_used, '', '', owner_email_list);
                                   ticketRecord.setValue({ fieldId: 'custrecord_customer_number_email_sent', value: true });
-                              //}
+                              }
 
                               break;
 
@@ -1235,7 +1317,7 @@
                               }
 
                               if (is_customer_number_email_sent == 'F' && !isNullorEmpty(ticket_id)) {
-                                  sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, '', '', login_email_used, sender_name, sender_phone, owner_email_list);
+                                  sendCustomerTicketEmail('',ticket_id, customer_number, selector_type, selector_number, '', '', login_email_used, sender_name, sender_phone, owner_email_list);
                                   ticketRecord.setValue({ fieldId: 'custrecord_customer_number_email_sent', value: true });
                               }
                               break;
@@ -1287,7 +1369,6 @@
                       return false;
                   }
               } else if (selector_type == 'customer_issue') {
-                    console.log('CUST ISSUE');
                   var login_email_used = $('#login_email_text').val();
                   var customer_issue_type = $('#selector_value').val();
                   switch (customer_issue_type) {
@@ -1295,16 +1376,16 @@
                           var phone_used = $('#phone_used').val();
                           var os_used = $('#os_value option:selected').val();
                           var browser = $("#browser_value option:selected").val()
-                          sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), $('#os_value option:selected').text(), login_email_used, '', '', only_new_owner_email_address);
+                          sendCustomerTicketEmail('',ticket_id, customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), $('#os_value option:selected').text(), login_email_used, '', '', only_new_owner_email_address);
                           break;
                       case 'Customer Portal':
                           var browser = $('#browser_value').val();
-                          sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), '', login_email_used, '', '', only_new_owner_email_address);
+                          sendCustomerTicketEmail('',ticket_id, customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), '', login_email_used, '', '', only_new_owner_email_address);
                           break;
                       case 'Update Label':
                           var sender_phone = $('#sender_phone_text').val();
                           var sender_name = $('#sender_name_text').val();
-                          sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, '', '', login_email_used, sender_name, sender_phone, only_new_owner_email_address);
+                          sendCustomerTicketEmail('',ticket_id, customer_number, selector_type, selector_number, '', '', login_email_used, sender_name, sender_phone, only_new_owner_email_address);
                           break;
                   }
 
@@ -1367,10 +1448,7 @@
               ticketRecord.setValue({ fieldId: 'custrecord_comment', value: comment} );
 
           }
-          var new_ticket = '';
-          if (isNullorEmpty(ticket_id)) {
-              new_ticket = ticket_id;
-          }
+
           var ticket_id = ticketRecord.save({
               enableSourcing: true,
           });
@@ -1433,101 +1511,11 @@
                   });
 
               } catch (e) {
-                  //if (e instanceof error.SuiteScriptError) {
-                  //    if (e.name == "SSS_MISSING_REQD_ARGUMENT") {
-                          console.log('Error to load the barcode record with barcode_id : ' + selector_id);
-                  //    }
-                  //}
+                    console.log('Error to load the barcode record with barcode_id : ' + selector_id);
               }
           }
          
-          if (isNullorEmpty(new_ticket)) {
-                if(selector_type == "customer_issue" && (selector_number == "Customer App" || selector_number == "Customer Portal")) {
-                    console.log("sending email..." + selector_type);
-                    if (!isNullorEmpty(selector_type) && selector_type == "customer_issue") {  
-                        var screenshot_image = currRec.getValue({ fieldId: 'custpage_ss_image' });
-    
-                        if (!isNullorEmpty(screenshot_image)) {
-                            ticketRecord.setValue({ fieldId: 'custrecord_screenshot', value: screenshot_image});
-                        }
-    
-                        var customer_id = currRec.getValue({ fieldId: 'custpage_customer_id' });
-    
-                        if (!isNullorEmpty(customer_id)) {
-                            ticketRecord.setValue({ fieldId: 'custrecord_customer1', value: customer_id});
-                        }
-    
-                        var customer_issue_type = $('#selector_value').val();
-                        
-                        if (!isNullorEmpty(customer_issue_type)) {
-                            ticketRecord.setValue({ fieldId: 'custrecord_customer_issue', value: customer_issue_type});
-                        }
-    
-                        var login_email_used = $('#login_email_text').val();
-    
-                        if (!isNullorEmpty(login_email_used)) {
-                            ticketRecord.setValue({ fieldId: 'custrecord_login_email', value: login_email_used});
-                        }
-    
-                        var is_customer_number_email_sent = currRec.getValue({ fieldId: 'custpage_customer_number_email_sent' });
-                        console.log("cust iss typ", customer_issue_type);
-                        switch (customer_issue_type) {
-                            case 'Customer App':
-                                console.log("in cust app");
-                                var phone_used = $('#phone_used').val();
-    
-                                if (!isNullorEmpty(phone_used)) {
-                                    ticketRecord.setValue({ fieldId: 'custrecord_phone_used', value: phone_used});
-                                }
-    
-                                    sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, '', '', login_email_used, '', '', owner_email_list);
-                                    ticketRecord.setValue({ fieldId: 'custrecord_customer_number_email_sent', value: true });
-    
-                                break;
-    
-                            case 'Customer Portal':
-                                var browser = $("#browser_value option:selected").val();
-    
-                                if (!isNullorEmpty(browser)) {
-                                    ticketRecord.setValue({ fieldId: 'custrecord_browser', value: browser});
-                                }
-                                
-                                var os_used = $('#os_value option:selected').val();
-    
-                                if (!isNullorEmpty(os_used)) {
-                                    ticketRecord.setValue({ fieldId: 'custrecord_operating_system', value: os_used});
-                                }
-                                
-    
-                                    sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), $('#os_value option:selected').text(), login_email_used, '', '', owner_email_list);
-                                    ticketRecord.setValue({ fieldId: 'custrecord_customer_number_email_sent', value: true });
-    
-                                break;
-    
-                            
-                                var sender_name = $('#sender_name_text').val();
-    
-                                if (!isNullorEmpty(sender_name)) {
-                                    ticketRecord.setValue({ fieldId: 'custrecord_sender_name', value: sender_name});
-                                }
-    
-                                var sender_phone = $('#sender_phone_text').val();
-    
-                                if (!isNullorEmpty(sender_phone)) {
-                                    ticketRecord.setValue({ fieldId: 'custrecord_sender_phone', value: sender_phone});
-                                }
-    
-                                if (is_customer_number_email_sent == 'F' && !isNullorEmpty(ticket_id)) {
-                                    sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, '', '', login_email_used, sender_name, sender_phone, owner_email_list);
-                                    ticketRecord.setValue({ fieldId: 'custrecord_customer_number_email_sent', value: true });
-                                }
-                                break;
-                        }
-                        
-                    }
-                }
-
-          }
+          
         
           return true;
       }
@@ -1820,6 +1808,78 @@
               medium_list = $.makeArray(medium_list);
               $('#enquiry_medium_status').val(medium_list).trigger('change');
           });
+
+          $('.increment_interaction_count_by_chat, .increment_interaction_count_by_phone, .increment_interaction_count_by_email').click(function() {
+            console.log("Clicked increment");
+            //Get total interaction count and increment by 1
+            var total_interaction_count = $('#total_interaction_count').val();
+            $('#total_interaction_count').val(++total_interaction_count);
+
+            if (this.className.indexOf('increment_interaction_count_by_chat') !== -1) {
+                console.log("In chat click");
+                //Get chat interaction count and increment by 1
+                var interaction_count_by_chat = $('#interaction_count_by_chat').val();
+                $('#interaction_count_by_chat').val(++interaction_count_by_chat);
+            }
+
+
+            if (this.className.indexOf('increment_interaction_count_by_phone') !== -1) {
+                //Get phone interaction count and increment by 1
+                var interaction_count_by_phone = $('#interaction_count_by_phone').val();
+                $('#interaction_count_by_phone').val(++interaction_count_by_phone);
+            }
+
+            if (this.className.indexOf('increment_interaction_count_by_email') !== -1) {
+                //Get email interaction count and increment by 1
+                var interaction_count_by_email = $('#interaction_count_by_email').val();
+                $('#interaction_count_by_email').val(++interaction_count_by_email);
+                //Select the email option in medium list
+            }
+
+        });
+
+        $('.decrement_interaction_count_by_chat, .decrement_interaction_count_by_phone, .decrement_interaction_count_by_email').click(function() {
+            var total_interaction_count = $('#total_interaction_count').val();
+
+            if (this.className.indexOf('decrement_interaction_count_by_chat') !== -1) {
+                var interaction_count_by_chat = $('#interaction_count_by_chat').val();
+                if (interaction_count_by_chat > 0) {
+                    $('#interaction_count_by_chat').val(--interaction_count_by_chat);
+                    $('#total_interaction_count').val(--total_interaction_count);
+                }
+
+            }
+
+            if (this.className.indexOf('decrement_interaction_count_by_phone') !== -1) {
+                var interaction_count_by_phone = $('#interaction_count_by_phone').val();
+                if (interaction_count_by_phone > 0) {
+                    $('#interaction_count_by_phone').val(--interaction_count_by_phone);
+                    $('#total_interaction_count').val(--total_interaction_count);
+                }
+
+                if (interaction_count_by_phone === 0) {
+                    $('#interaction_medium_status option[value="1"]').prop('selected', false);
+                }
+            }
+
+            if (this.className.indexOf('decrement_interaction_count_by_email') !== -1) {
+                var interaction_count_by_email = $('#interaction_count_by_email').val();
+                if (interaction_count_by_email > 0) {
+                    $('#interaction_count_by_email').val(--interaction_count_by_email);
+                    $('#total_interaction_count').val(--total_interaction_count);
+                }
+
+                if (interaction_count_by_email === 0) {
+                    $('#interaction_medium_status option[value="2"]').prop('selected', false);
+                }
+            }
+            //Get medium list and update it
+            var medium_list = $('#interaction_medium_status option:selected').map(function() {
+                return $(this).val()
+            });
+            medium_list = $.makeArray(medium_list);
+            $('#interaction_medium_status').val(medium_list).trigger('change');
+        });
       }
 
           
@@ -1929,6 +1989,7 @@
           $('.ticket_enquiry_header_section').addClass('hide');
           $('.enquiry_medium_section').addClass('hide');
           $('.enquiry_count_breakdown_section').addClass('hide');
+          $('.interaction_count_breakdown_section').addClass('hide');
           $('.ticket_enquiry_header_section').addClass('hide');
           $('.label_section').addClass('hide');
 
@@ -2420,23 +2481,34 @@
       function ticketLinkedToSelector(selector_number) {
           console.log("selector number", selector_number);
           var activeTicketFilterExpression = [
-              ["custrecord_barcode_number", "is", selector_number], 'AND', ["custrecord_ticket_status", "noneof", '3']
+              [["custrecord_barcode_number", "is", selector_number], "OR", ["altname", "is", selector_number]], 'AND', ["custrecord_ticket_status", "noneof", '3']
           ];
           var activeTicketsResults = search.create({ type: 'customrecord_mp_ticket', filterExpression: activeTicketFilterExpression });
+          activeTicketsResults.filters.push(search.createFilter({
+            name: 'custrecord_ticket_status',
+            operator: search.Operator.NONEOF,
+            values: 3
+          }));
           activeTicketsResults.filters.push(search.createFilter({
               name: 'formulatext',
               operator: search.Operator.IS,
               values: selector_number,
-              formula: '{custrecord_barcode_number}'
+              formula: '{altname}'
           }));
-
+          
+          
+        
           
 
-          activeTicketsResults.filters.push(search.createFilter({
-              name: 'custrecord_ticket_status',
-              operator: search.Operator.NONEOF,
-              values: 3,
-          }));
+          if (activeTicketsResults.runPaged().count < 1) {
+            activeTicketsResults.filters.pop();
+            activeTicketsResults.filters.push(search.createFilter({
+                name: 'formulatext',
+                operator: search.Operator.IS,
+                values: selector_number,
+                formula: '{custrecord_barcode_number}'
+            }));
+          }
 
           var searchResultCount = activeTicketsResults.runPaged().count;
           console.log("CNTTTT", searchResultCount);
@@ -2533,14 +2605,14 @@
           console.log("abc");
           console.log(activeSelectorResults);
           if (!isNullorEmpty(activeSelectorResults)) {
-              var selector_id;
+              var selector_id = '';
               activeSelectorResults.run().each(function(search_res) {
                   console.log("ID", search_res.id);
                   selector_id = search_res.id;
 
                   return true;
               });
-              
+              console.log('selector_id val', selector_id);
               currRec.setValue({ fieldId: 'custpage_selector_id', value: selector_id });
           }
 
@@ -2650,7 +2722,7 @@
           var activeSelectorResults = getSelectorRecords(selector_number, selector_type);
           
           var activeSelectorResult;
-          var selector_id;
+          var selector_id = '';
           activeSelectorResults.run().each(function(search_val) {
               selector_id = search_val.id;
               activeSelectorResult = search_val;
@@ -3606,7 +3678,7 @@
       /**
        * Function to sent emails when a customer associated ticket is opened
        */
-      function sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, browser, os, login_email_used, sender_name, sender_phone, send_to) {
+      function sendCustomerTicketEmail(subject, ticket_id, customer_number, selector_type, selector_number, browser, os, login_email_used, sender_name, sender_phone, send_to) {
           console.log("in email fn ", send_to);
           if (isNullorEmpty(browser)) {
               browser = " - "
@@ -3639,7 +3711,10 @@
 
           var ticket_url = url + "&custparam_params=" + encodeURIComponent(JSON.stringify(custparam_params));
 
-          var subject = 'MPSD' + ticket_id + ' - New Customer Ticket Opened';
+          if (isNullorEmpty(subject)){
+            subject = 'MPSD' + ticket_id + ' - New Customer Ticket Opened';
+          } 
+
           var body = '' + selector_number + '  Ticket Details <br>';
           body += 'Customer number : ' + customer_number + ' <br>';
           body += 'Login email used : ' + login_email_used + ' <br>';
@@ -4114,6 +4189,22 @@
             ticketRecord.setValue({ fieldId: 'custrecord_email_enquiry_count', value: enquiry_count_by_email });
         }
 
+        var interaction_count_by_phone = $('#interaction_count_by_phone').val();
+        var interaction_count_by_email = $('#interaction_count_by_email').val();
+
+        if (isNullorEmpty(ticketRecord.getValue({ fieldId: 'custrecord_first_interaction_date'}))) {
+            if (!isNullorEmpty(interaction_count_by_email) || !isNullorEmpty(interaction_count_by_phone)) {
+                ticketRecord.setValue({ fieldId: 'custrecord_first_interaction_date', value: new Date()});
+            }
+        }
+        if (!isNullorEmpty(interaction_count_by_phone)) {
+            ticketRecord.setValue({ fieldId: 'custrecord_phone_interaction_count', value: interaction_count_by_phone });
+        }
+
+        if (!isNullorEmpty(interaction_count_by_email)) {
+            ticketRecord.setValue({ fieldId: 'custrecord_email_interaction_count', value: interaction_count_by_email });
+        }
+
 
         //Check Enquiry is Selected
         if (isNullorEmpty(enquiry_count_by_chat) && isNullorEmpty(enquiry_count_by_phone) && isNullorEmpty(enquiry_count_by_email)) {
@@ -4242,7 +4333,7 @@
                             }
 
                             if (is_customer_number_email_sent == 'F' && !isNullorEmpty(ticket_id)) {
-                                sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, '', '', login_email_used, '', '', owner_email_list);
+                                sendCustomerTicketEmail('',ticket_id, customer_number, selector_type, selector_number, '', '', login_email_used, '', '', owner_email_list);
                                 ticketRecord.setValue({ fieldId: 'custrecord_customer_number_email_sent', value: true });
                             }
 
@@ -4262,7 +4353,7 @@
                             }
 
                             if (is_customer_number_email_sent == 'F' && !isNullorEmpty(ticket_id)) {
-                                sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), $('#os_value option:selected').text(), login_email_used, '', '', owner_email_list);
+                                sendCustomerTicketEmail('',ticket_id, customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), $('#os_value option:selected').text(), login_email_used, '', '', owner_email_list);
                                 ticketRecord.setValue({ fieldId: 'custrecord_customer_number_email_sent', value: true });
                             }
 
@@ -4282,7 +4373,7 @@
                             }
 
                             if (is_customer_number_email_sent == 'F' && !isNullorEmpty(ticket_id)) {
-                                sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, '', '', login_email_used, sender_name, sender_phone, owner_email_list);
+                                sendCustomerTicketEmail('',ticket_id, customer_number, selector_type, selector_number, '', '', login_email_used, sender_name, sender_phone, owner_email_list);
                                 ticketRecord.setValue({ fieldId: 'custrecord_customer_number_email_sent', value: true });
                             }
                             break;
@@ -4337,16 +4428,16 @@
                         var phone_used = $('#phone_used').val();
                         var os_used = $('#os_value option:selected').val();
                         var browser = $("#browser_value option:selected").val()
-                        sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), $('#os_value option:selected').text(), login_email_used, '', '', only_new_owner_email_address);
+                        sendCustomerTicketEmail('',ticket_id, customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), $('#os_value option:selected').text(), login_email_used, '', '', only_new_owner_email_address);
                         break;
                     case 'Customer Portal':
                         var browser = $('#browser_value').val();
-                        sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), '', login_email_used, '', '', only_new_owner_email_address);
+                        sendCustomerTicketEmail('',ticket_id, customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), '', login_email_used, '', '', only_new_owner_email_address);
                         break;
                     case 'Update Label':
                         var sender_phone = $('#sender_phone_text').val();
                         var sender_name = $('#sender_name_text').val();
-                        sendCustomerTicketEmail(ticket_id, customer_number, selector_type, selector_number, '', '', login_email_used, sender_name, sender_phone, only_new_owner_email_address);
+                        sendCustomerTicketEmail('',ticket_id, customer_number, selector_type, selector_number, '', '', login_email_used, sender_name, sender_phone, only_new_owner_email_address);
                         break;
                 }
 
@@ -4547,7 +4638,7 @@
        * Triggered by a click on the button 'CLOSE TICKET' ('#close_ticket')
        * Set the date of closure, and the status as "Closed".
        */
-      function closeTicket() {
+      function closeTicket(selector_type, status_num) {
           
           if (confirm("Are you sure you want to close this ticket?\n\nThis action cannot be undone.")) {
               updateSaveRecord();
@@ -4558,7 +4649,17 @@
               ticket_id = parseInt(ticket_id);
               var ticketRecord = record.load({ type: 'customrecord_mp_ticket', id: ticket_id });
               ticketRecord.setValue({ fieldId: 'custrecord_date_closed', value: dnow });
-              ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 3 });
+
+              if (isNullorEmpty(status_num)) {
+                if (selector_type == "customer_issue") {
+                    ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 16 });
+                } else {
+                    ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 3 });
+                }
+              } else {
+                ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: status_num });
+              }
+              
               ticketRecord.setValue({ fieldId: 'custrecord_mp_ticket_customer_status', value: 5 });
               ticketRecord.setValue({ fieldId: 'custrecord_reminder', value: null });
 
