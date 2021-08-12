@@ -914,14 +914,19 @@
 
         // TICKET DETAILS TAB
         inlineQty += '<div role="tabpanel" class="tab-pane active" id="ticketdetails">';
-        inlineQty += customerNumberSection(customer_number, ticket_id);
+        inlineQty += customerNumberSection(customer_number, ticket_id, selector_type, escalated_to_it, creator_id);
         inlineQty += selectorSection(ticket_id, selector_number, selector_id, selector_type, status_value);
         
         if (!isNullorEmpty(ticket_id)) {
             inlineQty += ticketSection(dateISOToNetsuite(date_created), creator_id, creator_name, status, connote_number);
             inlineQty += externalBarcodeSource(selector_type, barcodempdl, barcodesource)
         }
+        
         if (isNullorEmpty(ticket_id) || (!isNullorEmpty(ticket_id) && !isNullorEmpty(customer_id)) || !isNullorEmpty(customer_number)) {
+            inlineQty += customerSection(customer_name);
+            inlineQty += daytodayContactSection(daytodayphone, daytodayemail, status_value, selector_type);
+            inlineQty += accountsContactSection(accountsphone, accountsemail, status_value, selector_type);
+        } else if (isNullorEmpty(customer_number) && creator_id == 112209 && !isNullorEmpty(escalated_to_it) && selector_type == "customer_issue" && !isNullorEmpty(ticket_id)) {
             inlineQty += customerSection(customer_name);
             inlineQty += daytodayContactSection(daytodayphone, daytodayemail, status_value, selector_type);
             inlineQty += accountsContactSection(accountsphone, accountsemail, status_value, selector_type);
@@ -1027,7 +1032,7 @@
      * this field is pre-filled.
      * @param {*} customer_number 
      */
-    function customerNumberSection(customer_number, ticket_id){
+    function customerNumberSection(customer_number, ticket_id, selector_type, escalated_to_it, creator_id){
         if(isNullorEmpty(customer_number)){
             customer_number = '';
         }
@@ -1052,7 +1057,10 @@
 
         if(customer_number == '' && isNullorEmpty(ticket_id)){
             inlineQty += '<input id="customer_number_value" value=" '+ customer_number +' " class="form-control customer_number">';
-        }else{
+        } else if (customer_number == '' && creator_id == 112209 && !isNullorEmpty(escalated_to_it) && selector_type == "customer_issue" && !isNullorEmpty(ticket_id)) {
+            inlineQty += '<input id="customer_number_value" value=" '+ customer_number +' " class="form-control customer_number">';
+
+        } else{
             inlineQty += '<input id="customer_number_value" value=" '+ customer_number +' " class="form-control customer_number" disabled>';
         }
         inlineQty += '</div></div></div></div>';

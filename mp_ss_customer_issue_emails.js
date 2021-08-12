@@ -22,27 +22,41 @@
 
      function main() {
 
-         var ticketsSearch = search.load({
-             id: 'customsearch_ss_customer_issue_emails',
-             type: 'invoice',
-         });
-        
-         var count = ticketsSearch.runPaged().count;
+         
+         var today = new Date();
+         today.setHours(today.getHours() + 17);
+         
+         if (today.getHours() >= 9 && today.getHours() <= 17) {
+            log.debug({
+                title: 'In business hours',
+                details: today.getHours()
+            });
+            var ticketsSearch = search.load({
+                id: 'customsearch_ss_customer_issue_emails',
+                type: 'customrecord_mp_ticket',
+            });
+           
+            var count = ticketsSearch.runPaged().count;
+   
+            log.debug({
+                title: 'count',
+                details: count
+            });
+            sendEmails(ticketsSearch);
+         } else {
+             log.debug({
+                 title: 'Not business hours',
+                 details: today.getHours()
+             });
+         }
+         
 
-         log.debug({
-             title: 'count',
-             details: count
-         });
+         
+     }
 
-         ticketsSearch.run().each(function(ticket) { 
-            var subject = 'Customer Issue Ticket Reminder';
-            //  email.send({
-            //      author: 112209,
-            //      body: body,
-            //      recipients: ['rianne.mansell@mailplus.com.au'],
-            //      subject: subject,
-            //      cc: ['ankith.ravindran@mailplus.com.au'],
-            //  });
+     function sendEmails(ticketsSearch) {
+        ticketsSearch.run().each(function(ticket) { 
+            
             var ticket_id = ticket.getValue('internalid');
             var selector_number = ticket.getValue('custrecord_customer_issue');
             var selector_type = "customer_issue";
@@ -51,7 +65,11 @@
             var browser = ticket.getValue('custrecord_browser');
             var sender_name = ticket.getValue('custrecord_sender_name');
             var sender_phone = ticket.getValue('custrecord_sender_phone');
+            var issue = ticket.getText('custrecord_mp_ticket_issue');
+            var comment = ticket.getText('custrecord_comment');
+
             var url = "https://1048144.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1243&deploy=1&compid=1048144&";
+            
             var custparam_params = new Object();
             custparam_params['ticket_id'] = parseInt(ticket_id);
             custparam_params['selector_number'] = selector_number;
@@ -71,17 +89,35 @@
                   break;
             }
 
+            
+
+            body += 'MP Ticket Issue: ' + issue + ' <br>';
+            if (!isNullorEmpty(comment)) {
+                body += 'Description: ' + comment + ' <br>'; 
+
+            } else {
+                body += 'Description:  <br>'; 
+            }
+            var ticket_url = url + "&custparam_params=" + encodeURIComponent(JSON.stringify(custparam_params));
+
             body += '<a href="' + ticket_url + '"> Open ticket page </a><br>';
             body += 'Next reminder time: ' + getNextReminderTime() + ' <br>';
 
-            var ticket_url = url + "&custparam_params=" + encodeURIComponent(JSON.stringify(custparam_params));
-  
-            email.send({
-                author: 112209,
-                body: body,
-                recipients: ['sruti.desai@mailplus.com.au'],
-                subject: subject,
-            });
+            var subject = 'MPSD' + ticket_id + ' - Customer Issue Ticket Reminder';
+
+            // email.send({
+            //     author: 112209,
+            //     body: body,
+            //     recipients: ['sruti.desai@mailplus.com.au'],
+            //     subject: subject,
+            // });
+             email.send({
+                 author: 112209,
+                 body: body,
+                 recipients: ['rianne.mansell@mailplus.com.au'],
+                 subject: subject,
+                 cc: ['ankith.ravindran@mailplus.com.au'],
+             });
             return true;
          });
          
@@ -91,11 +127,14 @@
          });
      }
 
+     function isNullorEmpty(strVal) {
+        return (strVal == null || strVal == '' || strVal == 'null' || strVal == undefined || strVal == 'undefined' || strVal == '- None -');
+    }
      function getNextReminderTime() {
         var today = new Date();
 
         //Adding 19 hours to PST will give Australia/ Sydney timezone
-        today.setHours(today.getHours() + 19);
+        today.setHours(today.getHours() + 17);
         var currentHours = today.getHours();
         log.debug({ title: 'currentHours + 2', details: currentHours + 2 });
         if (currentHours + 2 > 16) {

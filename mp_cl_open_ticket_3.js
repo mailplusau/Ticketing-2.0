@@ -704,6 +704,23 @@
                 type: 'customrecord_mp_ticket',
                 id: parseInt(ticket_id),
             });
+            var interaction_count_by_phone = $('#interaction_count_by_phone').val();
+            var interaction_count_by_email = $('#interaction_count_by_email').val();
+            var customer_number = $('#customer_number_value').val().trim();
+            var creator_id = ticketRecord.getValue({fieldId: 'custrecord_creator'});
+            var escalated_to_it = ticketRecord.getValue({ fieldId: 'custrecord_date_escalated_it' });
+            var first_interaction = ticketRecord.getValue({ fieldId: 'custrecord_first_interaction_date' });
+
+            if (isNullorEmpty(customer_number) && creator_id == 112209 && !isNullorEmpty(escalated_to_it) && selector_type == "customer_issue" && !isNullorEmpty(ticket_id)) {
+                console.log('Enter customer number before Escalation');
+                showAlert('Please enter a Customer Number');
+                return false;
+            } else if (isNullorEmpty(first_interaction) && interaction_count_by_phone == 0 && interaction_count_by_email == 0) {
+                console.log('Incrememnt interaction count before Escalation');
+                showAlert('Please Interact with Customer before Escalation');
+                return false;
+            }
+
             ticketRecord.setValue({fieldId: 'custrecord_ticket_status', value: 10});
             var owner_list = ['409635'];
             $('#owner').selectpicker('val', owner_list);
@@ -713,8 +730,13 @@
                 ignoreMandatoryFields: true
             });
             var subject = 'MPSD' + ticket_id + ' - Customer Issue Ticket Escalated';
+            var customer_id = ticketRecord.getValue({fieldId: 'custrecord_customer1'});
+            var login_email = ticketRecord.getText({fieldId: 'custrecord_login_email'});
             
             sendCustomerTicketEmail(subject, parseInt(ticket_id), customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), $('#os_value option:selected').text(), $('#login_email_text').val(), '', '', ["ankith.ravindran@mailplus.com.au"]);
+            if (!isNullorEmpty(login_email)) {
+                sendCustomerEscalateEmail('MailPlus [MPSD' + parseInt(ticket_id) + '] - Your IT ticket has been escalated - Customer Portal', [login_email], 120, customer_id);
+            }
 
             var output = url.resolveScript({
                 deploymentId: 'customdeploy_sl_edit_ticket_2',
@@ -4641,23 +4663,44 @@
       function closeTicket(selector_type, status_num) {
           
           if (confirm("Are you sure you want to close this ticket?\n\nThis action cannot be undone.")) {
-              updateSaveRecord();
               var date = new Date;
               var dnow = format.parse({ value: date, type: format.Type.DATETIMETZ });
 
               var ticket_id = currRec.getValue({ fieldId: 'custpage_ticket_id' });
               ticket_id = parseInt(ticket_id);
               var ticketRecord = record.load({ type: 'customrecord_mp_ticket', id: ticket_id });
+              var customer_id = ticketRecord.getValue({fieldId: 'custrecord_customer1'});
+              var login_email = ticketRecord.getText({fieldId: 'custrecord_login_email'});
+              var customer_number = $('#customer_number_value').val().trim();
+
+              var creator_id = ticketRecord.getValue({fieldId: 'custrecord_creator'});
+              var escalated_to_it = ticketRecord.getValue({ fieldId: 'custrecord_date_escalated_it' });
+              if (isNullorEmpty(customer_number) && creator_id == 112209 && !isNullorEmpty(escalated_to_it) && selector_type == "customer_issue" && !isNullorEmpty(ticket_id)) {
+                console.log('CUSTOMER NUMBER MISSING');
+                showAlert('Please enter a Customer Number');
+                return false;
+              }
+                 
+              updateSaveRecord();
+              
               ticketRecord.setValue({ fieldId: 'custrecord_date_closed', value: dnow });
 
               if (isNullorEmpty(status_num)) {
                 if (selector_type == "customer_issue") {
-                    ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 16 });
+                    ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 15 });
+                    sendCustomerEscalateEmail('MailPlus [MPSD' + ticket_id + '] - Your IT ticket has been resolved - Customer Portal', [login_email], 121, customer_id);
+
                 } else {
                     ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 3 });
                 }
               } else {
-                ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: status_num });
+                  if (status_num == 15) {
+                    sendCustomerEscalateEmail('MailPlus [MPSD' + ticket_id + '] - Your IT ticket has been resolved - Customer Portal', [login_email], 121, customer_id);
+                    ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: status_num });
+                  } else {
+                    ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: status_num });
+                  }
+
               }
               
               ticketRecord.setValue({ fieldId: 'custrecord_mp_ticket_customer_status', value: 5 });
