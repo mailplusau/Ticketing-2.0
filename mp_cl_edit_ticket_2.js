@@ -162,6 +162,7 @@
                             }
                         }];
                         
+                        var order = [[3, "desc"]];
                         var select = {
                             style: 'multi',
                         };
@@ -212,6 +213,7 @@
                             }
                         }];
 
+                        var order = [[1, "desc"]];
                         break;
 
                     case 'customers':
@@ -255,6 +257,7 @@
                                 return '<button class="btn ' + button_style + ' btn - sm edit_class glyphicon ' + icon + '" type="button" data-toggle="tooltip" data-placement="right" title="' + title + '"></button>';
                             }
                         }];
+                        var order = [[1, "desc"]];
                         break;
 
                 }
@@ -264,7 +267,7 @@
                     orderCellsTop: true,
                     fixedHeader: true,
                     columns: columns,
-                    order: [[2, "desc"]],
+                    order: order,
                     columnDefs: columnDefs,
                     select: select,
                     pageLength: 100,
@@ -411,8 +414,10 @@
                     case 'tickets-preview-barcodes':
                         var date_created_column_nb = 3;
                         break;
-
                     case 'tickets-preview-invoices':
+                        var date_created_column_nb = 1;
+                        break;
+                    case 'tickets-preview-customers':
                         var date_created_column_nb = 1;
                         break;
 
@@ -887,17 +892,18 @@
         } else if (!isNullorEmpty(invoice_number)) {
             return 'invoice';
         } else {
-            var re_barcode = /^MPE/;
+            var re_barcode = /^MP/;
             var re_invoice = /^INV/;
             var ticket_name = ticketResult.getValue('altname');
-            if (ticket_name.match(re_barcode)) {
-                return 'barcode';
-            } else if (ticket_name.match(re_invoice)) {
+            // if (ticket_name.match(re_barcode)) {
+            //     return 'barcode';
+            // } else 
+            if (ticket_name.match(re_invoice)) {
                 return 'invoice';
             } else if (ticket_name == "Customer App" || ticket_name == "Customer Portal" || ticket_name == "Update Label"){
                 return 'customer';
             }  else {
-                return '';
+                return 'barcode';
             }
         }
     }

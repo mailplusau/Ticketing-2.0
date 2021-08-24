@@ -4665,7 +4665,9 @@
           if (confirm("Are you sure you want to close this ticket?\n\nThis action cannot be undone.")) {
               var date = new Date;
               var dnow = format.parse({ value: date, type: format.Type.DATETIMETZ });
-
+              if (selector_type != "customer_issue") {
+                updateSaveRecord();
+              }
               var ticket_id = currRec.getValue({ fieldId: 'custpage_ticket_id' });
               ticket_id = parseInt(ticket_id);
               var ticketRecord = record.load({ type: 'customrecord_mp_ticket', id: ticket_id });
@@ -4679,9 +4681,10 @@
                 console.log('CUSTOMER NUMBER MISSING');
                 showAlert('Please enter a Customer Number');
                 return false;
+              } else if (selector_type == "customer_issue") {
+                updateSaveRecord();
               }
                  
-              updateSaveRecord();
               
               ticketRecord.setValue({ fieldId: 'custrecord_date_closed', value: dnow });
 
