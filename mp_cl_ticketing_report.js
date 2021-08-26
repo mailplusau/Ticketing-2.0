@@ -55,11 +55,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     data: tableDataSet,
                     pageLength: 100,
                     order: [
-                        [6, 'desc']
+                        [5, 'desc']
                     ],
                     columns: [{
-                        title: 'LINK'
-                    }, {
                         title: 'Customer Name',
                     }, {
                         title: 'Franchisee'
@@ -79,11 +77,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     data: tableDataSet,
                     pageLength: 100,
                     order: [
-                        [5, 'desc']
+                        [4, 'desc']
                     ],
                     columns: [{
-                        title: 'LINK'
-                    }, {
                         title: 'Franchisee',
                     }, {
                         title: 'Number of Open Tickets'
@@ -140,14 +136,23 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
         }
 
         function overviewChart(date_from, date_to) {
-            var cnt_set_created = [];
             var date_set_created = [];
-            var progress_data = {};
-            var source_sender_data = {};
+
+            var cnt_set_created = [];
+            var cnt_set_prog = [];
+            var cnt_set_open = [];
             var cnt_set_closed = [];
             var cnt_set_cust = [];
             var cnt_set_zee = [];
-
+            
+            var created_obj = {};
+            var closed_obj = {};
+            var progress_obj = {};
+            var open_obj = {};
+            var cust_obj = {};
+            var zee_obj = {};
+            
+            var source_sender_data = {};
 
             var ticketCreatedRes = search.load({
                 type: 'customrecord_mp_ticket',
@@ -190,21 +195,29 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     summary: "COUNT",
                 });
 
-                cnt_set_created.push(parseInt(ticketsCount));
                 if (!(date_set_created.includes(dateCreated))) {
                     date_set_created.push(dateCreated);
+                    date_set_created.sort(function(a,b) {
+                      var aComps = a.split("/");
+                      var bComps = b.split("/");
+                      var aDate = new Date(aComps[2], aComps[1], aComps[0]);
+                      var bDate = new Date(bComps[2], bComps[1], bComps[0]);
+                      return aDate.getTime() - bDate.getTime();
+                  });
+                  
                 }
-                progress_data[dateCreated] = 0;
-                source_sender_data[dateCreated] = 0;
-
-                cnt_set_cust.push(parseInt(custCount));
-                cnt_set_zee.push(parseInt(zeeCount));
+                cnt_set_created.push([date_set_created.indexOf(dateCreated), parseInt(ticketsCount)]);
+                cnt_set_cust.push([date_set_created.indexOf(dateCreated), parseInt(custCount)]);
+                cnt_set_zee.push([date_set_created.indexOf(dateCreated), parseInt(zeeCount)]);
+                created_obj[dateCreated] = parseInt(ticketsCount);
+                cust_obj[dateCreated] = parseInt(custCount);
+                zee_obj[dateCreated] = parseInt(zeeCount);
 
                 return true;
             
             });    
-            
-            var open_data = progress_data;
+            console.log('date_set_created 1', date_set_created);  
+
             // Tickets Closed
             var ticketClosedRes = search.load({
                 type: 'customrecord_mp_ticket',
@@ -229,9 +242,23 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     name: 'name',
                     summary: 'COUNT'
                 });
-
-                cnt_set_closed.push(parseInt(ticketsCount));
-
+                var dateCreated = ticket.getValue({
+                    name: 'custrecord_date_closed',
+                    summary: 'GROUP'
+                });
+                if (!(date_set_created.includes(dateCreated))) {
+                    date_set_created.push(dateCreated);
+                    date_set_created.sort(function(a,b) {
+                        var aComps = a.split("/");
+                        var bComps = b.split("/");
+                        var aDate = new Date(aComps[2], aComps[1], aComps[0]);
+                        var bDate = new Date(bComps[2], bComps[1], bComps[0]);
+                        return aDate.getTime() - bDate.getTime();
+                    });
+                }
+                cnt_set_closed.push([date_set_created.indexOf(dateCreated), parseInt(ticketsCount)]);
+                closed_obj[dateCreated] = parseInt(ticketsCount);
+    
                 return true;
             
             }); 
@@ -244,13 +271,13 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
             if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
                 ticketProgressRes.filters.push(search.createFilter({
-                    name: "created",
+                    name: "lastmodified",
                     operator: search.Operator.ONORAFTER,
                     values: date_from,
                 }));
     
                 ticketProgressRes.filters.push(search.createFilter({
-                    name: "created",
+                    name: "lastmodified",
                     operator: search.Operator.ONORBEFORE,
                     values: date_to,
                 }));
@@ -260,21 +287,20 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     name: 'name',
                     summary: 'COUNT'
                 });
-                var ticketsDate = ticket.getValue({
+                var dateCreated = ticket.getValue({
                     name: "lastmodified",
                     summary: "GROUP",
                 });
-                if (ticketsDate in progress_data) {
-                    progress_data[ticketsDate] += parseInt(ticketsCount); 
-
-                } else {
-                    progress_data[ticketsDate] = parseInt(ticketsCount); 
+                if (!(date_set_created.includes(dateCreated))) {
+                    date_set_created.push(dateCreated);
                 }
+                cnt_set_prog.push([date_set_created.indexOf(dateCreated), parseInt(ticketsCount)]);
+    
+                progress_obj[dateCreated] = parseInt(ticketsCount);
+    
                 return true;
             
             }); 
-
-            var cnt_set_progress = Object.values(progress_data);
 
             // Open Tickets
             var ticketOpenRes = search.load({
@@ -284,13 +310,13 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
             if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
                 ticketOpenRes.filters.push(search.createFilter({
-                    name: "created",
+                    name: "lastmodified",
                     operator: search.Operator.ONORAFTER,
                     values: date_from,
                 }));
     
                 ticketOpenRes.filters.push(search.createFilter({
-                    name: "created",
+                    name: "lastmodified",
                     operator: search.Operator.ONORBEFORE,
                     values: date_to,
                 }));
@@ -301,22 +327,24 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     name: 'name',
                     summary: 'COUNT'
                 });
-                var ticketsDate = ticket.getValue({
+                var dateCreated = ticket.getValue({
                     name: "lastmodified",
                     summary: "GROUP",
                 });
-                if (ticketsDate in open_data) {
-                    open_data[ticketsDate] += parseInt(ticketsCount); 
-                } else {
-                    open_data[ticketsDate] = parseInt(ticketsCount); 
+                if (!(date_set_created.includes(dateCreated))) {
+                    date_set_created.push(dateCreated);
                 }
+                cnt_set_open.push([date_set_created.indexOf(dateCreated), parseInt(ticketsCount)]);
+    
+                open_obj[dateCreated] = parseInt(ticketsCount);
+    
 
                 return true;
             
             }); 
 
-            var cnt_set_open = Object.values(open_data);
             var colors = Highcharts.getOptions().colors;
+            var title = 'Ticketing Breakdown (' + date_set_created[0] + ' - ' + date_set_created[date_set_created.length - 1] + ')';
 
             Highcharts.chart('container', {
                 chart: {
@@ -324,11 +352,20 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     zoomType: 'xy'
                 },
                 legend: {
-                    symbolWidth: 40
+                    align: 'right',
+                    x: -30,
+                    verticalAlign: 'top',
+                    y: 25,
+                    floating: true,
+                    backgroundColor:
+                        Highcharts.defaultOptions.legend.backgroundColor || 'white',
+                    borderColor: '#CCC',
+                    borderWidth: 1,
+                    shadow: false
                 },
 
                 title: {
-                    text: 'Ticketing Breakdown'
+                    text: title
                 },
 
                 yAxis: {
@@ -342,10 +379,10 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
                 xAxis: {
                     title: {
-                        text: 'Last 12 months'
+                        text: 'Weeks'
                     },
                     accessibility: {
-                        description: 'Last 12 months'
+                        description: 'Weeks'
                     },
                     style: {
                         fontWeight: 'bold',
@@ -404,7 +441,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     }, 
                     {
                         name: 'In Progress Tickets',
-                        data: cnt_set_progress,
+                        data: cnt_set_prog,
                         dashStyle: 'ShortDot',
                         color: colors[6],
                         type: 'spline'
@@ -418,6 +455,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                             maxWidth: 550
                         },
                         chartOptions: {
+                            
                             legend: {
                                 itemWidth: 150
                             },
@@ -435,15 +473,20 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             var dataTable = $('#tickets-preview').DataTable();
             dataTable.clear();
             var tableDataSet = [];
-            date_set_created.forEach(function(date, index) {
-                var created = (isNullorEmpty(cnt_set_created[index])) ? 0 : cnt_set_created[index];
-                var closed = (isNullorEmpty(cnt_set_closed[index])) ? 0 : cnt_set_closed[index];
-                var progress = (isNullorEmpty(cnt_set_progress[index])) ? 0 : cnt_set_progress[index];
-                var open = (isNullorEmpty(cnt_set_open[index])) ? 0 : cnt_set_open[index];
-                var cust = (isNullorEmpty(cnt_set_cust[index])) ? 0 : cnt_set_cust[index];
-                var zee = (isNullorEmpty(cnt_set_zee[index])) ? 0 : cnt_set_zee[index];
-
-                tableDataSet.push(['Link', dateCreated2DateSelectedFormat(date), created, closed, progress, open, cust, zee]);
+            date_set_created.forEach(function(date) {
+                var created = (isNullorEmpty(created_obj[date])) ? 0 : created_obj[date];
+                var closed = (isNullorEmpty(closed_obj[date])) ? 0 : closed_obj[date];
+                var progress = (isNullorEmpty(progress_obj[date])) ? 0 : progress_obj[date];
+                var open = (isNullorEmpty(open_obj[date])) ? 0 : open_obj[date];
+                var cust = (isNullorEmpty(cust_obj[date])) ? 0 : cust_obj[date];
+                var zee = (isNullorEmpty(zee_obj[date])) ? 0 : zee_obj[date];
+                
+                var link1 = '<a href=\'https://1048144.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1306&deploy=1&compid=1048144&custparam_params={"date_from":"' + getWeekStart(date) + '","date_to":"' + getWeekEnd(date) + '"}\' target=_blank>VIEW (per day)</a> ';
+                var link2 = '<a href=\'https://1048144.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1301&deploy=1&compid=1048144&custparam_params={"date_from":"' + getMonthStart(date) + '","date_to":"' + getMonthEnd(date) + '"}\' target=_blank>VIEW (per month)</a> ';
+                var link3 = '<a href=\'https://1048144.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1304&deploy=1&compid=1048144&custparam_params={"date_from":"' + getYearStart(date) + '","date_to":"' + getYearEnd(date) + '"}\' target=_blank>VIEW (per year)</a> ';
+  
+                var link = link1 + link2 + link3;
+                tableDataSet.push([link, dateCreated2DateSelectedFormat(date), created, closed, progress, open, cust, zee]);
             });
              
             dataTable.rows.add(tableDataSet);
@@ -625,6 +668,18 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                         overflow: 'justify'
                     }
                 },
+                legend: {
+                    align: 'right',
+                    x: -30,
+                    verticalAlign: 'top',
+                    y: 25,
+                    floating: true,
+                    backgroundColor:
+                        Highcharts.defaultOptions.legend.backgroundColor || 'white',
+                    borderColor: '#CCC',
+                    borderWidth: 1,
+                    shadow: false
+                },
                 tooltip: {
                     valueSuffix: ' tickets',
                     shared: true
@@ -676,7 +731,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 var closed = (cust in cust_clo_obj) ? cust_clo_obj[cust] : 0;
                 var total = open + progress + closed;
 
-                tableDataSet.push(['Link', cust_link, cust_zee[index], open, progress, closed, total]);
+                tableDataSet.push([cust_link, cust_zee[index], open, progress, closed, total]);
             });
              
             dataTable.rows.add(tableDataSet);
@@ -725,6 +780,18 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     labels: {
                         overflow: 'justify'
                     }
+                },
+                legend: {
+                    align: 'right',
+                    x: -30,
+                    verticalAlign: 'top',
+                    y: 25,
+                    floating: true,
+                    backgroundColor:
+                        Highcharts.defaultOptions.legend.backgroundColor || 'white',
+                    borderColor: '#CCC',
+                    borderWidth: 1,
+                    shadow: false
                 },
                 tooltip: {
                     valueSuffix: ' tickets',
@@ -777,7 +844,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 var closed = (zee_set_chart[key] in zee_count_clo) ? zee_count_clo[zee_set_chart[key]] : 0;
                 var total = open + progress + closed;
 
-                tableDataSet2.push(['Link', zee_set_chart[key], open, progress, closed, total]);
+                tableDataSet2.push([zee_set_chart[key], open, progress, closed, total]);
             }
         
             dataTable2.rows.add(tableDataSet2);
@@ -842,6 +909,19 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     operator: search.Operator.ONORBEFORE,
                     values: date_to,
                 }));
+            } else {
+                staffSearch.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORAFTER,
+                    values: getFirstDay(),
+                }));
+    
+                staffSearch.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORBEFORE,
+                    values: getLastDay(),
+                }));
+
             }
 
             var dateSet = [];
@@ -1084,12 +1164,22 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                         text: 'Number of Tickets'
                     }
                 },
+                legend: {
+                    align: 'right',
+                    x: -30,
+                    verticalAlign: 'top',
+                    y: 25,
+                    floating: true,
+                    backgroundColor:
+                        Highcharts.defaultOptions.legend.backgroundColor || 'white',
+                    borderColor: '#CCC',
+                    borderWidth: 1,
+                    shadow: false
+                },
                 tooltip: {
                     shared: true
                 },
-                legend: {
-                    enabled: true
-                },
+                
         
                 plotOptions: {
                 column: {stacking: 'normal'},
@@ -1152,8 +1242,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 id: 'customsearch_ticket_source_report_week'
             });
 
-            
+            var title = 'Sender vs Receiver Breakdown (' + getFirstDay() + ' - ' + getLastDay() + ')';
             if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+                title = 'Sender vs Receiver Breakdown (' + date_from + ' - ' + date_to + ')';
                 ticketSourceRes.filters.push(search.createFilter({
                     name: "created",
                     operator: search.Operator.ONORAFTER,
@@ -1165,6 +1256,19 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     operator: search.Operator.ONORBEFORE,
                     values: date_to,
                 }));
+            } else {
+                ticketSourceRes.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORAFTER,
+                    values: getFirstDay(),
+                }));
+    
+                ticketSourceRes.filters.push(search.createFilter({
+                    name: "created",
+                    operator: search.Operator.ONORBEFORE,
+                    values: getLastDay(),
+                }));
+
             }
 
             ticketSourceRes.run().each(function(ticket) {
@@ -1234,7 +1338,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     zoomType: 'xy'
                 },
                 title: {
-                    text: 'Sender vs Receiver Breakdown'
+                    text: title
                 },
                 xAxis: {
                     categories: date_set
@@ -1348,6 +1452,56 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
             var lastday = new Date(curr.setDate(last));
             return convertDate(lastday);
+
+        }
+
+        function getWeekStart(date) {
+            //return convertDate(new Date(date.setDate(date.getDate() - date.getDay())));
+            console.log('date', date);
+
+            date = new Date(dateCreated2DateSelectedFormat(date));
+            var first = date.getDate() - date.getDay(); // First day is the day of the month - the day of the week
+            
+            var firstday = new Date(date.setDate(first));
+            console.log('first', first);
+            console.log('date1', date);
+            console.log('firstday', firstday);
+            console.log('convertDate(firstday)', convertDate(firstday));
+
+            return convertDate(firstday);
+        }
+
+        function getWeekEnd(date) {
+            var curr = new Date(dateCreated2DateSelectedFormat(date)); // get current date
+            var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+            var last = first + 6; // last day is the first day + 6
+            
+            var lastday = new Date(curr.setDate(last));
+            return convertDate(lastday);
+        
+
+        }
+
+        function getMonthStart(date) {
+            date = new Date(dateCreated2DateSelectedFormat(date)); // get current date
+
+            return convertDate (new Date(date.getFullYear(), date.getMonth(), 1));
+        }
+
+        function getMonthEnd(date) {
+            date = new Date(dateCreated2DateSelectedFormat(date)); // get current date
+            return convertDate(new Date(date.getFullYear(), date.getMonth() + 1, 0));
+
+        }
+    
+        function getYearStart(date) {
+            date = new Date(dateCreated2DateSelectedFormat(date)); // get current date
+            return convertDate(new Date(date.getFullYear(), 0, 1));
+        }
+
+        function getYearEnd(date) {
+            date = new Date(dateCreated2DateSelectedFormat(date)); // get current date
+            return convertDate(new Date(date.getFullYear(), 11, 31));
 
         }
 

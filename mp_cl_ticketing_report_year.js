@@ -33,7 +33,7 @@
                   columns: [{
                       title: 'LINK'
                   }, {
-                      title: 'Day',
+                      title: 'Year',
                       type: "date"
                   }, {
                       title: 'Tickets Created'
@@ -126,8 +126,8 @@
                   };
                   params = JSON.stringify(params);
                   var output = url.resolveScript({
-                      deploymentId: 'customdeploy_sl_ticketing_report_day',
-                      scriptId: 'customscript_sl_ticketing_report_day',
+                      deploymentId: 'customdeploy_sl_ticketing_report_year',
+                      scriptId: 'customscript_sl_ticketing_report_year',
                   });
                   var upload_url = baseURL + output + '&custparam_params=' + params;
                   window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
@@ -136,31 +136,31 @@
       }
 
       function overviewChart(date_from, date_to) {
-          var date_set_created = [];
+        var date_set_created = [];
 
-          var cnt_set_created = [];
-          var cnt_set_prog = [];
-          var cnt_set_open = [];
-          var cnt_set_closed = [];
-          var cnt_set_cust = [];
-          var cnt_set_zee = [];
+        var cnt_set_created = [];
+        var cnt_set_prog = [];
+        var cnt_set_open = [];
+        var cnt_set_closed = [];
+        var cnt_set_cust = [];
+        var cnt_set_zee = [];
 
-          var created_obj = {};
-          var closed_obj = {};
-          var progress_obj = {};
-          var open_obj = {};
-          var cust_obj = {};
-          var zee_obj = {};
+        var created_obj = {};
+        var closed_obj = {};
+        var progress_obj = {};
+        var open_obj = {};
+        var cust_obj = {};
+        var zee_obj = {};
+
+        var source_sender_data = {};
+
 
           var ticketCreatedRes = search.load({
               type: 'customrecord_mp_ticket',
-              id: 'customsearch_ticket_created_report_day'
+              id: 'customsearch_ticket_created_report_year'
           });          
 
-          
-          
           if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
-              var title = 'Ticketing Breakdown (' + date_from + ' - ' + date_to + ')';
               ticketCreatedRes.filters.push(search.createFilter({
                   name: "created",
                   operator: search.Operator.ONORAFTER,
@@ -172,21 +172,6 @@
                   operator: search.Operator.ONORBEFORE,
                   values: date_to,
               }));
-          } else {
-                var date = new Date();
-                ticketCreatedRes.filters.push(search.createFilter({
-                    name: "created",
-                    operator: search.Operator.ONORAFTER,
-                    values: convertDate(new Date(date.setDate(date.getDate() - date.getDay()))),
-                }));
-                
-                ticketCreatedRes.filters.push(search.createFilter({
-                    name: "created",
-                    operator: search.Operator.ONORBEFORE,
-                    values: convertDate(new Date()),
-                }));
-                var title = 'Ticketing Breakdown (' + convertDate(new Date(date.setDate(date.getDate() - date.getDay()))) + ' - ' + convertDate(new Date()) + ')';               
-                          
           }
           
 
@@ -210,18 +195,18 @@
                   join: "CUSTRECORD_ZEE",
                   summary: "COUNT",
               });
+
               if (!(date_set_created.includes(dateCreated))) {
-                  date_set_created.push(dateCreated);
-                  date_set_created.sort(function(a,b) {
-                    var aComps = a.split("/");
-                    var bComps = b.split("/");
-                    var aDate = new Date(aComps[2], aComps[1], aComps[0]);
-                    var bDate = new Date(bComps[2], bComps[1], bComps[0]);
-                    return aDate.getTime() - bDate.getTime();
-                });
-                
+                date_set_created.push(dateCreated);
+                date_set_created.sort(function(a,b) {
+                  var aComps = a.split("/");
+                  var bComps = b.split("/");
+                  var aDate = new Date(aComps[2], aComps[1], aComps[0]);
+                  var bDate = new Date(bComps[2], bComps[1], bComps[0]);
+                  return aDate.getTime() - bDate.getTime();
+              });
+              
               }
-              console.log('dateCreated', dateCreated);
               cnt_set_created.push([date_set_created.indexOf(dateCreated), parseInt(ticketsCount)]);
               cnt_set_cust.push([date_set_created.indexOf(dateCreated), parseInt(custCount)]);
               cnt_set_zee.push([date_set_created.indexOf(dateCreated), parseInt(zeeCount)]);
@@ -229,15 +214,16 @@
               cust_obj[dateCreated] = parseInt(custCount);
               zee_obj[dateCreated] = parseInt(zeeCount);
 
+
               return true;
           
-          });  
-          console.log('date_set_created 1', date_set_created);  
+          });    
           
+
           // Tickets Closed
           var ticketClosedRes = search.load({
               type: 'customrecord_mp_ticket',
-              id: 'customsearch_ticket_closed_report_day'
+              id: 'customsearch_ticket_closed_report_year'
           });
 
           if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
@@ -252,30 +238,18 @@
                   operator: search.Operator.ONORBEFORE,
                   values: date_to,
               }));
-          } else {
-            var date = new Date();
-            ticketClosedRes.filters.push(search.createFilter({
-                name: "custrecord_date_closed",
-                operator: search.Operator.ONORAFTER,
-                values: convertDate(new Date(date.setDate(date.getDate() - date.getDay()))),
-            }));
-
-            ticketClosedRes.filters.push(search.createFilter({
-                name: "custrecord_date_closed",
-                operator: search.Operator.ONORBEFORE,
-                values: convertDate(new Date()),
-            }));
-                      
           }
           ticketClosedRes.run().each(function(ticket) {
               var ticketsCount = ticket.getValue({
                   name: 'name',
                   summary: 'COUNT'
               });
+
               var dateCreated = ticket.getValue({
                 name: 'custrecord_date_closed',
                 summary: 'GROUP'
-            });
+              });
+
               if (!(date_set_created.includes(dateCreated))) {
                 date_set_created.push(dateCreated);
                 date_set_created.sort(function(a,b) {
@@ -289,6 +263,7 @@
               cnt_set_closed.push([date_set_created.indexOf(dateCreated), parseInt(ticketsCount)]);
               closed_obj[dateCreated] = parseInt(ticketsCount);
 
+
               return true;
           
           }); 
@@ -296,7 +271,7 @@
           // Tickets Progress
           var ticketProgressRes = search.load({
               type: 'customrecord_mp_ticket',
-              id: 'customsearch_ticket_prog_report_day'
+              id: 'customsearch_ticket_prog_report_year'
           });
 
           if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
@@ -311,20 +286,6 @@
                   operator: search.Operator.ONORBEFORE,
                   values: date_to,
               }));
-          } else {
-            var date = new Date();
-            ticketProgressRes.filters.push(search.createFilter({
-                name: "lastmodified",
-                operator: search.Operator.ONORAFTER,
-                values: convertDate(new Date(date.setDate(date.getDate() - date.getDay()))),
-            }));
-
-            ticketProgressRes.filters.push(search.createFilter({
-                name: "lastmodified",
-                operator: search.Operator.ONORBEFORE,
-                values: convertDate(new Date()),
-            }));
-                      
           }
           ticketProgressRes.run().each(function(ticket) {
               var ticketsCount = ticket.getValue({
@@ -346,10 +307,11 @@
           
           }); 
 
+
           // Open Tickets
           var ticketOpenRes = search.load({
               type: 'customrecord_mp_ticket',
-              id: 'customsearch_ticket_open_report_day'
+              id: 'customsearch_ticket_open_report_year'
           });
 
           if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
@@ -364,19 +326,6 @@
                   operator: search.Operator.ONORBEFORE,
                   values: date_to,
               }));
-          } else {
-            ticketOpenRes.filters.push(search.createFilter({
-                name: "lastmodified",
-                operator: search.Operator.ONORAFTER,
-                values: convertDate(new Date(date.setDate(date.getDate() - date.getDay()))),
-            }));
-
-            ticketOpenRes.filters.push(search.createFilter({
-                name: "lastmodified",
-                operator: search.Operator.ONORBEFORE,
-                values: convertDate(new Date()),
-            }));
-
           }
 
           ticketOpenRes.run().each(function(ticket) {
@@ -395,19 +344,31 @@
 
               open_obj[dateCreated] = parseInt(ticketsCount);
 
+
               return true;
           
           }); 
-          
+
           var colors = Highcharts.getOptions().colors;
+          var title = 'Ticketing Breakdown (' + date_set_created[0] + ' - ' + date_set_created[date_set_created.length - 1] + ')';
+
           Highcharts.chart('container', {
               chart: {
                   height: (9 / 16 * 100) + '%',
                   zoomType: 'xy'
               },
               legend: {
-                  symbolWidth: 40
-              },
+                align: 'right',
+                x: -30,
+                verticalAlign: 'top',
+                y: 25,
+                floating: true,
+                backgroundColor:
+                    Highcharts.defaultOptions.legend.backgroundColor || 'white',
+                borderColor: '#CCC',
+                borderWidth: 1,
+                shadow: false
+            },
 
               title: {
                   text: title
@@ -424,10 +385,10 @@
 
               xAxis: {
                   title: {
-                      text: 'Days'
+                      text: 'Years'
                   },
                   accessibility: {
-                      description: 'Days'
+                      description: 'Years'
                   },
                   style: {
                       fontWeight: 'bold',
@@ -437,18 +398,7 @@
               tooltip: {
                   shared: true
               },
-              legend: {
-                align: 'right',
-                x: -30,
-                verticalAlign: 'top',
-                y: 25,
-                floating: true,
-                backgroundColor:
-                    Highcharts.defaultOptions.legend.backgroundColor || 'white',
-                borderColor: '#CCC',
-                borderWidth: 1,
-                shadow: false
-            },
+
               plotOptions: {
                   series: {
                       cursor: 'pointer',
@@ -504,13 +454,14 @@
                   }, 
 
               ],
-            
+
               responsive: {
                   rules: [{
                       condition: {
                           maxWidth: 550
                       },
                       chartOptions: {
+                          
                           legend: {
                               itemWidth: 150
                           },
@@ -528,23 +479,25 @@
           var dataTable = $('#tickets-preview').DataTable();
           dataTable.clear();
           var tableDataSet = [];
-         
+          var tableDataSet = [];
           date_set_created.forEach(function(date) {
-              
               var created = (isNullorEmpty(created_obj[date])) ? 0 : created_obj[date];
               var closed = (isNullorEmpty(closed_obj[date])) ? 0 : closed_obj[date];
               var progress = (isNullorEmpty(progress_obj[date])) ? 0 : progress_obj[date];
               var open = (isNullorEmpty(open_obj[date])) ? 0 : open_obj[date];
               var cust = (isNullorEmpty(cust_obj[date])) ? 0 : cust_obj[date];
               var zee = (isNullorEmpty(zee_obj[date])) ? 0 : zee_obj[date];
-
-              var link1 = '<a href=\'https://1048144.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1289&deploy=1&compid=1048144&custparam_params={"date_from":"' + getWeekStart(date) + '","date_to":"' + getWeekEnd(date) + '"}\' target=_blank>VIEW (per week)</a> ';
-              var link2 = '<a href=\'https://1048144.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1301&deploy=1&compid=1048144&custparam_params={"date_from":"' + getMonthStart(date) + '","date_to":"' + getMonthEnd(date) + '"}\' target=_blank>VIEW (per month)</a> ';
-              var link3 = '<a href=\'https://1048144.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1304&deploy=1&compid=1048144&custparam_params={"date_from":"' + getYearStart(date) + '","date_to":"' + getYearEnd(date) + '"}\' target=_blank>VIEW (per year)</a> ';
+            
+              var link1 = '<a href=\'https://1048144.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1306&deploy=1&compid=1048144&custparam_params={"date_from":"' + getYearStart(date) + '","date_to":"' + getYearEnd(date) + '"}\' target=_blank>VIEW (per day)</a> ';
+              var link2 = '<a href=\'https://1048144.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1289&deploy=1&compid=1048144&custparam_params={"date_from":"' + getYearStart(date) + '","date_to":"' + getYearEnd(date) + '"}\' target=_blank>VIEW (per week)</a> ';
+              var link3 = '<a href=\'https://1048144.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1301&deploy=1&compid=1048144&custparam_params={"date_from":"' + getYearStart(date) + '","date_to":"' + getYearEnd(date) + '"}\' target=_blank>VIEW (per month)</a> ';
 
               var link = link1 + link2 + link3;
+              if (isNullorEmpty(date)) {
 
-              tableDataSet.push([link, dateCreated2DateSelectedFormat(date), created, closed, progress, open, cust, zee]);
+              } else {
+                tableDataSet.push([link, dateCreated2DateSelectedFormat(date), created, closed, progress, open, cust, zee]);
+              }
           });
            
           dataTable.rows.add(tableDataSet);
@@ -590,8 +543,8 @@
           // Open = 1
           // In Progress = 2 CS, 4 IT 
 
-          var title = 'Number of Tickets per Customer (' + getFirstDay() + ')';
-          var title2 = 'Number of Tickets per Zee (' + getFirstDay() + ')';
+          var title = 'Number of Tickets per Customer (' + getFirstDay() + ' - ' + getLastDay() + ')';
+          var title2 = 'Number of Tickets per Zee (' + getFirstDay() + ' - ' + getLastDay() + ')';
           if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
               title = 'Number of Tickets per Customer (' + date_from + ' - ' + date_to + ')';
               title2 = 'Number of Tickets per Zee (' + date_from + ' - ' + date_to + ')';
@@ -946,10 +899,10 @@
           // Gab 1154991 
           var staffSearch = search.load({
               type: 'customrecord_mp_ticket',
-              id: 'customsearch_ticket_source3_report_day'
+              id: 'customsearch_ticket_source3_report_year'
           });  
 
-          var title = 'Staff Breakdown (' + getFirstDay() + ')';
+          var title = 'Staff Breakdown (' + getFirstDay() + ' - ' + getLastDay() + ')';
           var firstDate = getFirstDay();
           var lastDate = getLastDay();
           if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
@@ -988,14 +941,12 @@
                var date = ticket.getValue({ name: "created", summary: "GROUP" });
                var status = ticket.getValue({ name: "custrecord_ticket_status", summary: "GROUP" });
                var owner = ticket.getValue({ name: "owner", summary: "GROUP"});
-                console.log("dateee", date);
+
                if (!(dateSet.includes(date))) {
                   dateSet.push(date);
                }
                if (owner == 386344) {     // Jess
                    if (status == 1) {     // Open
-                     
-
                       if (firstCompare(date, firstDate) && secondCompare(date, lastDate)) {
                           jOpen += parseInt(cnt);
                       }
@@ -1116,7 +1067,7 @@
           }); 
 
           
-          console.log('jOpen', jOpen);
+
 
           console.log('jOpendata', jOpenData);
 
@@ -1234,8 +1185,7 @@
                     Highcharts.defaultOptions.legend.backgroundColor || 'white',
                 borderColor: '#CCC',
                 borderWidth: 1,
-                shadow: false,
-                enabled: true
+                shadow: false
             },
               tooltip: {
                   shared: true
@@ -1300,12 +1250,13 @@
           //Source
           var ticketSourceRes = search.load({
               type: 'customrecord_mp_ticket',
-              id: 'customsearch_ticket_source_report_day'
+              id: 'customsearch_ticket_source_report_year'
           });
 
-          
+          var title = 'Sender vs Receiver Breakdown (' + getFirstDay() + ' - ' + getLastDay() + ')';
+
           if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
-              var title = 'Sender vs Receiver Breakdown (' + date_from + ' - ' + date_to + ')';
+            var title = 'Sender vs Receiver Breakdown (' + date_from + ' - ' + date_to + ')';
               ticketSourceRes.filters.push(search.createFilter({
                   name: "created",
                   operator: search.Operator.ONORAFTER,
@@ -1318,7 +1269,6 @@
                   values: date_to,
               }));
           } else {
-            var title = 'Sender vs Receiver Breakdown (' + getFirstDay() + ')';
             ticketSourceRes.filters.push(search.createFilter({
                 name: "created",
                 operator: search.Operator.ONORAFTER,
@@ -1329,8 +1279,7 @@
                 name: "created",
                 operator: search.Operator.ONORBEFORE,
                 values: getLastDay(),
-            }));                          
-
+            }));
           }
 
           ticketSourceRes.run().each(function(ticket) {
@@ -1474,19 +1423,18 @@
 
       function dateCreated2DateSelectedFormat(date_created) {
           // date_created = '4/6/2020'
-          var date_array = date_created.split('/');
-          // date_array = ["4", "6", "2020"]
-          var day = date_array[0];
-          var month = date_array[1];
-          var year = date_array[2];
-          if (month < 10) {
-              month = '0' + month;
-          }
-          var day = date_array[0];
-          if (day < 10) {
-              day = '0' + day;
-          }
-          return year + '-' + month + '-' + day;
+        //   var date_array = date_created.split('-');
+        //   // date_array = ["4", "6", "2020"]
+        //   var year = date_array[0];
+        //   var month = date_array[1];
+        //   if (month < 10) {
+        //       month = '0' + month;
+        //   }
+        //   var day = date_array[0];
+        //   if (day < 10) {
+        //       day = '0' + day;
+        //   }
+          return date_created;
       }
 
       function convertDate(date) {
@@ -1499,74 +1447,30 @@
       }
 
       function getFirstDay() {
-          var date = new Date();
-          return convertDate(date);
+          var currentDate = new Date();
+          var firstDay = new Date(currentDate.getFullYear(), 0, 1);
+          return convertDate(firstDay);
       }
 
       
-      function getWeekStart(date) {
-        //return convertDate(new Date(date.setDate(date.getDate() - date.getDay())));
-        date = new Date(dateCreated2DateSelectedFormat(date));
-        var first = date.getDate() - date.getDay(); // First day is the day of the month - the day of the week
-
-        var firstday = new Date(date.setDate(first));
-        return convertDate(firstday);
-      }
-
-      function getWeekEnd(date) {
-        var curr = new Date(dateCreated2DateSelectedFormat(date)); // get current date
-        var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
-        var last = first + 6; // last day is the first day + 6
-        
-        var lastday = new Date(curr.setDate(last));
-        return convertDate(lastday);
-        
-
-      }
-
-      function getMonthStart(date) {
-        date = new Date(dateCreated2DateSelectedFormat(date)); // get current date
-
-        return convertDate (new Date(date.getFullYear(), date.getMonth(), 1));
-      }
-
-      function getMonthEnd(date) {
-        date = new Date(dateCreated2DateSelectedFormat(date)); // get current date
-        return convertDate(new Date(date.getFullYear(), date.getMonth() + 1, 0));
-
-      }
-
-        function getYearStart(date) {
-            date = new Date(dateCreated2DateSelectedFormat(date)); // get current date
-            return convertDate(new Date(date.getFullYear(), 0, 1));
-        }
-
-        function getYearEnd(date) {
-            date = new Date(dateCreated2DateSelectedFormat(date)); // get current date
-            return convertDate(new Date(date.getFullYear(), 11, 31));
-
-        }
-
 
       function getLastDay() {
-          var date = new Date();
-          return convertDate(date);
-
+          var currentDate = new Date();
+          var lastDay = new Date(currentDate.getFullYear(), 11, 31);
+          return convertDate(lastDay);
       }
 
       function firstCompare(search_date, first) {
-          var dateSplit = search_date.split('/');
           var firstSplit = first.split('/');
-          var firstDate = new Date(dateSplit[0], dateSplit[1], dateSplit[2]);
-          var secondDate = new Date(firstSplit[0], firstSplit[1], firstSplit[2]);
+          var firstDate = new Date(search_date, 1, 1);
+          var secondDate = new Date(firstSplit[2], firstSplit[1], firstSplit[0]);
           return (firstDate >= secondDate);
       }
 
       function secondCompare(date, last) {
-          var dateSplit = date.split('/');
           var lastSplit = last.split('/');
-          var firstDate = new Date(dateSplit[0], dateSplit[1], dateSplit[2]);
-          var secondDate = new Date(lastSplit[0], lastSplit[1], lastSplit[2]);
+          var firstDate = new Date(date, 1, 1);
+          var secondDate = new Date(lastSplit[2], lastSplit[1], lastSplit[0]);
           return (firstDate <= secondDate);
       }
 
@@ -1665,6 +1569,16 @@
 
       }
 
+      function getYearStart(date) {
+        date = new Date(dateCreated2DateSelectedFormat(date)); // get current date
+        return convertDate(new Date(date.getFullYear(), 0, 1));
+    }
+
+    function getYearEnd(date) {
+        date = new Date(dateCreated2DateSelectedFormat(date)); // get current date
+        return convertDate(new Date(date.getFullYear(), 11, 31));
+
+    }
       /**
        * Used to pass the values of `date_from` and `date_to` between the scripts and to Netsuite for the records and the search.
        * @param   {String} date_iso       "2020-06-01"
