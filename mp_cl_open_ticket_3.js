@@ -747,6 +747,8 @@
             
           });
           $('#escalateunderdev').click(function() {
+            
+            saveRecord();
             var ticketRecord = record.load({
                 type: 'customrecord_mp_ticket',
                 id: parseInt(ticket_id),
@@ -760,6 +762,7 @@
             
           });
           $('#escalateremoveunderdev').click(function() {
+            saveRecord();
             var ticketRecord = record.load({
                 type: 'customrecord_mp_ticket',
                 id: parseInt(ticket_id),
@@ -4656,56 +4659,33 @@
     
       }
       
+      function closeTicket(selector_type, status_num) {
+        if (selector_type == "customer_issue") {
+            closeCustIssueTicket(selector_type, status_num);
+
+        } else {
+            closeBarcodeTicket()
+        }
+
+      }
       /**
        * Triggered by a click on the button 'CLOSE TICKET' ('#close_ticket')
        * Set the date of closure, and the status as "Closed".
        */
-      function closeTicket(selector_type, status_num) {
+      function closeBarcodeTicket() {
           
           if (confirm("Are you sure you want to close this ticket?\n\nThis action cannot be undone.")) {
               var date = new Date;
               var dnow = format.parse({ value: date, type: format.Type.DATETIMETZ });
-              if (selector_type != "customer_issue") {
-                updateSaveRecord();
-              }
+              updateSaveRecord();
+              
               var ticket_id = currRec.getValue({ fieldId: 'custpage_ticket_id' });
               ticket_id = parseInt(ticket_id);
               var ticketRecord = record.load({ type: 'customrecord_mp_ticket', id: ticket_id });
               var customer_id = ticketRecord.getValue({fieldId: 'custrecord_customer1'});
-              var login_email = ticketRecord.getText({fieldId: 'custrecord_login_email'});
-              var customer_number = $('#customer_number_value').val().trim();
-
-              var creator_id = ticketRecord.getValue({fieldId: 'custrecord_creator'});
-              var escalated_to_it = ticketRecord.getValue({ fieldId: 'custrecord_date_escalated_it' });
-              if (isNullorEmpty(customer_number) && creator_id == 112209 && !isNullorEmpty(escalated_to_it) && selector_type == "customer_issue" && !isNullorEmpty(ticket_id)) {
-                console.log('CUSTOMER NUMBER MISSING');
-                showAlert('Please enter a Customer Number');
-                return false;
-              } else if (selector_type == "customer_issue") {
-                updateSaveRecord();
-              }
-                 
               
+              ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 3 });
               ticketRecord.setValue({ fieldId: 'custrecord_date_closed', value: dnow });
-
-              if (isNullorEmpty(status_num)) {
-                if (selector_type == "customer_issue") {
-                    ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 15 });
-                    sendCustomerEscalateEmail('MailPlus [MPSD' + ticket_id + '] - Your IT ticket has been resolved - Customer Portal', [login_email], 121, customer_id);
-
-                } else {
-                    ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 3 });
-                }
-              } else {
-                  if (status_num == 15) {
-                    sendCustomerEscalateEmail('MailPlus [MPSD' + ticket_id + '] - Your IT ticket has been resolved - Customer Portal', [login_email], 121, customer_id);
-                    ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: status_num });
-                  } else {
-                    ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: status_num });
-                  }
-
-              }
-              
               ticketRecord.setValue({ fieldId: 'custrecord_mp_ticket_customer_status', value: 5 });
               ticketRecord.setValue({ fieldId: 'custrecord_reminder', value: null });
 
@@ -4748,6 +4728,64 @@
               
           }
       }
+
+      function closeCustIssueTicket(selector_type, status_num) {
+          
+        if (confirm("Are you sure you want to close this ticket?\n\nThis action cannot be undone.")) {
+           
+            var ticket_id = parseInt(currRec.getValue({ fieldId: 'custpage_ticket_id' }));
+            var ticketRecord = record.load({ type: 'customrecord_mp_ticket', id: ticket_id });
+            var customer_id = ticketRecord.getValue({fieldId: 'custrecord_customer1'});
+            var login_email = ticketRecord.getText({fieldId: 'custrecord_login_email'});
+            var customer_number = $('#customer_number_value').val().trim();
+
+            var creator_id = ticketRecord.getValue({fieldId: 'custrecord_creator'});
+            var escalated_to_it = ticketRecord.getValue({ fieldId: 'custrecord_date_escalated_it' });
+            if (isNullorEmpty(customer_number) && creator_id == 112209 && !isNullorEmpty(escalated_to_it) && selector_type == "customer_issue" && !isNullorEmpty(ticket_id)) {
+              console.log('CUSTOMER NUMBER MISSING');
+              showAlert('Please enter a Customer Number');
+              return false;
+            } 
+
+            updateSaveRecord();
+            var ticketRecord = record.load({ type: 'customrecord_mp_ticket', id: ticket_id });
+
+            var date = new Date;
+            var dnow = format.parse({ value: date, type: format.Type.DATETIMETZ });
+            ticketRecord.setValue({ fieldId: 'custrecord_date_closed', value: dnow });
+
+            if (isNullorEmpty(status_num)) {
+                ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 15 });
+                sendCustomerEscalateEmail('MailPlus [MPSD' + ticket_id + '] - Your IT ticket has been resolved - Customer Portal', [login_email], 121, customer_id);
+            } else {
+                if (status_num == 15) {
+                  sendCustomerEscalateEmail('MailPlus [MPSD' + ticket_id + '] - Your IT ticket has been resolved - Customer Portal', [login_email], 121, customer_id);
+                }
+                ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: status_num });
+            }
+            
+            ticketRecord.setValue({ fieldId: 'custrecord_mp_ticket_customer_status', value: 5 });
+            ticketRecord.setValue({ fieldId: 'custrecord_reminder', value: null });
+
+            // Save issues and resolved issues
+            ticketRecord = updateIssues(ticketRecord);
+
+            var customer_id = ticketRecord.getValue({fieldId: 'custrecord_customer1'});
+            ticketRecord.save({
+                enableSourcing: true,
+            });
+
+            // Redirect to the "View MP Tickets" page
+            var output = url.resolveScript({
+                deploymentId: 'customdeploy_sl_edit_ticket_2',
+                scriptId: 'customscript_sl_edit_ticket_2',
+            })
+            var upload_url = baseURL + output;
+            window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
+            
+            
+        }
+    }
 
       /**
        * Triggered by a click on the button 'CLOSE TICKET' ('#close_ticket')
