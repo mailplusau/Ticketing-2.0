@@ -676,6 +676,13 @@
                 type: 'customrecord_mp_ticket',
                 id: parseInt(ticket_id),
             });
+            var comments = $('#comment').val();
+            console.log('comments', comments);
+            if (isNullorEmpty(comments)) {
+                console.log('Enter comment before Escalation', comments);
+                showAlert('Please enter a Comment before escalating to IT');
+                return false;
+            }
             if (isNullorEmpty(ticketRecord.getValue({fieldId: 'custrecord_date_escalated_it'}))) {
                 ticketRecord.setValue({fieldId: 'custrecord_date_escalated_it', value: new Date()});
                 var owner_list = ['1132504'];
@@ -4736,11 +4743,19 @@
             var ticket_id = parseInt(currRec.getValue({ fieldId: 'custpage_ticket_id' }));
             var ticketRecord = record.load({ type: 'customrecord_mp_ticket', id: ticket_id });
             var customer_id = ticketRecord.getValue({fieldId: 'custrecord_customer1'});
-            var login_email = ticketRecord.getText({fieldId: 'custrecord_login_email'});
+            var login_email = $('#login_email_text').val();
+            
             var customer_number = $('#customer_number_value').val().trim();
 
             var creator_id = ticketRecord.getValue({fieldId: 'custrecord_creator'});
             var escalated_to_it = ticketRecord.getValue({ fieldId: 'custrecord_date_escalated_it' });
+
+            if (isNullorEmpty(login_email)) {
+                console.log('No LOGIN EMAIL');
+                showAlert('Please enter a valid Login Email');
+                return false;
+
+            }
             if (isNullorEmpty(customer_number) && creator_id == 112209 && !isNullorEmpty(escalated_to_it) && selector_type == "customer_issue" && !isNullorEmpty(ticket_id)) {
               console.log('CUSTOMER NUMBER MISSING');
               showAlert('Please enter a Customer Number');
