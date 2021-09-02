@@ -30,12 +30,15 @@
             log.debug({
                 title: 'Params',
                 details: params
-            })
+            });
 
             if (!isNullorEmpty(params)) {
                 params = JSON.parse(params);
                 if (!isNullorEmpty(params.custpage_bulk_escalate)) {
                     var param_selected_ticket_id = params.custpage_bulk_escalate;
+                    log.debug({
+                        title: 'Bulk escalate selected',
+                    });
                     log.debug({
                         title: 'Bulk escalate: param_selected_ticket_id',
                         details: param_selected_ticket_id
@@ -66,6 +69,9 @@
                 } else if (!isNullorEmpty(params.custpage_selected_id)) {
                     var param_selected_ticket_id = params.custpage_selected_id;
                     log.debug({
+                        title: 'bulk emails selected',
+                    });
+                    log.debug({
                         title: 'param_selected_ticket_id',
                         details: param_selected_ticket_id
                     });
@@ -75,12 +81,13 @@
                         custscript_selected_ticket_id: param_selected_ticket_id,
                     };
     
-                    task.create({
+                    var t_id = task.create({
                         taskType: task.TaskType.SCHEDULED_SCRIPT,
                         deploymentId: 'customdeploy_ss_ticket_under_investigati',
                         params: params2,
                         scriptId: 'customscript_ss_ticket_under_investigati',
                     });
+                    t_id.submit();
     
                     redirect.toSuitelet({
                         scriptId:'customscript_sl_edit_ticket_2',
@@ -193,9 +200,8 @@
                 });
 
                 log.debug({
-                    title: 'testing',
-                    details: 'testing'
-                })
+                    title: 'Params null',
+                });
                 form.clientScriptFileId = 4813449;//SB=4796342 PROD = 4813449
                 context.response.writePage(form);
             }
@@ -206,7 +212,9 @@
  
              var param_selected_ticket_id = context.request.parameters.custpage_selected_id;
              var param_escalate_ticket_id = context.request.parameters.custpage_bulk_escalate;
-
+             log.debug({
+                title: 'ELSE',
+            });
              log.debug({
                  title: 'param_selected_ticket_id',
                  details: param_selected_ticket_id
@@ -222,12 +230,13 @@
                     custscript_ticket_id_set: param_escalate_ticket_id,
                 };
 
-                task.create({
+                var t_id = task.create({
                     taskType: task.TaskType.SCHEDULED_SCRIPT,
                     deploymentId: 'customdeploy_ss_bulk_escalate_2',
                     params: params,
                     scriptId: 'customscript_ss_bulk_escalate_2',
                 });
+                t_id.submit();
                 log.debug({
                     title: 'IT WORKED',
                     params: params
@@ -242,12 +251,14 @@
                     custscript_selected_ticket_id: param_selected_ticket_id,
                 };
 
-                task.create({
+                var t_id = task.create({
                     taskType: task.TaskType.SCHEDULED_SCRIPT,
                     deploymentId: 'customdeploy_ss_ticket_under_investigati',
                     params: params,
                     scriptId: 'customscript_ss_ticket_under_investigati',
                 });
+
+                t_id.submit();
 
                 redirect.toSuitelet({
                     scriptId:'customscript_sl_edit_ticket_2',
