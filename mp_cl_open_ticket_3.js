@@ -990,6 +990,24 @@
       
       }
 
+      function commentsDate() {
+        var today = new Date();
+        var dd = today.getDate();
+        
+        var mm = today.getMonth()+1; 
+        var yyyy = today.getFullYear();
+        if(dd<10) 
+        {
+            dd='0'+dd;
+        } 
+        
+        if(mm<10) 
+        {
+            mm='0'+mm;
+        } 
+        today = mm+'/'+dd+'/'+yyyy;
+        return today;
+      }
       function saveRecord(context) {
           
           var currRec = currentRecord.get();
@@ -1477,7 +1495,25 @@
                   break;
           }
           if (!isNullorEmpty(comment)) {
-              ticketRecord.setValue({ fieldId: 'custrecord_comment', value: comment} );
+              var original_comment = ticketRecord.getValue({ fieldId: 'custrecord_comment'} );
+              var total_comment = $('#comment').val();
+              var new_comment = total_comment.split(original_comment).join('');
+              var new_comment = total_comment.split(original_comment).join('');
+              var new_comment2 = new_comment.split("\n").join('');
+
+              var date_netsuite = format.format({
+                value: new Date(),
+                type: format.Type.DATETIME
+              });
+              console.log("new_comment", new_comment);
+              console.log("new_comment2", new_comment2);
+
+              
+              var comment_with_date = "\n" + original_comment + "\n" + date_netsuite + " - " + new_comment2 + "\n";
+              console.log('comment_with_date', comment_with_date);
+              
+              ticketRecord.setValue({ fieldId: 'custrecord_comment', value: comment_with_date} );
+      
 
           }
 
@@ -4529,7 +4565,25 @@
                 break;
         }
         if (!isNullorEmpty(comment)) {
-            ticketRecord.setValue({ fieldId: 'custrecord_comment', value: comment} );
+            
+            var original_comment = ticketRecord.getValue({ fieldId: 'custrecord_comment'} );
+            var total_comment = $('#comment').val();
+            var new_comment = total_comment.split(original_comment).join('');
+            var new_comment = total_comment.split(original_comment).join('');
+            var new_comment2 = new_comment.split("\n").join('');
+
+            var date_netsuite = format.format({
+                value: new Date(),
+                type: format.Type.DATETIME
+            });
+            console.log("new_comment", new_comment);
+            console.log("new_comment2", new_comment2);
+
+            
+            var comment_with_date = "\n" + original_comment + "\n" + date_netsuite + " - " + new_comment2 + "\n";
+            console.log('comment_with_date', comment_with_date);
+            
+            ticketRecord.setValue({ fieldId: 'custrecord_comment', value: comment_with_date} );
 
         }
         var ticket_id = ticketRecord.save({
