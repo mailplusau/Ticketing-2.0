@@ -1507,9 +1507,11 @@
               });
               console.log("new_comment", new_comment);
               console.log("new_comment2", new_comment2);
+              var comment_with_date = total_comment;
 
-              
-              var comment_with_date = "\n" + original_comment + "\n" + date_netsuite + " - " + new_comment2 + "\n";
+              if (!isNullorEmpty(new_comment2)) {
+                comment_with_date = "\n" + original_comment + "\n" + date_netsuite + " - " + new_comment2 + "\n";
+              }
               console.log('comment_with_date', comment_with_date);
               
               ticketRecord.setValue({ fieldId: 'custrecord_comment', value: comment_with_date} );
@@ -2569,12 +2571,24 @@
           
 
           if (activeTicketsResults.runPaged().count < 1) {
+            console.log("change filters1");
             activeTicketsResults.filters.pop();
             activeTicketsResults.filters.push(search.createFilter({
                 name: 'formulatext',
                 operator: search.Operator.IS,
                 values: selector_number,
-                formula: '{custrecord_barcode_number}'
+                formula: '{custrecord_barcode_number.custrecord_connote_number}'
+            }));
+          }
+
+          if (activeTicketsResults.runPaged().count < 1) {
+            console.log("change filters2");
+            activeTicketsResults.filters.pop();
+            activeTicketsResults.filters.push(search.createFilter({
+                name: 'formulatext',
+                operator: search.Operator.IS,
+                values: selector_number,
+                formula: '{custrecord_barcode_number.name}'
             }));
           }
 
@@ -2630,6 +2644,8 @@
                   activeBarcodeColumns[4] = search.createColumn({ name: 'custrecord_cust_date_stock_used', join: null, summary: null });
                   activeBarcodeColumns[5] = search.createColumn({ name: 'custrecord_cust_time_stock_used', join: null, summary: null });
                   activeBarcodeColumns[6] = search.createColumn({ name: 'custrecord_cust_prod_stock_final_del', join: null, summary: null });
+                  activeBarcodeColumns[7] = search.createColumn({ name: 'name', join: null, summary: null });
+
                   var activeSelectorResults = search.create({ type: 'customrecord_customer_product_stock', filterExpression: filterExpression, columns: activeBarcodeColumns });
                   var connoteFormat = /^MPXL\d{6}$/;
                   
@@ -4571,6 +4587,9 @@
             var new_comment = total_comment.split(original_comment).join('');
             var new_comment = total_comment.split(original_comment).join('');
             var new_comment2 = new_comment.split("\n").join('');
+            //"good_luck_buddy".replace(/\n/,'&').split('&')
+            //["good","luck_buddy"]
+
 
             var date_netsuite = format.format({
                 value: new Date(),
@@ -4580,7 +4599,11 @@
             console.log("new_comment2", new_comment2);
 
             
-            var comment_with_date = "\n" + original_comment + "\n" + date_netsuite + " - " + new_comment2 + "\n";
+            var comment_with_date = total_comment;
+
+            if (!isNullorEmpty(new_comment2)) {
+              comment_with_date = "\n" + original_comment + "\n" + date_netsuite + " - " + new_comment2 + "\n";
+            }
             console.log('comment_with_date', comment_with_date);
             
             ticketRecord.setValue({ fieldId: 'custrecord_comment', value: comment_with_date} );
