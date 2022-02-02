@@ -79,6 +79,8 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
         state = 'VIC';
       } else if (state == 7) {
         state = 'WA';
+      } else if (state == 8) {
+        state = 'NT';
       }
       //note for user note
       var note = '';
