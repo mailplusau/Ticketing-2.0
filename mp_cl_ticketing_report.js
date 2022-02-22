@@ -131,6 +131,20 @@
        sourceChart(date_from, date_to);
        barcodeSourceChart(date_from, date_to);
 
+       if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+         manualChart(date_from, date_to)
+         shopifyChart(date_from, date_to)
+         portalChart(date_from, date_to)
+         bulkChart(date_from, date_to)
+       } else {
+         manualChart(getFirstDay(), getLastDay())
+         shopifyChart(getFirstDay(), getLastDay())
+         portalChart(getFirstDay(), getLastDay())
+         bulkChart(getFirstDay(), getLastDay())
+       }
+
+       $(".loader").css("display", "none");
+
        $('#submit').click(function() {
          console.log('submit clicked');
          var date_from = $('#date_from').val();
@@ -472,7 +486,7 @@
 
        Highcharts.chart('container', {
          chart: {
-           height: (9 / 16 * 100) + '%',
+           height: (6 / 16 * 100) + '%',
            zoomType: 'xy'
          },
          legend: {
@@ -818,7 +832,7 @@
 
          chart: {
            type: 'bar',
-           height: (9 / 16 * 100) + '%',
+           height: (6 / 16 * 100) + '%',
            zoomType: 'xy'
          },
          title: {
@@ -931,7 +945,7 @@
 
          chart: {
            type: 'bar',
-           height: (9 / 16 * 100) + '%',
+           height: (6 / 16 * 100) + '%',
            zoomType: 'xy'
          },
          title: {
@@ -1298,7 +1312,7 @@
        var colors = Highcharts.getOptions().colors;
        $('#container4').highcharts({
          chart: {
-           height: (9 / 16 * 100) + '%',
+           height: (6 / 16 * 100) + '%',
            zoomType: 'xy',
            type: 'column',
            events: {
@@ -1645,7 +1659,7 @@
        Highcharts.chart('container5', {
          chart: {
            type: 'column',
-           height: (9 / 16 * 100) + '%',
+           height: (6 / 16 * 100) + '%',
            zoomType: 'xy'
          },
          title: {
@@ -1755,9 +1769,9 @@
 
        var upload_url = baseURL + output + '&custparam_params=' +
          params;
-       $("#button_issues_page").append("<a href='" + upload_url +
-         "' target='_blank'><input type='button' value='REPORTING BY ISSUES' class='form-control btn btn-primary'></a>"
-       );
+       // $("#button_issues_page").append("<a href='" + upload_url +
+       //   "' target='_blank'><input type='button' value='REPORTING BY ISSUES' class='form-control btn btn-primary'></a>"
+       // );
        if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
          title = 'Barcode Source Breakdown (' + date_from + ' - ' +
            date_to + ')';
@@ -1769,9 +1783,9 @@
 
          var upload_url = baseURL + output + '&custparam_params=' +
            params;
-         $("#button_issues_page").append("<a href='" + upload_url +
-           "' target='_blank'><input type='button' value='REPORTING BY ISSUES' class='form-control btn btn-primary'></a>"
-         );
+         // $("#button_issues_page").append("<a href='" + upload_url +
+         //   "' target='_blank'><input type='button' value='REPORTING BY ISSUES' class='form-control btn btn-primary'></a>"
+         // );
          ticketBarcodeSourceSearch.filters.push(search.createFilter({
            name: "created",
            operator: search.Operator.ONORAFTER,
@@ -1849,7 +1863,7 @@
        Highcharts.chart('container6', {
          chart: {
            type: 'column',
-           height: (9 / 16 * 100) + '%',
+           height: (6 / 16 * 100) + '%',
            zoomType: 'xy'
          },
          title: {
@@ -1921,6 +1935,424 @@
 
        });
 
+
+     }
+
+     function manualChart(date_from, date_to) {
+
+       var date_set_created = [];
+       var manual_issues = []
+
+       // MPEX - Tickets Barcode Manual Source - Last year to date (per week)
+       var manualBarcodeIssues = search.load({
+         type: 'customrecord_mp_ticket',
+         id: 'customsearch_ticket_created_report_wee_3'
+       });
+
+       var title = 'Manual Barcodes Issues (' + getFirstDay() + ' - ' +
+         getLastDay() +
+         ')';
+
+       if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+         title = 'Manual Barcodes Issues (' + date_from + ' - ' + date_to +
+           ')';
+         manualBarcodeIssues.filters.push(search.createFilter({
+           name: "created",
+           operator: search.Operator.ONORAFTER,
+           values: date_from,
+         }));
+
+         manualBarcodeIssues.filters.push(search.createFilter({
+           name: "created",
+           operator: search.Operator.ONORBEFORE,
+           values: date_to,
+         }));
+       }
+
+       manualBarcodeIssues.run().each(function(ticket) {
+         var ticketsCount = ticket.getValue({
+           name: 'name',
+           summary: 'COUNT'
+         });
+         var dateCreated = ticket.getValue({
+           name: "created",
+           summary: "GROUP",
+         });
+         var issuesCat = ticket.getValue({
+           name: "formulatext",
+           summary: "GROUP",
+           formula: "CONCAT({custrecord_toll_issues},CONCAT('_',{custrecord_resolved_toll_issues}))",
+         });
+
+         if (!(date_set_created.includes(dateCreated))) {
+           date_set_created.push(dateCreated);
+         }
+         manual_issues.push({
+           "name": issuesCat,
+           "y": parseInt(ticketsCount)
+         });
+
+         return true;
+
+       });
+
+       console.log(manual_issues)
+
+       var series_data = [];
+       series_data.push(manual_issues);
+
+       console.log(series_data)
+
+       Highcharts.chart('containerM', {
+         chart: {
+           height: (6 / 16 * 100) + '%',
+           plotBackgroundColor: null,
+           plotBorderWidth: null,
+           plotShadow: false,
+           type: 'pie'
+         },
+         title: {
+           text: title
+         },
+         tooltip: {
+           pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+         },
+         accessibility: {
+           point: {
+             valueSuffix: '%'
+           }
+         },
+         plotOptions: {
+           pie: {
+             allowPointSelect: true,
+             cursor: 'pointer',
+             dataLabels: {
+               enabled: true,
+               format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+             }
+           }
+         },
+         series: [{
+           name: 'Issues',
+           colorByPoint: true,
+           data: manual_issues,
+         }],
+
+       });
+
+     }
+
+     function shopifyChart(date_from, date_to) {
+
+       var date_set_created = [];
+       var manual_issues = []
+
+       // MPEX - Tickets Barcode Manual Source - Last year to date (per week)
+       var manualBarcodeIssues = search.load({
+         type: 'customrecord_mp_ticket',
+         id: 'customsearch_ticket_created_report_wee_4'
+       });
+
+       var title = 'Shopify Barcodes Issues (' + getFirstDay() + ' - ' +
+         getLastDay() +
+         ')';
+
+       if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+         title = 'Shopify Barcodes Issues (' + date_from + ' - ' + date_to +
+           ')';
+         manualBarcodeIssues.filters.push(search.createFilter({
+           name: "created",
+           operator: search.Operator.ONORAFTER,
+           values: date_from,
+         }));
+
+         manualBarcodeIssues.filters.push(search.createFilter({
+           name: "created",
+           operator: search.Operator.ONORBEFORE,
+           values: date_to,
+         }));
+       }
+
+       manualBarcodeIssues.run().each(function(ticket) {
+         var ticketsCount = ticket.getValue({
+           name: 'name',
+           summary: 'COUNT'
+         });
+         var dateCreated = ticket.getValue({
+           name: "created",
+           summary: "GROUP",
+         });
+         var issuesCat = ticket.getValue({
+           name: "formulatext",
+           summary: "GROUP",
+           formula: "CONCAT({custrecord_toll_issues},CONCAT('_',{custrecord_resolved_toll_issues}))",
+         });
+
+         if (!(date_set_created.includes(dateCreated))) {
+           date_set_created.push(dateCreated);
+         }
+         manual_issues.push({
+           "name": issuesCat,
+           "y": parseInt(ticketsCount)
+         });
+
+         return true;
+
+       });
+
+       console.log(manual_issues)
+
+       var series_data = [];
+       series_data.push(manual_issues);
+
+       console.log(series_data)
+
+       Highcharts.chart('containerS', {
+         chart: {
+           height: (6 / 16 * 100) + '%',
+           plotBackgroundColor: null,
+           plotBorderWidth: null,
+           plotShadow: false,
+           type: 'pie'
+         },
+         title: {
+           text: title
+         },
+         tooltip: {
+           pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+         },
+         accessibility: {
+           point: {
+             valueSuffix: '%'
+           }
+         },
+         plotOptions: {
+           pie: {
+             allowPointSelect: true,
+             cursor: 'pointer',
+             dataLabels: {
+               enabled: true,
+               format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+             }
+           }
+         },
+         series: [{
+           name: 'Issues',
+           colorByPoint: true,
+           data: manual_issues,
+         }],
+
+       });
+
+     }
+
+     function portalChart(date_from, date_to) {
+
+       var date_set_created = [];
+       var manual_issues = []
+
+       // MPEX - Tickets Barcode Manual Source - Last year to date (per week)
+       var manualBarcodeIssues = search.load({
+         type: 'customrecord_mp_ticket',
+         id: 'customsearch_ticket_created_report_wee_5'
+       });
+
+       var title = 'Customer Portal Barcodes Issues (' + getFirstDay() +
+         ' - ' +
+         getLastDay() +
+         ')';
+
+       if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+         title = 'Customer Portal Barcodes Issues (' + date_from + ' - ' +
+           date_to +
+           ')';
+         manualBarcodeIssues.filters.push(search.createFilter({
+           name: "created",
+           operator: search.Operator.ONORAFTER,
+           values: date_from,
+         }));
+
+         manualBarcodeIssues.filters.push(search.createFilter({
+           name: "created",
+           operator: search.Operator.ONORBEFORE,
+           values: date_to,
+         }));
+       }
+
+       manualBarcodeIssues.run().each(function(ticket) {
+         var ticketsCount = ticket.getValue({
+           name: 'name',
+           summary: 'COUNT'
+         });
+         var dateCreated = ticket.getValue({
+           name: "created",
+           summary: "GROUP",
+         });
+         var issuesCat = ticket.getValue({
+           name: "formulatext",
+           summary: "GROUP",
+           formula: "CONCAT({custrecord_toll_issues},CONCAT('_',{custrecord_resolved_toll_issues}))",
+         });
+
+         if (!(date_set_created.includes(dateCreated))) {
+           date_set_created.push(dateCreated);
+         }
+         manual_issues.push({
+           "name": issuesCat,
+           "y": parseInt(ticketsCount)
+         });
+
+         return true;
+
+       });
+
+       console.log(manual_issues)
+
+       var series_data = [];
+       series_data.push(manual_issues);
+
+       console.log(series_data)
+
+       Highcharts.chart('containerP', {
+         chart: {
+           height: (6 / 16 * 100) + '%',
+           plotBackgroundColor: null,
+           plotBorderWidth: null,
+           plotShadow: false,
+           type: 'pie'
+         },
+         title: {
+           text: title
+         },
+         tooltip: {
+           pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+         },
+         accessibility: {
+           point: {
+             valueSuffix: '%'
+           }
+         },
+         plotOptions: {
+           pie: {
+             allowPointSelect: true,
+             cursor: 'pointer',
+             dataLabels: {
+               enabled: true,
+               format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+             }
+           }
+         },
+         series: [{
+           name: 'Issues',
+           colorByPoint: true,
+           data: manual_issues,
+         }],
+
+       });
+
+     }
+
+     function bulkChart(date_from, date_to) {
+
+       var date_set_created = [];
+       var manual_issues = []
+
+       // MPEX - Tickets Barcode Manual Source - Last year to date (per week)
+       var manualBarcodeIssues = search.load({
+         type: 'customrecord_mp_ticket',
+         id: 'customsearch_ticket_created_report_wee_6'
+       });
+
+       var title = 'Bulk Barcodes Issues (' + getFirstDay() + ' - ' +
+         getLastDay() +
+         ')';
+
+       if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+         title = 'Bulk Barcodes Issues (' + date_from + ' - ' + date_to +
+           ')';
+         manualBarcodeIssues.filters.push(search.createFilter({
+           name: "created",
+           operator: search.Operator.ONORAFTER,
+           values: date_from,
+         }));
+
+         manualBarcodeIssues.filters.push(search.createFilter({
+           name: "created",
+           operator: search.Operator.ONORBEFORE,
+           values: date_to,
+         }));
+       }
+
+       manualBarcodeIssues.run().each(function(ticket) {
+         var ticketsCount = ticket.getValue({
+           name: 'name',
+           summary: 'COUNT'
+         });
+         var dateCreated = ticket.getValue({
+           name: "created",
+           summary: "GROUP",
+         });
+         var issuesCat = ticket.getValue({
+           name: "formulatext",
+           summary: "GROUP",
+           formula: "CONCAT({custrecord_toll_issues},CONCAT('_',{custrecord_resolved_toll_issues}))",
+         });
+
+         if (!(date_set_created.includes(dateCreated))) {
+           date_set_created.push(dateCreated);
+         }
+         manual_issues.push({
+           "name": issuesCat,
+           "y": parseInt(ticketsCount)
+         });
+
+         return true;
+
+       });
+
+       console.log(manual_issues)
+
+       var series_data = [];
+       series_data.push(manual_issues);
+
+       console.log(series_data)
+
+       Highcharts.chart('containerB', {
+         chart: {
+           height: (6 / 16 * 100) + '%',
+           plotBackgroundColor: null,
+           plotBorderWidth: null,
+           plotShadow: false,
+           type: 'pie'
+         },
+         title: {
+           text: title
+         },
+         tooltip: {
+           pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+         },
+         accessibility: {
+           point: {
+             valueSuffix: '%'
+           }
+         },
+         plotOptions: {
+           pie: {
+             allowPointSelect: true,
+             cursor: 'pointer',
+             dataLabels: {
+               enabled: true,
+               format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+             }
+           }
+         },
+         series: [{
+           name: 'Issues',
+           colorByPoint: true,
+           data: manual_issues,
+         }],
+
+       });
 
      }
 

@@ -158,11 +158,12 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
         '<li role="presentation" class=""><a data-toggle="tab" href="#customer"><b>CUSTOMER</b></a></li>';
       inlineQty +=
         '<li role="presentation" class=""><a data-toggle="tab" href="#zee"><b>ZEE</b></a></li>';
-      // inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#mpstaff"><b>STAFF BREAKDOWN</b></a></li>';
       inlineQty +=
-        '<li role="presentation" class=""><a data-toggle="tab" href="#barcodesourcebreakdown"><b>BARCODE SOURCE BREAKDOWN</b></a></li>';
+        '<li role="presentation" class=""><a data-toggle="tab" href="#barcodesourcebreakdown"><b>BARCODE SOURCE</b></a></li>';
       inlineQty +=
-        '<li role="presentation" class=""><a data-toggle="tab" href="#sourcebreakdown"><b>TICKET SOURCE BREAKDOWN</b></a></li>';
+        '<li role="presentation" class=""><a data-toggle="tab" href="#issues"><b>ISSUES - BY BARCODE SOURCE</b></a></li>';
+      inlineQty +=
+        '<li role="presentation" class=""><a data-toggle="tab" href="#sourcebreakdown"><b>TICKET SOURCE </b></a></li>';
 
 
 
@@ -193,12 +194,62 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
       inlineQty += dataTable('zee');
       inlineQty += '</div>';
 
-      // inlineQty += '<div role="tabpanel" class="tab-pane" id="mpstaff">';
-      // inlineQty += '<figure class="highcharts-figure">';
-      // inlineQty += '<div id="container4"></div>';
-      // inlineQty += '</figure><br></br>';
-      // //inlineQty += dataTablePreview('customer_zee');
-      // inlineQty += '</div>';
+      inlineQty += '<div role="tabpanel" class="tab-pane" id="issues">';
+      inlineQty += '<div >';
+
+      // Tabs headers
+      inlineQty +=
+        '<style>.nav > li.active > a, .nav > li.active > a:focus, .nav > li.active > a:hover { background-color: #379E8F; color: #fff }';
+      inlineQty +=
+        '.nav > li > a, .nav > li > a:focus, .nav > li > a:hover { margin-left: 5px; margin-right: 5px; border: 2px solid #379E8F; color: #379E8F; }';
+      inlineQty += '</style>';
+
+      inlineQty +=
+        '<div style="width: 95%; margin:auto; margin-bottom: 30px"><ul class="nav nav-pills nav-justified" style="margin:0%; ">';
+
+      inlineQty +=
+        '<li role="presentation" class="active"><a data-toggle="tab" href="#manual"><b>MANUAL BARCODES</b></a></li>';
+      inlineQty +=
+        '<li role="presentation" class=""><a data-toggle="tab" href="#shopify"><b>SHOPIFY BARCODES</b></a></li>';
+      inlineQty +=
+        '<li role="presentation" class=""><a data-toggle="tab" href="#portal"><b>CUSTOMER PORTAL BARCODES</b></a></li>';
+      inlineQty +=
+        '<li role="presentation" class=""><a data-toggle="tab" href="#bulk"><b>BULK BARCODES</b></a></li>';
+
+
+      inlineQty += '</ul></div>';
+
+      // Tabs content
+      inlineQty += '<div class="tab-content">';
+      inlineQty +=
+        '<div role="tabpanel" class="tab-pane active" id="manual">';
+      inlineQty += '<figure class="highcharts-figure">';
+      inlineQty += '<div id="containerM"></div>';
+      inlineQty += '</figure><br></br>';
+      inlineQty += '</div>';
+
+      inlineQty += '<div role="tabpanel" class="tab-pane" id="shopify">';
+      inlineQty += '<figure class="highcharts-figure">';
+      inlineQty += '<div id="containerS"></div>';
+      inlineQty += '</figure><br></br>';
+      inlineQty += '</div>';
+
+      inlineQty += '<div role="tabpanel" class="tab-pane" id="portal">';
+      inlineQty += '<figure class="highcharts-figure">';
+      inlineQty += '<div id="containerP"></div>';
+      inlineQty += '</figure><br></br>';
+      inlineQty += '</div>';
+
+      inlineQty +=
+        '<div role="tabpanel" class="tab-pane" id="bulk">';
+      inlineQty += '<figure class="highcharts-figure">';
+      inlineQty += '<div id="containerB"></div>';
+      inlineQty += '</figure><br></br>';
+      inlineQty += '</div>';
+
+
+      inlineQty += '</div></div>';
+      inlineQty += '</div>';
 
       inlineQty +=
         '<div role="tabpanel" class="tab-pane" id="sourcebreakdown">';
@@ -211,13 +262,11 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
       inlineQty +=
         '<div role="tabpanel" class="tab-pane" id="barcodesourcebreakdown">';
       inlineQty += '<figure class="highcharts-figure">';
-      inlineQty += '<div id="button_issues_page"></div>'
+      // inlineQty += '<div id="button_issues_page"></div>'
       inlineQty += '<div id="container6"></div>';
       inlineQty += '</figure><br></br>';
       //inlineQty += dataTablePreview('customer_zee');
       inlineQty += '</div>';
-
-
 
       inlineQty += '</div></div>';
 
