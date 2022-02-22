@@ -127,8 +127,9 @@
 
        overviewChart(date_from, date_to);
        customerChart(date_from, date_to);
-       staffChart(date_from, date_to);
+       // staffChart(date_from, date_to);
        sourceChart(date_from, date_to);
+       barcodeSourceChart(date_from, date_to);
 
        $('#submit').click(function() {
          console.log('submit clicked');
@@ -387,13 +388,13 @@
 
        if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
          ticketLITRes.filters.push(search.createFilter({
-           name: "created",
+           name: "custrecord_date_closed",
            operator: search.Operator.ONORAFTER,
            values: date_from,
          }));
 
          ticketLITRes.filters.push(search.createFilter({
-           name: "created",
+           name: "custrecord_date_closed",
            operator: search.Operator.ONORBEFORE,
            values: date_to,
          }));
@@ -405,7 +406,7 @@
            summary: 'COUNT'
          });
          var dateCreated = ticket.getValue({
-           name: "created",
+           name: "custrecord_date_closed",
            summary: "GROUP",
          });
          if (!(date_set_created.includes(dateCreated))) {
@@ -1710,6 +1711,210 @@
          }, {
            name: 'Non Website - Receiver',
            data: nonweb_recv,
+           stack: 1,
+           color: '#F15628'
+         }]
+
+       });
+
+
+     }
+
+     function barcodeSourceChart(date_from, date_to) {
+       var colors = Highcharts.getOptions().colors;
+       var manual_source_tickets = [];
+       var portal_source_tickets = [];
+       var shopify_source_tickets = [];
+       var bulk_source_tickets = [];
+       var date_set = [];
+       var nonweb_send_obj = {};
+       var nonweb_recv_obj = {};
+
+       // Barcode Source Tickets
+       var ticketBarcodeSourceSearch = search.load({
+         type: 'customrecord_mp_ticket',
+         id: 'customsearch_ticket_created_report_wee_2'
+       });
+
+       var old_date = null;
+       var temp_manual_count = 0;
+       var count = 0;
+
+       var title = '<b>Sender vs Receiver Breakdown (' + getFirstDay() +
+         ' - ' +
+         getLastDay() + ')</b></br>';
+       var params = {
+         date_from: getFirstDay(),
+         date_to: getLastDay()
+       };
+       params = JSON.stringify(params);
+       var output = url.resolveScript({
+         deploymentId: 'customdeploy_sl_issues_reporting',
+         scriptId: 'customscript_sl_issues_reporting',
+       });
+
+       var upload_url = baseURL + output + '&custparam_params=' +
+         params;
+       $("#button_issues_page").append("<a href='" + upload_url +
+         "' target='_blank'><input type='button' value='REPORTING BY ISSUES' class='form-control btn btn-primary'></a>"
+       );
+       if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+         title = 'Barcode Source Breakdown (' + date_from + ' - ' +
+           date_to + ')';
+         var params = {
+           date_from: date_from,
+           date_to: date_to
+         };
+         params = JSON.stringify(params);
+
+         var upload_url = baseURL + output + '&custparam_params=' +
+           params;
+         $("#button_issues_page").append("<a href='" + upload_url +
+           "' target='_blank'><input type='button' value='REPORTING BY ISSUES' class='form-control btn btn-primary'></a>"
+         );
+         ticketBarcodeSourceSearch.filters.push(search.createFilter({
+           name: "created",
+           operator: search.Operator.ONORAFTER,
+           values: date_from,
+         }));
+
+         ticketBarcodeSourceSearch.filters.push(search.createFilter({
+           name: "created",
+           operator: search.Operator.ONORBEFORE,
+           values: date_to,
+         }));
+       }
+
+       ticketBarcodeSourceSearch.run().each(function(ticketBarcodeSource) {
+         var ticketsCount = ticketBarcodeSource.getValue({
+           name: 'name',
+           summary: 'COUNT'
+         });
+         var dateCreated = ticketBarcodeSource.getValue({
+           name: "created",
+           summary: "GROUP",
+         });
+         var barcodeSource = ticketBarcodeSource.getValue({
+           name: "custrecord_barcode_source",
+           join: "CUSTRECORD_BARCODE_NUMBER",
+           summary: "GROUP",
+         });
+
+         if (count == 0 && isNullorEmpty(old_date)) {
+           if (!(date_set.includes(dateCreated))) {
+             date_set.push(dateCreated);
+           }
+         } else if (!isNullorEmpty(old_date) && old_date != dateCreated) {
+           manual_source_tickets.push([date_set.indexOf(old_date),
+             parseInt(temp_manual_count)
+           ]);
+           temp_manual_count = 0;
+
+           if (!(date_set.includes(dateCreated))) {
+             date_set.push(dateCreated);
+           }
+         }
+
+
+         if (isNullorEmpty(barcodeSource) || barcodeSource == 1) {
+           temp_manual_count = temp_manual_count + parseInt(ticketsCount);
+         } else
+         if (barcodeSource == 2) {
+           portal_source_tickets.push([date_set.indexOf(dateCreated),
+             parseInt(ticketsCount)
+           ]);
+         } else if (barcodeSource == 3) {
+           shopify_source_tickets.push([date_set.indexOf(dateCreated),
+             parseInt(ticketsCount)
+           ]);
+         } else if (barcodeSource == 4) {
+           bulk_source_tickets.push([date_set.indexOf(dateCreated),
+             parseInt(ticketsCount)
+           ]);
+         }
+
+         old_date = dateCreated;
+         count++;
+         return true;
+
+       });
+
+
+       if (count > 0) {
+         manual_source_tickets.push([date_set.indexOf(old_date),
+           parseInt(temp_manual_count)
+         ]);
+       }
+
+       Highcharts.chart('container6', {
+         chart: {
+           type: 'column',
+           height: (9 / 16 * 100) + '%',
+           zoomType: 'xy'
+         },
+         title: {
+           text: title
+         },
+         xAxis: {
+           categories: date_set
+         },
+         yAxis: {
+           min: 0,
+           title: {
+             text: 'Number of Tickets'
+           },
+           stackLabels: {
+             enabled: true,
+             style: {
+               fontWeight: 'bold',
+               color: ( // theme
+                 Highcharts.defaultOptions.title.style &&
+                 Highcharts.defaultOptions.title.style.color
+               ) || 'gray'
+             }
+           }
+         },
+         legend: {
+           align: 'right',
+           x: -30,
+           verticalAlign: 'top',
+           y: 25,
+           floating: true,
+           backgroundColor: Highcharts.defaultOptions.legend.backgroundColor ||
+             'white',
+           borderColor: '#CCC',
+           borderWidth: 1,
+           shadow: false
+         },
+         tooltip: {
+           shared: true
+         },
+         plotOptions: {
+           column: {
+             stacking: 'normal',
+             dataLabels: {
+               enabled: true
+             }
+           }
+         },
+         series: [{
+           name: 'Manual',
+           data: manual_source_tickets,
+           stack: 1,
+           color: '#F2C80F'
+         }, {
+           name: 'Customer Portal',
+           data: portal_source_tickets,
+           stack: 1,
+           color: colors[3]
+         }, {
+           name: 'Shopify',
+           data: shopify_source_tickets,
+           stack: 1,
+           color: '#108372'
+         }, {
+           name: 'Bulk',
+           data: bulk_source_tickets,
            stack: 1,
            color: '#F15628'
          }]

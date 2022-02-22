@@ -32,26 +32,15 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
         inlineHtml +=
           '144&h=ef2cda20731d146b5e98&_xt=.js"></script><link type="text/css" rel="stylesheet" href="https://system.na2.netsuite.com/core/media/media.nl?id=2090583&c=1048144&h=a0ef6ac4e28f91203dfe&_xt=.css"><script src="https://cdn.datatables.net/searchpanes/1.2.1/js/dataTables.searchPanes.min.js"><script src="https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js"></script><script src="https://code.highcharts.com/highcharts.js"></script><script src="https://code.highcharts.com/modules/data.js"></script><script src="https://code.highcharts.com/modules/exporting.js"></script><script src="https://code.highcharts.com/modules/accessibility.js"></script></script><script src="https://code.highcharts.com/highcharts.js"></script><script src="https://code.highcharts.com/modules/data.js"></script><script src="https://code.highcharts.com/modules/drilldown.js"></script><script src="https://code.highcharts.com/modules/exporting.js">';
         inlineHtml +=
-          '</script><script src="https://code.highcharts.com/modules/export-data.js"></script><script src="https://code.highcharts.com/modules/accessibility.js"></script><style>.mandatory{color:red;} .body{background-color: #CFE0CE !important;}</style>';
+          '</script><script src="https://code.highcharts.com/modules/export-data.js"></script><script src="https://code.highcharts.com/modules/accessibility.js"></script><style>@import "https://code.highcharts.com/css/highcharts.css";.mandatory{color:red;} .body{background-color: #CFE0CE !important;}.highcharts-pie-series .highcharts-point {stroke: #ede;stroke-width: 2px;}.highcharts-pie-series .highcharts-data-label-connector {stroke: silver;stroke-dasharray: 2, 2;stroke-width: 2px;}</style>';
 
         var form = ui.createForm({
-          title: 'MP Ticketing - Weekly Reporting'
+          title: 'MP Ticketing - Weekly Reporting - Issues'
         });
 
         inlineHtml += dateFilterSection();
         inlineHtml += '<br></br><br></br>';
         inlineHtml += tabsSection();
-        inlineHtml += '<div class="loader"></div>';
-        inlineHtml +=
-          '<style> .loader { border: 14px solid #f3f3f3; border-radius: 50%; border-top: 14px solid #379E8F; width: 90px; height: 90px; -webkit-animation: spin 2s linear infinite; /* Safari */ animation: spin 2s linear infinite;';
-        inlineHtml += 'position: fixed; z-index: 1000; left: 50%; }'
-          /* Safari */
-        inlineHtml +=
-          '@-webkit-keyframes spin {0% { -webkit-transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); } }';
-
-        inlineHtml +=
-          '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
-        inlineHtml += '</style>';
 
         form.addButton({
           id: 'submit',
@@ -130,7 +119,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
           layoutType: ui.FieldLayoutType.STARTROW
         }).defaultValue = inlineHtml;
 
-        form.clientScriptFileId = 4989483;
+        form.clientScriptFileId = 5510105;
 
         context.response.writePage(form);
 
@@ -153,17 +142,13 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
         '<div style="width: 95%; margin:auto; margin-bottom: 30px"><ul class="nav nav-pills nav-justified" style="margin:0%; ">';
 
       inlineQty +=
-        '<li role="presentation" class="active"><a data-toggle="tab" href="#overview"><b>OVERVIEW</b></a></li>';
+        '<li role="presentation" class="active"><a data-toggle="tab" href="#manual"><b>MANUAL</b></a></li>';
       inlineQty +=
-        '<li role="presentation" class=""><a data-toggle="tab" href="#customer"><b>CUSTOMER</b></a></li>';
+        '<li role="presentation" class=""><a data-toggle="tab" href="#shopify"><b>SHOPIFY</b></a></li>';
       inlineQty +=
-        '<li role="presentation" class=""><a data-toggle="tab" href="#zee"><b>ZEE</b></a></li>';
-      // inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#mpstaff"><b>STAFF BREAKDOWN</b></a></li>';
+        '<li role="presentation" class=""><a data-toggle="tab" href="#portal"><b>CUSTOMER PORTAL</b></a></li>';
       inlineQty +=
-        '<li role="presentation" class=""><a data-toggle="tab" href="#barcodesourcebreakdown"><b>BARCODE SOURCE BREAKDOWN</b></a></li>';
-      inlineQty +=
-        '<li role="presentation" class=""><a data-toggle="tab" href="#sourcebreakdown"><b>TICKET SOURCE BREAKDOWN</b></a></li>';
-
+        '<li role="presentation" class=""><a data-toggle="tab" href="#bulk"><b>BULK</b></a></li>';
 
 
       inlineQty += '</ul></div>';
@@ -171,52 +156,30 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
       // Tabs content
       inlineQty += '<div class="tab-content">';
       inlineQty +=
-        '<div role="tabpanel" class="tab-pane active" id="overview">';
+        '<div role="tabpanel" class="tab-pane active" id="manual">';
       inlineQty += '<figure class="highcharts-figure">';
       inlineQty += '<div id="container"></div>';
-      //inlineQty += '<p class="highcharts-description">Line chart demonstrating some accessibility features of Highcharts. The chart displays the most commonly used screen readers in surveys taken by WebAIM from December 2010 to September 2019. JAWS was the most used screen reader until 2019, when NVDA took over. VoiceOver is the third most used screen reader, followed by Narrator. ZoomText/Fusion had a surge in 2015, but usage is otherwise low. The overall use of other screen readers has declined drastically the past few years.</p>';
       inlineQty += '</figure><br></br>';
-      inlineQty += dataTable('preview');
       inlineQty += '</div>';
 
-      inlineQty += '<div role="tabpanel" class="tab-pane" id="customer">';
+      inlineQty += '<div role="tabpanel" class="tab-pane" id="shopify">';
       inlineQty += '<figure class="highcharts-figure">';
       inlineQty += '<div id="container2"></div>';
       inlineQty += '</figure><br></br>';
-      inlineQty += dataTable('customer');
       inlineQty += '</div>';
 
-      inlineQty += '<div role="tabpanel" class="tab-pane" id="zee">';
+      inlineQty += '<div role="tabpanel" class="tab-pane" id="portal">';
       inlineQty += '<figure class="highcharts-figure">';
       inlineQty += '<div id="container3"></div>';
       inlineQty += '</figure><br></br>';
-      inlineQty += dataTable('zee');
       inlineQty += '</div>';
 
-      // inlineQty += '<div role="tabpanel" class="tab-pane" id="mpstaff">';
-      // inlineQty += '<figure class="highcharts-figure">';
-      // inlineQty += '<div id="container4"></div>';
-      // inlineQty += '</figure><br></br>';
-      // //inlineQty += dataTablePreview('customer_zee');
-      // inlineQty += '</div>';
-
-      inlineQty +=
-        '<div role="tabpanel" class="tab-pane" id="sourcebreakdown">';
+    inlineQty +=
+        '<div role="tabpanel" class="tab-pane" id="bulk">';
       inlineQty += '<figure class="highcharts-figure">';
       inlineQty += '<div id="container5"></div>';
       inlineQty += '</figure><br></br>';
-      //inlineQty += dataTablePreview('customer_zee');
       inlineQty += '</div>';
-
-      inlineQty +=
-        '<div role="tabpanel" class="tab-pane" id="barcodesourcebreakdown">';
-      inlineQty += '<figure class="highcharts-figure">';
-      inlineQty += '<div id="button_issues_page"></div>'
-      inlineQty += '<div id="container6"></div>';
-      inlineQty += '</figure><br></br>';
-      //inlineQty += dataTablePreview('customer_zee');
-      inlineQty += '</div>';
-
 
 
       inlineQty += '</div></div>';
