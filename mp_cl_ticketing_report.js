@@ -481,8 +481,8 @@
        });
 
        var colors = Highcharts.getOptions().colors;
-       var title = 'Ticketing Breakdown (' + date_set_created[0] + ' - ' +
-         date_set_created[date_set_created.length - 1] + ')';
+       var title = '<b>Ticketing Breakdown (' + date_set_created[0] + ' - ' +
+         date_set_created[date_set_created.length - 1] + ')</b>';
 
        Highcharts.chart('container', {
          chart: {
@@ -692,15 +692,17 @@
        // Open = 1
        // In Progress = 2 CS, 4 IT
 
-       var title = 'Number of Tickets per Customer (' + getFirstDay() + ' - ' +
-         getLastDay() + ')';
-       var title2 = 'Number of Tickets per Zee (' + getFirstDay() + ' - ' +
-         getLastDay() + ')';
+       var title = '<b>Number of Tickets per Customer (' + getFirstDay() +
+         ' - ' +
+         getLastDay() + ')</b>';
+       var title2 = '<b>Number of Tickets per Zee (' + getFirstDay() + ' - ' +
+         getLastDay() + ')</b>';
        if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
-         title = 'Number of Tickets per Customer (' + date_from + ' - ' +
-           date_to + ')';
-         title2 = 'Number of Tickets per Zee (' + date_from + ' - ' + date_to +
-           ')';
+         title = '<b>Number of Tickets per Customer (' + date_from + ' - ' +
+           date_to + ')</b>';
+         title2 = '<b>Number of Tickets per Zee (' + date_from + ' - ' +
+           date_to +
+           ')</b>';
          custSearch.filters.push(search.createFilter({
            name: "created",
            operator: search.Operator.ONORAFTER,
@@ -1561,11 +1563,12 @@
          id: 'customsearch_ticket_source_report_week'
        });
 
-       var title = 'Sender vs Receiver Breakdown (' + getFirstDay() + ' - ' +
-         getLastDay() + ')';
+       var title = '<b>Sender vs Receiver Breakdown (' + getFirstDay() +
+         ' - ' +
+         getLastDay() + ')</b>';
        if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
-         title = 'Sender vs Receiver Breakdown (' + date_from + ' - ' +
-           date_to + ')';
+         title = '<b>Sender vs Receiver Breakdown (' + date_from + ' - ' +
+           date_to + ')</b>';
          ticketSourceRes.filters.push(search.createFilter({
            name: "created",
            operator: search.Operator.ONORAFTER,
@@ -1773,8 +1776,8 @@
        //   "' target='_blank'><input type='button' value='REPORTING BY ISSUES' class='form-control btn btn-primary'></a>"
        // );
        if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
-         title = 'Barcode Source Breakdown (' + date_from + ' - ' +
-           date_to + ')';
+         title = '<b>Barcode Source Breakdown (' + date_from + ' - ' +
+           date_to + ')</b>';
          var params = {
            date_from: date_from,
            date_to: date_to
@@ -1949,13 +1952,13 @@
          id: 'customsearch_ticket_created_report_wee_3'
        });
 
-       var title = 'Manual Barcodes Issues (' + getFirstDay() + ' - ' +
+       var title = '<b>Manual Barcodes Issues (' + getFirstDay() + ' - ' +
          getLastDay() +
-         ')';
+         ')</b>';
 
        if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
-         title = 'Manual Barcodes Issues (' + date_from + ' - ' + date_to +
-           ')';
+         title = '<b>Manual Barcodes Issues (' + date_from + ' - ' + date_to +
+           ')</b>';
          manualBarcodeIssues.filters.push(search.createFilter({
            name: "created",
            operator: search.Operator.ONORAFTER,
@@ -2053,13 +2056,13 @@
          id: 'customsearch_ticket_created_report_wee_4'
        });
 
-       var title = 'Shopify Barcodes Issues (' + getFirstDay() + ' - ' +
+       var title = '<b>Shopify Barcodes Issues (' + getFirstDay() + ' - ' +
          getLastDay() +
-         ')';
+         ')</b>';
 
        if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
-         title = 'Shopify Barcodes Issues (' + date_from + ' - ' + date_to +
-           ')';
+         title = '<b>Shopify Barcodes Issues (' + date_from + ' - ' + date_to +
+           ')</b>';
          manualBarcodeIssues.filters.push(search.createFilter({
            name: "created",
            operator: search.Operator.ONORAFTER,
@@ -2157,15 +2160,15 @@
          id: 'customsearch_ticket_created_report_wee_5'
        });
 
-       var title = 'Customer Portal Barcodes Issues (' + getFirstDay() +
+       var title = '<b>Customer Portal Barcodes Issues (' + getFirstDay() +
          ' - ' +
          getLastDay() +
-         ')';
+         ')</b>';
 
        if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
-         title = 'Customer Portal Barcodes Issues (' + date_from + ' - ' +
+         title = '<b>Customer Portal Barcodes Issues (' + date_from + ' - ' +
            date_to +
-           ')';
+           ')</b>';
          manualBarcodeIssues.filters.push(search.createFilter({
            name: "created",
            operator: search.Operator.ONORAFTER,
@@ -2263,13 +2266,13 @@
          id: 'customsearch_ticket_created_report_wee_6'
        });
 
-       var title = 'Bulk Barcodes Issues (' + getFirstDay() + ' - ' +
+       var title = '<b>Bulk Barcodes Issues (' + getFirstDay() + ' - ' +
          getLastDay() +
-         ')';
+         ')</b>';
 
        if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
-         title = 'Bulk Barcodes Issues (' + date_from + ' - ' + date_to +
-           ')';
+         title = '<b>Bulk Barcodes Issues (' + date_from + ' - ' + date_to +
+           ')</b>';
          manualBarcodeIssues.filters.push(search.createFilter({
            name: "created",
            operator: search.Operator.ONORAFTER,

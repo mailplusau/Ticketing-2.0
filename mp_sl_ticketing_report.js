@@ -139,6 +139,13 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
       }
     }
 
+    function line() {
+      var inlineHtml =
+        '<hr style="height:5px; width:100%; border-width:0; color:red; background-color:#fff">'
+
+      return inlineHtml
+    }
+
     function tabsSection() {
       var inlineQty = '<div >';
 
@@ -196,7 +203,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
 
       inlineQty += '<div role="tabpanel" class="tab-pane" id="issues">';
       inlineQty += '<div >';
-
+      inlineQty += line();
       // Tabs headers
       inlineQty +=
         '<style>.nav > li.active > a, .nav > li.active > a:focus, .nav > li.active > a:hover { background-color: #379E8F; color: #fff }';
@@ -218,7 +225,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
 
 
       inlineQty += '</ul></div>';
-
+      inlineQty += line();
       // Tabs content
       inlineQty += '<div class="tab-content">';
       inlineQty +=
