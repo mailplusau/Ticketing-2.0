@@ -225,7 +225,6 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
 
 
       inlineQty += '</ul></div>';
-      inlineQty += line();
       // Tabs content
       inlineQty += '<div class="tab-content">';
       inlineQty +=
