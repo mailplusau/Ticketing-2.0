@@ -3030,9 +3030,9 @@
         inlineQty += '<div class="input-group">';
         inlineQty += '<span class="input-group-addon" id="comment_text">COMMENT<span class="mandatory hide">*</span></span>';
         if (isTicketNotClosed(status_value)) {
-            inlineQty += '<textarea id="comment" class="form-control comment" rows="3">' + comment + '</textarea>';
+            inlineQty += '<textarea id="comment" class="form-control comment" rows="9">' + comment + '</textarea>';
         } else {
-            inlineQty += '<textarea id="comment" class="form-control comment" rows="3" readonly>' + comment + '</textarea>';
+            inlineQty += '<textarea id="comment" class="form-control comment" rows="9" readonly>' + comment + '</textarea>';
         }
         inlineQty += '</div></div></div></div>';
 

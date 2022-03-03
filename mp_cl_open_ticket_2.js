@@ -710,7 +710,26 @@
           });
 
           
-          
+          // Auto Format Comment Box for Emails
+          var comment_formatted = false;
+            $('#comment').on('keyup', function(event){
+            var selection = $(this).val();
+
+            if (selection.search('From:') != -1 && selection.indexOf(']\n') == -1){
+                var newstr = selection.replace('To:', '\nTo:');
+                newstr = newstr.replaceAll('Sent:', '\nSent:');
+                newstr = newstr.replaceAll('Subject:', '\nSubject:');
+                newstr = newstr.replaceAll('>', '>\n');
+                newstr = newstr.replaceAll(']', ']\n');
+
+                $(this).val(newstr);
+
+                console.log('Selection Changed: ' + newstr)
+            } else {
+                comment_formatted = true;
+                return true;
+            }
+          });
 
           
       }
