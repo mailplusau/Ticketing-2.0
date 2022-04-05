@@ -1747,6 +1747,13 @@
        var nonweb_send_obj = {};
        var nonweb_recv_obj = {};
 
+       var mpex_manual_source = [];
+       var mpex_portal_source = [];
+       var mpex_shopify_source = [];
+       var mpex_bulk_source = [];
+       var mpex_date_set = [];
+       var mpex_date_set = [];
+
        // Barcode Source Tickets
        var ticketBarcodeSourceSearch = search.load({
          type: 'customrecord_mp_ticket',
@@ -1757,9 +1764,10 @@
        var temp_manual_count = 0;
        var count = 0;
 
-       var title = '<b>Sender vs Receiver Breakdown (' + getFirstDay() +
+       var title = '<b>Tickets based on Barcode Source (' +
+         getLastWeekFirstDay() +
          ' - ' +
-         getLastDay() + ')</b></br>';
+         getLastWeekLastDay() + ')</b></br>';
        var params = {
          date_from: getFirstDay(),
          date_to: getLastDay()
@@ -1800,6 +1808,19 @@
            operator: search.Operator.ONORBEFORE,
            values: date_to,
          }));
+       } else {
+         ticketBarcodeSourceSearch.filters.push(search.createFilter({
+           name: "created",
+           operator: search.Operator.ONORAFTER,
+           values: getLastWeekFirstDay()
+         }));
+
+         ticketBarcodeSourceSearch.filters.push(search.createFilter({
+           name: "created",
+           operator: search.Operator.ONORBEFORE,
+           values: getLastWeekLastDay()
+         }));
+
        }
 
        ticketBarcodeSourceSearch.run().each(function(ticketBarcodeSource) {
@@ -1863,9 +1884,368 @@
          ]);
        }
 
+       console.log('manual_source_tickets')
+       console.log(manual_source_tickets)
+       console.log('portal_source_tickets')
+       console.log(portal_source_tickets)
+       console.log('shopify_source_tickets')
+       console.log(shopify_source_tickets)
+       console.log('bulk_source_tickets')
+       console.log(bulk_source_tickets)
+
+       // MPEX - Usage Report - Source/Week
+       var ticketMPEXBarcodeSourceSearch = search.load({
+         type: 'customrecord_customer_product_stock',
+         id: 'customsearch_prod_stock_usage_report_6_9'
+       });
+
+       var mpex_old_date = null;
+       var mpex_temp_manual_count = 0;
+       var mpex_count = 0;
+
+       var params = {
+         date_from: getFirstDay(),
+         date_to: getLastDay()
+       };
+       params = JSON.stringify(params);
+       var output = url.resolveScript({
+         deploymentId: 'customdeploy_sl_issues_reporting',
+         scriptId: 'customscript_sl_issues_reporting',
+       });
+
+       var upload_url = baseURL + output + '&custparam_params=' +
+         params;
+
+       console.log('date_from')
+       console.log(date_from)
+       console.log('date_to')
+       console.log(date_to)
+
+       if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+
+         var params = {
+           date_from: date_from,
+           date_to: date_to
+         };
+         params = JSON.stringify(params);
+
+         var upload_url = baseURL + output + '&custparam_params=' +
+           params;
+
+         ticketMPEXBarcodeSourceSearch.filters.push(search.createFilter({
+           name: 'custrecord_cust_date_stock_used',
+           join: null,
+           operator: search.Operator.ONORAFTER,
+           values: date_from
+         }));
+
+         ticketMPEXBarcodeSourceSearch.filters.push(search.createFilter({
+           name: 'custrecord_cust_date_stock_used',
+           join: null,
+           operator: search.Operator.ONORBEFORE,
+           values: date_to
+         }));
+       } else {
+         ticketMPEXBarcodeSourceSearch.filters.push(search.createFilter({
+           name: 'custrecord_cust_date_stock_used',
+           join: null,
+           operator: search.Operator.ONORAFTER,
+           values: getLastWeekFirstDay()
+         }));
+
+         ticketMPEXBarcodeSourceSearch.filters.push(search.createFilter({
+           name: 'custrecord_cust_date_stock_used',
+           join: null,
+           operator: search.Operator.ONORBEFORE,
+           values: getLastWeekLastDay()
+         }));
+       }
+
+       ticketMPEXBarcodeSourceSearch.run().each(function(
+         ticketMPEXBarcodeSource) {
+         var dateUsed = ticketMPEXBarcodeSource.getValue({
+           name: 'custrecord_cust_date_stock_used',
+           summary: 'GROUP'
+         });
+
+         var sourceId = parseInt(ticketMPEXBarcodeSource.getValue({
+           name: 'custrecord_barcode_source',
+           summary: 'GROUP'
+         }));
+
+         var sourceText = ticketMPEXBarcodeSource.getText({
+           name: 'custrecord_barcode_source',
+           summary: 'GROUP'
+         });
+
+
+         var mpexUsage = parseInt(ticketMPEXBarcodeSource.getValue({
+           name: 'name',
+           summary: 'COUNT'
+         }));
+
+
+         if (mpex_count == 0 && isNullorEmpty(mpex_old_date)) {
+           if (!(date_set.includes(dateUsed))) {
+             date_set.push(dateUsed);
+           }
+         } else if (!isNullorEmpty(mpex_old_date) && mpex_old_date !=
+           dateUsed) {
+           mpex_manual_source.push([date_set.indexOf(mpex_old_date),
+             parseInt(mpex_temp_manual_count)
+           ]);
+           mpex_temp_manual_count = 0;
+
+           if (!(date_set.includes(dateUsed))) {
+             date_set.push(dateUsed);
+           }
+         }
+
+
+         if (isNullorEmpty(sourceId) || sourceId == 1) {
+           mpex_temp_manual_count = mpex_temp_manual_count + parseInt(
+             mpexUsage);
+         } else
+         if (sourceId == 2) {
+           mpex_portal_source.push([date_set.indexOf(dateUsed),
+             parseInt(mpexUsage)
+           ]);
+         } else if (sourceId == 3) {
+           mpex_shopify_source.push([date_set.indexOf(dateUsed),
+             parseInt(mpexUsage)
+           ]);
+         } else if (sourceId == 4) {
+           mpex_bulk_source.push([date_set.indexOf(dateUsed),
+             parseInt(mpexUsage)
+           ]);
+         }
+
+         mpex_old_date = dateUsed;
+         mpex_count++;
+         return true;
+
+       });
+
+
+       if (mpex_count > 0) {
+         mpex_manual_source.push([date_set.indexOf(mpex_old_date),
+           parseInt(mpex_temp_manual_count)
+         ]);
+       }
+
+       console.log('Date Set')
+       console.log(date_set)
+       console.log(date_set.length)
+       console.log('MPEX Manual Source')
+       console.log(mpex_manual_source)
+       console.log('Manual Source Tickets')
+       console.log(manual_source_tickets)
+
+       var mpex_manual_perc = [];
+       var mpex_portal_perc = [];
+       var mpex_shopify_perc = [];
+       var mpex_bulk_perc = [];
+
+       // var total_tickets = 0;
+       // var total_scans = 0;
+       var total_tickets_vs_scans = [];
+       var total_scans_array = [];
+       var total_tickets_array = [];
+
+       for (var z = 0; z < date_set.length; z++) {
+
+         var total_tickets = 0;
+         var total_scans = 0;
+
+         console.log('date_set: ' + date_set[z]);
+
+         mpex_manual_perc.push([z, parseFloat(((parseFloat(
+             manual_source_tickets[z][1]) /
+           parseInt(mpex_manual_source[z][1])) * 100).toFixed(2))]);
+         mpex_portal_perc.push([z, parseFloat(((parseFloat(
+             portal_source_tickets[z][1]) /
+           parseInt(mpex_portal_source[z][1])) * 100).toFixed(2))]);
+         mpex_shopify_perc.push([z, parseFloat(((parseFloat(
+             shopify_source_tickets[z][1]) /
+           parseInt(mpex_shopify_source[z][1])) * 100).toFixed(2))]);
+         mpex_bulk_perc.push([z, parseFloat(((parseFloat(bulk_source_tickets[
+             z][1]) /
+           parseInt(mpex_bulk_source[z][1])) * 100).toFixed(2))]);
+
+         total_tickets = total_tickets + (parseFloat(manual_source_tickets[z]
+           [1]) + parseFloat(portal_source_tickets[z][1]) + parseFloat(
+           shopify_source_tickets[z][1]) + parseFloat(bulk_source_tickets[
+           z][1]));
+
+         total_tickets_array.push([z, total_tickets]);
+
+         console.log('total_tickets: ' + total_tickets)
+
+         total_scans = total_scans + (parseInt(mpex_manual_source[z][1]) +
+           parseInt(mpex_portal_source[z][1]) + parseInt(
+             mpex_shopify_source[z][1]) + parseInt(mpex_bulk_source[z][1]));
+         total_scans_array.push([z, total_scans])
+
+         console.log('total_scans: ' + total_scans);
+
+         total_tickets_vs_scans.push([z, parseFloat(((total_tickets /
+           total_scans) * 100).toFixed(2))]);
+
+       }
+       //
+       console.log('mpex_manual_perc')
+       console.log(mpex_manual_perc)
+       console.log('mpex_portal_perc')
+       console.log(mpex_portal_perc)
+       console.log('mpex_shopify_perc')
+       console.log(mpex_shopify_perc)
+       console.log('mpex_bulk_perc')
+       console.log(mpex_bulk_perc)
+       console.log('total_tickets_vs_scans')
+       console.log(total_tickets_vs_scans)
+
        Highcharts.chart('container6', {
          chart: {
+           height: (8 / 16 * 100) + '%',
+           zoomType: 'xy'
+         },
+         title: {
+           text: title
+         },
+         xAxis: {
+           categories: date_set
+         },
+         yAxis: [{ // Primary yAxis
+           title: {
+             text: 'Total Tickets - By Source',
+           },
+           opposite: true
+         }, { // Secondary yAxis
+           gridLineWidth: 0,
+           title: {
+             text: 'Total Scans - By Source',
+           },
+           labels: {}
+         }, { // Tertiary yAxis
+           gridLineWidth: 0,
+           title: {
+             text: 'Total Tickets vs Scans - By Source',
+           },
+           labels: {}
+         }],
+         // legend: {
+         //   layout: 'vertical',
+         //   align: 'center',
+         //   x: -100,
+         //   verticalAlign: 'bottom',
+         //   y: 25,
+         //   floating: true,
+         //   backgroundColor: Highcharts.defaultOptions.legend.backgroundColor ||
+         //     'white',
+         //   borderColor: '#CCC',
+         //   borderWidth: 1,
+         //   shadow: false
+         // },
+         legend: {
+           enabled: false
+         },
+         tooltip: {
+           shared: true
+         },
+         plotOptions: {
+           column: {
+             stacking: 'normal',
+             dataLabels: {
+               enabled: true
+             }
+           }
+         },
+         series: [{
+           name: 'Manual Barcode Tickets',
            type: 'column',
+           data: manual_source_tickets,
+           stack: 1,
+           color: '#F2C80F'
+         }, {
+           name: 'Customer Portal Barcode Tickets',
+           type: 'column',
+           data: portal_source_tickets,
+           stack: 1,
+           color: colors[3]
+         }, {
+           name: 'Shopify Barcode Tickets',
+           type: 'column',
+           data: shopify_source_tickets,
+           stack: 1,
+           color: '#108372'
+         }, {
+           name: 'Bulk Barcode Tickets',
+           type: 'column',
+           data: bulk_source_tickets,
+           stack: 1,
+           color: '#F15628'
+         }, {
+           name: 'Manual Barcodes Scanned',
+           type: 'column',
+           yAxis: 1,
+           data: mpex_manual_source,
+           stack: 2,
+           color: '#F2C80F'
+         }, {
+           name: 'Portal Barcodes Scanned',
+           type: 'column',
+           yAxis: 1,
+           data: mpex_portal_source,
+           stack: 2,
+           color: colors[3]
+         }, {
+           name: 'Shopify Barcodes Scanned',
+           type: 'column',
+           yAxis: 1,
+           data: mpex_shopify_source,
+           stack: 2,
+           color: '#108372'
+         }, {
+           name: ' Bulk Barcodes Scanned',
+           type: 'column',
+           yAxis: 1,
+           data: mpex_bulk_source,
+           stack: 2,
+           color: '#F15628'
+         }, {
+           name: 'Manual - Tickets vs Scanned %',
+           type: 'column',
+           data: mpex_manual_perc,
+           stack: 3,
+           yAxis: 2,
+           color: '#F2C80F'
+         }, {
+           name: 'Portal - Tickets vs Scanned %',
+           type: 'column',
+           data: mpex_portal_perc,
+           stack: 3,
+           yAxis: 2,
+           color: colors[3]
+         }, {
+           name: 'Shopify - Tickets vs Scanned %',
+           type: 'column',
+           data: mpex_shopify_perc,
+           stack: 3,
+           yAxis: 2,
+           color: '#108372'
+         }, {
+           name: ' Bulk - Tickets vs Scanned %',
+           type: 'column',
+           data: mpex_bulk_perc,
+           stack: 3,
+           yAxis: 2,
+           color: '#F15628'
+         }]
+
+       });
+
+       Highcharts.chart('container7', {
+         chart: {
            height: (6 / 16 * 100) + '%',
            zoomType: 'xy'
          },
@@ -1878,7 +2258,7 @@
          yAxis: {
            min: 0,
            title: {
-             text: 'Number of Tickets'
+             text: 'Ticket Barcodes vs Scanned Barcodes Source'
            },
            stackLabels: {
              enabled: true,
@@ -1915,31 +2295,333 @@
            }
          },
          series: [{
-           name: 'Manual',
-           data: manual_source_tickets,
-           stack: 1,
+           name: 'Manual - Tickets vs Scanned %',
+           type: 'column',
+           data: mpex_manual_perc,
+           stack: 2,
            color: '#F2C80F'
          }, {
-           name: 'Customer Portal',
-           data: portal_source_tickets,
-           stack: 1,
+           name: 'Portal - Tickets vs Scanned %',
+           type: 'column',
+           data: mpex_portal_perc,
+           stack: 2,
            color: colors[3]
          }, {
-           name: 'Shopify',
-           data: shopify_source_tickets,
-           stack: 1,
+           name: 'Shopify - Tickets vs Scanned %',
+           type: 'column',
+           data: mpex_shopify_perc,
+           stack: 2,
            color: '#108372'
          }, {
-           name: 'Bulk',
-           data: bulk_source_tickets,
+           name: ' Bulk - Tickets vs Scanned %',
+           type: 'column',
+           data: mpex_bulk_perc,
+           stack: 2,
+           color: '#F15628'
+         }]
+
+       });
+
+       Highcharts.chart('container8', {
+         chart: {
+           height: (6 / 16 * 100) + '%',
+           zoomType: 'xy'
+         },
+         title: {
+           text: ''
+         },
+         xAxis: {
+           categories: date_set
+         },
+         yAxis: [{ // Primary yAxis
+           labels: {
+             format: '{value}%',
+           },
+           title: {
+             text: 'Total Tickets vs Total Scans',
+           },
+           opposite: true
+
+         }, { // Secondary yAxis
+           gridLineWidth: 0,
+           title: {
+             text: 'Total Tickets',
+           },
+           labels: {}
+         }, { // Tertiary yAxis
+           gridLineWidth: 0,
+           title: {
+             text: 'Total Scans',
+           },
+           labels: {},
+           opposite: true
+         }],
+         tooltip: {
+           shared: true
+         },
+         legend: {
+           align: 'right',
+           x: -30,
+           verticalAlign: 'top',
+           y: 25,
+           floating: true,
+           backgroundColor: Highcharts.defaultOptions.legend.backgroundColor ||
+             'white',
+           borderColor: '#CCC',
+           borderWidth: 1,
+           shadow: false
+         },
+         tooltip: {
+           shared: true
+         },
+         plotOptions: {
+           column: {
+             stacking: 'normal',
+             dataLabels: {
+               enabled: true
+             }
+           }
+         },
+         series: [{
+           name: 'Total Tickets vs Scanned',
+           type: 'spline',
+           tooltip: {
+             valueSuffix: ' %'
+           },
+           data: total_tickets_vs_scans,
+           color: '#F2C80F'
+         }, {
+           name: 'Total Tickets',
+           type: 'column',
+           yAxis: 1,
+           data: total_tickets_array,
            stack: 1,
            color: '#F15628'
+         }, {
+           name: 'Total Scanned',
+           type: 'column',
+           yAxis: 2,
+           data: total_scans_array,
+           stack: 2,
+           color: '#108372'
          }]
 
        });
 
 
      }
+
+
+     // function mpexbarcodeSourceChart(date_from, date_to) {
+     //   var colors = Highcharts.getOptions().colors;
+     //   var mpex_manual_source = [];
+     //   var mpex_portal_source = [];
+     //   var mpex_shopify_source = [];
+     //   var mpex_bulk_source = [];
+     //   var mpex_date_set = [];
+     //   var nonweb_send_obj = {};
+     //   var nonweb_recv_obj = {};
+     //
+     //   // Barcode Source Tickets
+     //   var ticketMPEXBarcodeSourceSearch = search.load({
+     //     type: 'customrecord_customer_product_stock',
+     //     id: 'customsearch_prod_stock_usage_report_6_9'
+     //   });
+     //
+     //   var mpex_old_date = null;
+     //   var mpex_temp_manual_count = 0;
+     //   var mpex_count = 0;
+     //
+     //   var title = '<b>Sender vs Receiver Breakdown (' + getFirstDay() +
+     //     ' - ' +
+     //     getLastDay() + ')</b></br>';
+     //   var params = {
+     //     date_from: getFirstDay(),
+     //     date_to: getLastDay()
+     //   };
+     //   params = JSON.stringify(params);
+     //   var output = url.resolveScript({
+     //     deploymentId: 'customdeploy_sl_issues_reporting',
+     //     scriptId: 'customscript_sl_issues_reporting',
+     //   });
+     //
+     //   var upload_url = baseURL + output + '&custparam_params=' +
+     //     params;
+     //
+     //   if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+     //     title = '<b>Barcode Source Breakdown (' + date_from + ' - ' +
+     //       date_to + ')</b>';
+     //     var params = {
+     //       date_from: date_from,
+     //       date_to: date_to
+     //     };
+     //     params = JSON.stringify(params);
+     //
+     //     var upload_url = baseURL + output + '&custparam_params=' +
+     //       params;
+     //
+     //     ticketMPEXBarcodeSourceSearch.filters.push(search.createFilter({
+     //       name: 'custrecord_cust_date_stock_used',
+     //       join: null,
+     //       operator: search.Operator.ONORAFTER,
+     //       values: date_from
+     //     }));
+     //
+     //     ticketMPEXBarcodeSourceSearch.filters.push(search.createFilter({
+     //       name: 'custrecord_cust_date_stock_used',
+     //       join: null,
+     //       operator: search.Operator.ONORBEFORE,
+     //       values: date_to
+     //     }));
+     //   }
+     //
+     //   ticketMPEXBarcodeSourceSearch.run().each(function(
+     //     ticketMPEXBarcodeSource) {
+     //     var dateUsed = ticketMPEXBarcodeSource.getValue({
+     //       name: 'custrecord_cust_date_stock_used',
+     //       summary: 'GROUP'
+     //     });
+     //
+     //     var sourceId = parseInt(ticketMPEXBarcodeSource.getValue({
+     //       name: 'custrecord_barcode_source',
+     //       summary: 'GROUP'
+     //     }));
+     //
+     //     var sourceText = ticketMPEXBarcodeSource.getText({
+     //       name: 'custrecord_barcode_source',
+     //       summary: 'GROUP'
+     //     });
+     //
+     //
+     //     var mpexUsage = parseInt(ticketMPEXBarcodeSource.getValue({
+     //       name: 'name',
+     //       summary: 'COUNT'
+     //     }));
+     //
+     //
+     //     if (mpex_count == 0 && isNullorEmpty(mpex_old_date)) {
+     //       if (!(mpex_date_set.includes(dateUsed))) {
+     //         mpex_date_set.push(dateUsed);
+     //       }
+     //     } else if (!isNullorEmpty(mpex_old_date) && old_date != dateUsed) {
+     //       manual_source.push([mpex_date_set.indexOf(mpex_old_date),
+     //         parseInt(mpex_temp_manual_count)
+     //       ]);
+     //       mpex_temp_manual_count = 0;
+     //
+     //       if (!(mpex_date_set.includes(dateUsed))) {
+     //         mpex_date_set.push(dateUsed);
+     //       }
+     //     }
+     //
+     //
+     //     if (isNullorEmpty(sourceId) || sourceId == 1) {
+     //       mpex_temp_manual_count = mpex_temp_manual_count + parseInt(mpexUsage);
+     //     } else
+     //     if (sourceId == 2) {
+     //       mpex_portal_source.push([date_set.indexOf(dateUsed),
+     //         parseInt(mpexUsage)
+     //       ]);
+     //     } else if (sourceId == 3) {
+     //       mpex_shopify_source.push([date_set.indexOf(dateUsed),
+     //         parseInt(mpexUsage)
+     //       ]);
+     //     } else if (sourceId == 4) {
+     //       mpex_bulk_source.push([date_set.indexOf(dateUsed),
+     //         parseInt(mpexUsage)
+     //       ]);
+     //     }
+     //
+     //     mpex_old_date = dateUsed;
+     //     mpex_count++;
+     //     return true;
+     //
+     //   });
+     //
+     //
+     //   if (mpex_count > 0) {
+     //     manual_source.push([date_set.indexOf(mpex_old_date),
+     //       parseInt(mpex_temp_manual_count)
+     //     ]);
+     //   }
+     //
+     //   Highcharts.chart('container7', {
+     //     chart: {
+     //       type: 'column',
+     //       height: (6 / 16 * 100) + '%',
+     //       zoomType: 'xy'
+     //     },
+     //     title: {
+     //       text: title
+     //     },
+     //     xAxis: {
+     //       categories: mpex_date_set
+     //     },
+     //     yAxis: {
+     //       min: 0,
+     //       title: {
+     //         text: 'Number of Tickets'
+     //       },
+     //       stackLabels: {
+     //         enabled: true,
+     //         style: {
+     //           fontWeight: 'bold',
+     //           color: ( // theme
+     //             Highcharts.defaultOptions.title.style &&
+     //             Highcharts.defaultOptions.title.style.color
+     //           ) || 'gray'
+     //         }
+     //       }
+     //     },
+     //     legend: {
+     //       align: 'right',
+     //       x: -30,
+     //       verticalAlign: 'top',
+     //       y: 25,
+     //       floating: true,
+     //       backgroundColor: Highcharts.defaultOptions.legend.backgroundColor ||
+     //         'white',
+     //       borderColor: '#CCC',
+     //       borderWidth: 1,
+     //       shadow: false
+     //     },
+     //     tooltip: {
+     //       shared: true
+     //     },
+     //     plotOptions: {
+     //       column: {
+     //         stacking: 'normal',
+     //         dataLabels: {
+     //           enabled: true
+     //         }
+     //       }
+     //     },
+     //     series: [{
+     //       name: 'Manual',
+     //       data: mpex_manual_source,
+     //       stack: 1,
+     //       color: '#F2C80F'
+     //     }, {
+     //       name: 'Customer Portal',
+     //       data: mpex_portal_source,
+     //       stack: 1,
+     //       color: colors[3]
+     //     }, {
+     //       name: 'Shopify',
+     //       data: mpex_shopify_source,
+     //       stack: 1,
+     //       color: '#108372'
+     //     }, {
+     //       name: 'Bulk',
+     //       data: mpex_bulk_source,
+     //       stack: 1,
+     //       color: '#F15628'
+     //     }]
+     //
+     //   });
+     //
+     //
+     // }
 
      function manualChart(date_from, date_to) {
 
@@ -2392,8 +3074,6 @@
        return convertDate(firstday);
      }
 
-
-
      function getLastDay() {
        var curr = new Date; // get current date
        var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
@@ -2403,6 +3083,36 @@
        return convertDate(lastday);
 
      }
+
+
+     function getLastWeeksDate() {
+       const now = new Date();
+       return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+     }
+
+     function getLastWeekFirstDay() {
+       var curr = getLastWeeksDate(); // get current date
+       var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+
+       var firstday = new Date(curr.setDate(first));
+       console.log('last Weeks First Date');
+       console.log(firstday);
+       return convertDate(firstday);
+     }
+
+     function getLastWeekLastDay() {
+       var curr = getLastWeeksDate(); // get current date
+       var first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+       var last = first + 6; // last day is the first day + 6
+
+       var lastday = new Date(curr.setDate(last));
+       console.log('last Weeks last Date');
+       console.log(lastday);
+       return convertDate(lastday);
+
+     }
+
+
 
      function getWeekStart(date) {
        //return convertDate(new Date(date.setDate(date.getDate() - date.getDay())));
