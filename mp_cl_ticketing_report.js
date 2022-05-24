@@ -126,6 +126,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format',
       console.log('to', date_to);
 
       overviewChart(date_from, date_to);
+      avgDaysOpenChart(date_from, date_to);
       customerChart(date_from, date_to);
       // staffChart(date_from, date_to);
       sourceChart(date_from, date_to);
@@ -2515,6 +2516,227 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format',
           data: total_scans_array,
           stack: 2,
           color: '#108372'
+        }]
+
+      });
+
+
+    }
+
+    function avgDaysOpenChart(date_from, date_to) {
+      var colors = Highcharts.getOptions().colors;
+      var manual_source_avg_days_open = [];
+      var portal_source_avg_days_open = [];
+      var shopify_source_avg_days_open = [];
+      var bulk_source_avg_days_open = [];
+      var date_set = [];
+
+
+      // MPEX - Tickets Closed Barcodes by Source - Last year to date (per week)
+      var avgDaysTicketOpenSearch = search.load({
+        type: 'customrecord_mp_ticket',
+        id: 'customsearch_ticket_created_report_we__2'
+      });
+
+      var old_date = null;
+      var temp_manual_count = 0;
+      var count = 0;
+
+      var title = '<b>Average Days Open (' +
+        getLastWeekFirstDay() +
+        ' - ' +
+        getLastWeekLastDay() + ')</b></br>';
+      var params = {
+        date_from: getFirstDay(),
+        date_to: getLastDay()
+      };
+      params = JSON.stringify(params);
+      var output = url.resolveScript({
+        deploymentId: 'customdeploy_sl_issues_reporting',
+        scriptId: 'customscript_sl_issues_reporting',
+      });
+
+      var upload_url = baseURL + output + '&custparam_params=' +
+        params;
+      // $("#button_issues_page").append("<a href='" + upload_url +
+      //   "' target='_blank'><input type='button' value='REPORTING BY ISSUES' class='form-control btn btn-primary'></a>"
+      // );
+      if (!isNullorEmpty(date_from) && !isNullorEmpty(date_to)) {
+        title = '<b>Average Days Open (' + date_from + ' - ' +
+          date_to + ')</b>';
+        var params = {
+          date_from: date_from,
+          date_to: date_to
+        };
+        params = JSON.stringify(params);
+
+        var upload_url = baseURL + output + '&custparam_params=' +
+          params;
+        // $("#button_issues_page").append("<a href='" + upload_url +
+        //   "' target='_blank'><input type='button' value='REPORTING BY ISSUES' class='form-control btn btn-primary'></a>"
+        // );
+        avgDaysTicketOpenSearch.filters.push(search.createFilter({
+          name: "created",
+          operator: search.Operator.ONORAFTER,
+          values: date_from,
+        }));
+
+        avgDaysTicketOpenSearch.filters.push(search.createFilter({
+          name: "created",
+          operator: search.Operator.ONORBEFORE,
+          values: date_to,
+        }));
+      } else {
+        avgDaysTicketOpenSearch.filters.push(search.createFilter({
+          name: "created",
+          operator: search.Operator.ONORAFTER,
+          values: getLastWeekFirstDay()
+        }));
+
+        avgDaysTicketOpenSearch.filters.push(search.createFilter({
+          name: "created",
+          operator: search.Operator.ONORBEFORE,
+          values: getLastWeekLastDay()
+        }));
+
+      }
+
+      avgDaysTicketOpenSearch.run().each(function(ticketBarcodeSource) {
+        var ticketsClosedCount = ticketBarcodeSource.getValue({
+          name: 'name',
+          summary: 'COUNT'
+        });
+
+        var avgDaysOpen = parseFloat(ticketBarcodeSource.getValue({
+          name: 'formulanumeric',
+          summary: 'AVG'
+        })).toFixed(2);
+        var dateCreated = ticketBarcodeSource.getValue({
+          name: "created",
+          summary: "GROUP",
+        });
+        var barcodeSource = ticketBarcodeSource.getValue({
+          name: "custrecord_barcode_source",
+          join: "CUSTRECORD_BARCODE_NUMBER",
+          summary: "GROUP",
+        });
+
+        if (count == 0 && isNullorEmpty(old_date)) {
+          if (!(date_set.includes(dateCreated))) {
+            date_set.push(dateCreated);
+          }
+        } else if (!isNullorEmpty(old_date) && old_date != dateCreated) {
+          manual_source_avg_days_open.push([date_set.indexOf(old_date),
+            parseInt(temp_manual_count)
+          ]);
+          temp_manual_count = 0;
+
+          if (!(date_set.includes(dateCreated))) {
+            date_set.push(dateCreated);
+          }
+        }
+
+
+        if (isNullorEmpty(barcodeSource) || barcodeSource == 1) {
+          temp_manual_count = temp_manual_count + parseFloat(avgDaysOpen);
+        } else
+        if (barcodeSource == 2) {
+          portal_source_avg_days_open.push([date_set.indexOf(dateCreated),
+            parseFloat(avgDaysOpen)
+          ]);
+        } else if (barcodeSource == 3) {
+          shopify_source_avg_days_open.push([date_set.indexOf(dateCreated),
+            parseFloat(avgDaysOpen)
+          ]);
+        } else if (barcodeSource == 4) {
+          bulk_source_avg_days_open.push([date_set.indexOf(dateCreated),
+            parseFloat(avgDaysOpen)
+          ]);
+        }
+
+        old_date = dateCreated;
+        count++;
+        return true;
+
+      });
+
+
+      if (count > 0) {
+        manual_source_avg_days_open.push([date_set.indexOf(old_date),
+          parseFloat(temp_manual_count)
+        ]);
+      }
+
+
+
+      Highcharts.chart('container9', {
+        chart: {
+          height: (8 / 16 * 100) + '%',
+          zoomType: 'xy'
+        },
+        title: {
+          text: title
+        },
+        xAxis: {
+          categories: date_set
+        },
+        yAxis: [{ // Primary yAxis
+          title: {
+            text: 'Avg Days Open - By Source',
+          },
+          opposite: true
+        }],
+        // legend: {
+        //   layout: 'vertical',
+        //   align: 'center',
+        //   x: -100,
+        //   verticalAlign: 'bottom',
+        //   y: 25,
+        //   floating: true,
+        //   backgroundColor: Highcharts.defaultOptions.legend.backgroundColor ||
+        //     'white',
+        //   borderColor: '#CCC',
+        //   borderWidth: 1,
+        //   shadow: false
+        // },
+        legend: {
+          enabled: false
+        },
+        tooltip: {
+          shared: true
+        },
+        plotOptions: {
+          column: {
+            stacking: 'normal',
+            dataLabels: {
+              enabled: true
+            }
+          }
+        },
+        series: [{
+          name: 'Manual Barcode Avg. Days Open',
+          type: 'column',
+          data: manual_source_avg_days_open,
+          stack: 1,
+          color: '#F2C80F'
+        }, {
+          name: 'Customer Portal Avg. Days Open',
+          type: 'column',
+          data: portal_source_avg_days_open,
+          stack: 1,
+          color: colors[3]
+        }, {
+          name: 'Shopify Barcode Avg. Days Open',
+          type: 'column',
+          data: shopify_source_avg_days_open,
+          stack: 1,
+          color: '#108372'
+        }, {
+          name: 'Bulk Barcode Avg. Days Open',
+          type: 'column',
+          data: bulk_source_avg_days_open,
+          stack: 1,
+          color: '#F15628'
         }]
 
       });

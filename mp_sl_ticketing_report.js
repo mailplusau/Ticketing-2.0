@@ -205,6 +205,8 @@
           '<li role="presentation" class="active"><a data-toggle="tab" href="#ticketsOverview"><b>TICKETS OVERVIEW</b></a></li>';
         inlineQty +=
           '<li role="presentation" class=""><a data-toggle="tab" href="#totalTicketsvsTotalScans"><b>TOTAL TICKETS vs TOTAL SCANS (%)</b></a></li>';
+        inlineQty +=
+          '<li role="presentation" class=""><a data-toggle="tab" href="#avgDaysOpen"><b>AVERAGE DAYS TICKETS OPEN</b></a></li>';
 
 
         inlineQty += '</ul></div>';
@@ -222,6 +224,13 @@
           '<div role="tabpanel" class="tab-pane" id="totalTicketsvsTotalScans">';
         inlineQty += '<figure class="highcharts-figure">';
         inlineQty += '<div id="container8"></div>';
+        inlineQty += '</figure><br></br>';
+        inlineQty += '</div>';
+
+        inlineQty +=
+          '<div role="tabpanel" class="tab-pane" id="avgDaysOpen">';
+        inlineQty += '<figure class="highcharts-figure">';
+        inlineQty += '<div id="container9"></div>';
         inlineQty += '</figure><br></br>';
         inlineQty += '</div>';
 
