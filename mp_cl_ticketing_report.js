@@ -1555,6 +1555,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format',
       var nonweb_send = [];
       var nonweb_recv = [];
       var date_set = [];
+      var dateBarcodeUsed = [];
       var nonweb_send_obj = {};
       var nonweb_recv_obj = {};
       //Source
@@ -1744,6 +1745,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format',
       var shopify_source_tickets = [];
       var bulk_source_tickets = [];
       var date_set = [];
+      var dateBarcodeUsed = [];
       var nonweb_send_obj = {};
       var nonweb_recv_obj = {};
 
@@ -1884,14 +1886,14 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format',
         ]);
       }
 
-      console.log('manual_source_tickets')
-      console.log(manual_source_tickets)
-      console.log('portal_source_tickets')
-      console.log(portal_source_tickets)
-      console.log('shopify_source_tickets')
-      console.log(shopify_source_tickets)
-      console.log('bulk_source_tickets')
-      console.log(bulk_source_tickets)
+      // console.log('manual_source_tickets')
+      // console.log(manual_source_tickets)
+      // console.log('portal_source_tickets')
+      // console.log(portal_source_tickets)
+      // console.log('shopify_source_tickets')
+      // console.log(shopify_source_tickets)
+      // console.log('bulk_source_tickets')
+      // console.log(bulk_source_tickets)
 
       // MPEX - Usage Report - Source/Week
       var ticketMPEXBarcodeSourceSearch = search.load({
@@ -1981,19 +1983,19 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format',
 
 
         if (mpex_count == 0 && isNullorEmpty(mpex_old_date)) {
-          // if (!(date_set.includes(dateUsed))) {
-          //   date_set.push(dateUsed);
-          // }
+          if (!(dateBarcodeUsed.includes(dateUsed))) {
+            dateBarcodeUsed.push(dateUsed);
+          }
         } else if (!isNullorEmpty(mpex_old_date) && mpex_old_date !=
           dateUsed) {
-          mpex_manual_source.push([date_set.indexOf(mpex_old_date),
+          mpex_manual_source.push([dateBarcodeUsed.indexOf(mpex_old_date),
             parseInt(mpex_temp_manual_count)
           ]);
           mpex_temp_manual_count = 0;
 
-          // if (!(date_set.includes(dateUsed))) {
-          //   date_set.push(dateUsed);
-          // }
+          if (!(dateBarcodeUsed.includes(dateUsed))) {
+            dateBarcodeUsed.push(dateUsed);
+          }
         }
 
 
@@ -2002,15 +2004,15 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format',
             mpexUsage);
         } else
         if (sourceId == 2) {
-          mpex_portal_source.push([date_set.indexOf(dateUsed),
+          mpex_portal_source.push([dateBarcodeUsed.indexOf(dateUsed),
             parseInt(mpexUsage)
           ]);
         } else if (sourceId == 3) {
-          mpex_shopify_source.push([date_set.indexOf(dateUsed),
+          mpex_shopify_source.push([dateBarcodeUsed.indexOf(dateUsed),
             parseInt(mpexUsage)
           ]);
         } else if (sourceId == 4) {
-          mpex_bulk_source.push([date_set.indexOf(dateUsed),
+          mpex_bulk_source.push([dateBarcodeUsed.indexOf(dateUsed),
             parseInt(mpexUsage)
           ]);
         }
@@ -2023,7 +2025,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format',
 
 
       if (mpex_count > 0) {
-        mpex_manual_source.push([date_set.indexOf(mpex_old_date),
+        mpex_manual_source.push([dateBarcodeUsed.indexOf(mpex_old_date),
           parseInt(mpex_temp_manual_count)
         ]);
       }
@@ -2031,6 +2033,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format',
       console.log('Date Set')
       console.log(date_set)
       console.log(date_set.length)
+      console.log('Date Barcode Used')
+      console.log(dateBarcodeUsed)
+      console.log(dateBarcodeUsed.length)
       console.log('MPEX Manual Source')
       console.log(mpex_manual_source)
       console.log('Manual Source Tickets')
@@ -2062,27 +2067,116 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format',
       var total_scans_array = [];
       var total_tickets_array = [];
 
-      for (var z = 0; z < date_set.length; z++) {
+      // for (var z = 0; z < date_set.length; z++) {
+      //
+      //   var total_tickets = 0;
+      //   var total_scans = 0;
+      //
+      //   console.log('date_set: ' + date_set[z]);
+      //
+      //   if (!isNullorEmpty(manual_source_tickets[z]) && !isNullorEmpty(
+      //       mpex_manual_source[z])) {
+      //     mpex_manual_perc.push([z, parseFloat(((parseFloat(
+      //         manual_source_tickets[z][1]) /
+      //       parseInt(mpex_manual_source[z][1])) * 100).toFixed(2))]);
+      //   } else {
+      //     mpex_manual_perc.push([z, 0]);
+      //     manual_source_tickets[z][1] = 0;
+      //     mpex_manual_source[z][1] = 0;
+      //   }
+      //   console.log('mpex_manual_perc: ' + mpex_manual_perc)
+      //   if (!isNullorEmpty(mpex_portal_perc[z]) && !isNullorEmpty(
+      //       mpex_portal_source[z])) {
+      //     mpex_portal_perc.push([z, parseFloat(((parseFloat(
+      //         portal_source_tickets[z][1]) /
+      //       parseInt(mpex_portal_source[z][1])) * 100).toFixed(2))]);
+      //   } else {
+      //     mpex_portal_perc.push([z, 0]);
+      //     portal_source_tickets[z][1] = 0;
+      //     mpex_portal_source[z][1] = 0;
+      //   }
+      //   console.log('mpex_portal_perc: ' + mpex_portal_perc)
+      //   if (!isNullorEmpty(shopify_source_tickets[z]) && !isNullorEmpty(
+      //       mpex_shopify_source[z])) {
+      //     mpex_shopify_perc.push([z, parseFloat(((parseFloat(
+      //         shopify_source_tickets[z][1]) /
+      //       parseInt(mpex_shopify_source[z][1])) * 100).toFixed(2))]);
+      //   }else {
+      //     mpex_shopify_perc.push([z, 0]);
+      //     shopify_source_tickets[z][1] = 0;
+      //     mpex_shopify_source[z][1] = 0;
+      //   }
+      //   console.log('mpex_shopify_perc: ' + mpex_shopify_perc)
+      //   if (!isNullorEmpty(mpex_bulk_perc[z]) && !isNullorEmpty(
+      //       mpex_bulk_source[z])) {
+      //     mpex_bulk_perc.push([z, parseFloat(((parseFloat(
+      //         bulk_source_tickets[
+      //           z][1]) /
+      //       parseInt(mpex_bulk_source[z][1])) * 100).toFixed(2))]);
+      //   }else {
+      //     mpex_bulk_perc.push([z, 0]);
+      //     bulk_source_tickets[z][1] = 0;
+      //     mpex_bulk_source[z][1] = 0;
+      //   }
+      //   console.log('mpex_bulk_perc: ' + mpex_bulk_perc)
+      //
+      //   total_tickets = total_tickets + (parseFloat(manual_source_tickets[
+      //       z]
+      //     [1]) + parseFloat(portal_source_tickets[z][1]) + parseFloat(
+      //     shopify_source_tickets[z][1]) + parseFloat(
+      //     bulk_source_tickets[
+      //       z][1]));
+      //
+      //   total_tickets_array.push([z, total_tickets]);
+      //
+      //   console.log('total_tickets: ' + total_tickets)
+      //
+      //   total_scans = total_scans + (parseInt(mpex_manual_source[z][1]) +
+      //     parseInt(mpex_portal_source[z][1]) + parseInt(
+      //       mpex_shopify_source[z][1]) + parseInt(mpex_bulk_source[z][1])
+      //   );
+      //   total_scans_array.push([z, total_scans])
+      //
+      //   console.log('total_scans: ' + total_scans);
+      //
+      //   total_tickets_vs_scans.push([z, parseFloat(((total_tickets /
+      //     total_scans) * 100).toFixed(2))]);
+      //
+      //
+      //
+      // }
+      for (var z = 0; z < dateBarcodeUsed.length; z++) {
 
         var total_tickets = 0;
         var total_scans = 0;
 
-        console.log('date_set: ' + date_set[z]);
+        console.log('dateBarcodeUsed: ' + dateBarcodeUsed[z]);
 
 
         mpex_manual_perc.push([z, parseFloat(((parseFloat(
             manual_source_tickets[z][1]) /
           parseInt(mpex_manual_source[z][1])) * 100).toFixed(2))]);
+
+        console.log('mpex_manual_perc: ' + mpex_manual_perc)
+
         mpex_portal_perc.push([z, parseFloat(((parseFloat(
             portal_source_tickets[z][1]) /
           parseInt(mpex_portal_source[z][1])) * 100).toFixed(2))]);
+
+        console.log('mpex_portal_perc: ' + mpex_portal_perc)
+
         mpex_shopify_perc.push([z, parseFloat(((parseFloat(
             shopify_source_tickets[z][1]) /
           parseInt(mpex_shopify_source[z][1])) * 100).toFixed(2))]);
+
+        console.log('mpex_shopify_perc: ' + mpex_shopify_perc)
+
         mpex_bulk_perc.push([z, parseFloat(((parseFloat(
             bulk_source_tickets[
               z][1]) /
           parseInt(mpex_bulk_source[z][1])) * 100).toFixed(2))]);
+
+        console.log('mpex_bulk_perc: ' + mpex_bulk_perc)
 
         total_tickets = total_tickets + (parseFloat(manual_source_tickets[
             z]
