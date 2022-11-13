@@ -4804,9 +4804,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     var barcodeName = barcodeRecord.getValue({ fieldId: 'name' });
 
                     //Send Email To Customer
-                    if (!isNullorEmpty(receiveremail)) {
-                        sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Ticket Closed - ' + barcodeName, [receiveremail], 114, customer_id);
-                    }
+                    // if (!isNullorEmpty(receiveremail)) {
+                    //     sendCustomerEscalateEmail('MailPlus [' + ticket_name + '] - Ticket Closed - ' + barcodeName, [receiveremail], 114, customer_id);
+                    // }
                 } catch (e) {
                     console.log("Failed to load barcode because no customer linked");
                 }
