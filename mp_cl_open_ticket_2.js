@@ -2546,13 +2546,13 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
         function checkSelectorFormat(selector_number, selector_type) {
             switch (selector_type) {
                 case 'barcode_number':
-                    var barcodeFormat = /^MPE[BCDFNTG]\d{6}$/;
-                    var connoteFormat = /^MPXL\d{6}$/;
-                    var onlyNumbers = /^\d{20}$/;
-                    if (barcodeFormat.test(selector_number) || connoteFormat.test(selector_number) || onlyNumbers.test(selector_number)) {
-                        return true;
-                    }
-                    return false;
+                    // var barcodeFormat = /^MPE[BCDFNTG]\d{6}$/;
+                    // var connoteFormat = /^MPXL\d{6}$/;
+                    // var onlyNumbers = /^\d{20}$/;
+                    // if (barcodeFormat.test(selector_number) || connoteFormat.test(selector_number) || onlyNumbers.test(selector_number)) {
+                    return true;
+                // }
+                // return false;
                 case 'invoice_number':
                     var invoiceFormat = /^INV\d{6}$/;
                     return invoiceFormat.test(selector_number);
@@ -2648,7 +2648,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             switch (selector_type) {
                 case 'barcode_number':
                     var filterExpression = [
-                        [["name", "is", selector_number], "OR", ["custrecord_connote_number", "is", selector_number]], 'AND', ["isinactive", "is", 'F']
+                        [["name", "is", selector_number], "OR", ["custrecord_connote_number", "is", selector_number], "OR", ["custrecord_ext_reference_id", "is", selector_number]], 'AND', ["isinactive", "is", 'F']
                     ];
 
 
@@ -2666,7 +2666,12 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     var activeSelectorResults = search.create({ type: 'customrecord_customer_product_stock', filterExpression: filterExpression, columns: activeBarcodeColumns });
                     var connoteFormat = /^MPXL\d{6}$/;
 
-                    if (connoteFormat.test(selector_number)) {
+                    var cpConnoteFormat = /^CPBZL5C\d{7}$/;
+
+
+                    var sendleFormat = /^SB.*$/;
+
+                    if (connoteFormat.test(selector_number) || cpConnoteFormat.test(selector_number)) {
                         console.log('connote');
                         activeSelectorResults.filters.push(search.createFilter({
                             name: 'custrecord_connote_number',
@@ -2674,6 +2679,13 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                             values: selector_number,
                         }));
 
+                    } else if (sendleFormat.test(selector_number)) {
+                        console.log('external reference');
+                        activeSelectorResults.filters.push(search.createFilter({
+                            name: 'custrecord_ext_reference_id',
+                            operator: search.Operator.IS,
+                            values: selector_number,
+                        }));
                     } else {
                         console.log('else');
                         activeSelectorResults.filters.push(search.createFilter({
