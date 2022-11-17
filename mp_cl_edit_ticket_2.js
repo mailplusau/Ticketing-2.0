@@ -318,7 +318,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                         table.draw();
                     });
                 });
-            })
+            });
+
+            $(".loader").css("display", "none");
 
             // For the moment, the search "customsearch_customer_mpex_contacts" doesn't exist on Sandbox
             // because the field "Contact : MPEX Contact (Custom)" doesn't exist on the contact records.

@@ -1198,7 +1198,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 inlineQty += '<li><a href="#">INVOICE NUMBER</a></li>';
                 //inlineQty += '<li><a href="#">CUSTOMER APP</a></li>';
                 inlineQty += '<li><a href="#">CUSTOMER PORTAL</a></li>';
-                inlineQty += '<li><a href="#">UPDATE LABEL</a></li>';
+                // inlineQty += '<li><a href="#">UPDATE LABEL</a></li>';
                 inlineQty += '</ul>';
                 inlineQty += '</div>';
                 //Input text

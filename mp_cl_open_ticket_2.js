@@ -450,7 +450,8 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                                 $('#mp_issues').html(mp_issues_option_inline_html);
                                 //Requires double refresh. One for the dropwdown chnage and sceond for selection
                                 $('#mp_issues').selectpicker('refresh');
-                                $('#mp_issues').selectpicker('refresh')
+                                $('#mp_issues').selectpicker('refresh');
+                                $('#owner').selectpicker('val', [1706027]);
 
                                 break;
                             case 'Update Label':
