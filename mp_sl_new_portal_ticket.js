@@ -65,7 +65,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
 
             //Owner
             ticketRecord.setValue({ fieldId: 'custrecord_creator', value: 112209 });
-            ticketRecord.setValue({ fieldId: 'custrecord_owner', value: [772595] });
+            ticketRecord.setValue({ fieldId: 'custrecord_owner', value: [1706027] });
 
             //Other fields
             ticketRecord.setValue({ fieldId: 'custrecord_email_sent', value: false });
@@ -166,7 +166,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             email.send({
                 author: 112209,
                 body: note,
-                recipients: ["popie.popie@mailplus.com.au"],
+                recipients: ["laura.busse@mailplus.com.au"],
                 subject: 'MPSD' + ticket_id + ' - New Customer Issue Ticket',
                 cc: ["ankith.ravindran@mailplus.com.au"]
             });
