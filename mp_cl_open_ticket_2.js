@@ -159,11 +159,11 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
             // The inline html of the <table> tag is not correctly displayed inside div.col-xs-12.contacts_div when added with Suitelet.
             // Hence, the html code is added using jQuery when the page loads.
-            var inline_html_contact_table = '<table cellpadding="15" id="contacts" class="table table-responsive table-striped contacts tablesorter" cellspacing="0" style="width: 100%;border: 0"><thead style="color: white;background-color: #379E8F;"><tr><th style="vertical-align: middle;text-align: center;" id="col_name"><b>NAME</b></th><th style="vertical-align: middle;text-align: center;" id="col_phone"><b>PHONE</b></th><th style="vertical-align: middle;text-align: center;" id="col_email"><b>EMAIL</b></th><th style="vertical-align: middle;text-align: center;" id="col_role"><b>ROLE</b></th><th style="vertical-align: middle;text-align: center;" id="col_add_as_recipient"><b>ADD AS RECIPIENT</b></th></tr></thead><tbody></tbody></table>';
+            var inline_html_contact_table = '<table cellpadding="15" id="contacts" class="table table-responsive table-striped contacts tablesorter" cellspacing="0" style="width: 100%;border: 0"><thead style="color: white;background-color: #095C7B;"><tr><th style="vertical-align: middle;text-align: center;" id="col_name"><b>NAME</b></th><th style="vertical-align: middle;text-align: center;" id="col_phone"><b>PHONE</b></th><th style="vertical-align: middle;text-align: center;" id="col_email"><b>EMAIL</b></th><th style="vertical-align: middle;text-align: center;" id="col_role"><b>ROLE</b></th><th style="vertical-align: middle;text-align: center;" id="col_add_as_recipient"><b>ADD AS RECIPIENT</b></th></tr></thead><tbody></tbody></table>';
             $('div.col-xs-12.contacts_div').html(inline_html_contact_table);
 
             // Like the contacts table, the html code of the usernote table is added using jQuery when the page loads.
-            var inline_html_usernote_table = '<table cellpadding="15" id="user_note" class="table table-responsive table-striped contacts tablesorter" cellspacing="0" style="width: 100%;border: 0"><thead style="color: white;background-color: #379E8F;"><tr><th style="vertical-align: middle;text-align: center;" id="usernote_title"><b>TITLE</b></th><th style="vertical-align: middle;text-align: center;" id="usernote_name"><b>NAME</b></th><th style="vertical-align: middle;text-align: center;" id="usernote_date"><b>DATE</b></th><th style="vertical-align: middle;text-align: center;" id="usernote_comment"><b>USER NOTE</b></th></tr></thead><tbody></tbody></table>';
+            var inline_html_usernote_table = '<table cellpadding="15" id="user_note" class="table table-responsive table-striped contacts tablesorter" cellspacing="0" style="width: 100%;border: 0"><thead style="color: white;background-color: #095C7B;"><tr><th style="vertical-align: middle;text-align: center;" id="usernote_title"><b>TITLE</b></th><th style="vertical-align: middle;text-align: center;" id="usernote_name"><b>NAME</b></th><th style="vertical-align: middle;text-align: center;" id="usernote_date"><b>DATE</b></th><th style="vertical-align: middle;text-align: center;" id="usernote_comment"><b>USER NOTE</b></th></tr></thead><tbody></tbody></table>';
             $('div.col-xs-12.user_note_div').html(inline_html_usernote_table);
 
 
@@ -672,7 +672,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             });
 
             $('#escalaterianne').click(function () {
-                console.log("Escalating to rianne");
+                console.log("Escalating to Laura");
                 var ticketRecord = record.load({
                     type: 'customrecord_mp_ticket',
                     id: parseInt(ticket_id),
@@ -686,14 +686,14 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                 }
                 if (isNullorEmpty(ticketRecord.getValue({ fieldId: 'custrecord_date_escalated_it' }))) {
                     ticketRecord.setValue({ fieldId: 'custrecord_date_escalated_it', value: new Date() });
-                    var owner_list = ['1132504'];
+                    var owner_list = ['1706027'];
                     $('#owner').selectpicker('val', owner_list);
                     ticketRecord.setValue({ fieldId: 'custrecord_owner', value: owner_list });
                     ticketRecord.save({
                         enableSourcing: true,
                         ignoreMandatoryFields: true
                     });
-                    sendCustomerTicketEmail('', parseInt(ticket_id), customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), $('#os_value option:selected').text(), $('#login_email_text').val(), '', '', ["rianne.mansell@mailplus.com.au"]);
+                    sendCustomerTicketEmail('', parseInt(ticket_id), customer_number, selector_type, selector_number, $("#browser_value option:selected").text(), $('#os_value option:selected').text(), $('#login_email_text').val(), '', '', ["laura.busse@mailplus.com.au"]);
                     var output = url.resolveScript({
                         deploymentId: 'customdeploy_sl_edit_ticket_2',
                         scriptId: 'customscript_sl_edit_ticket_2',
@@ -704,6 +704,28 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     console.log('didnt work for some reason');
                 }
 
+
+            });
+
+            $('#inprogress').click(function () {
+
+                var ticketRecord = record.load({
+                    type: 'customrecord_mp_ticket',
+                    id: parseInt(ticket_id),
+                });
+               
+                ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 4 });
+                ticketRecord.save({
+                    enableSourcing: true,
+                    ignoreMandatoryFields: true
+                });
+
+                var output = url.resolveScript({
+                    deploymentId: 'customdeploy_sl_edit_ticket_2',
+                    scriptId: 'customscript_sl_edit_ticket_2',
+                });
+                var upload_url = baseURL + output;
+                window.open(upload_url, "_self", "height=750,width=650,modal=yes,alwaysRaised=yes");
 
             });
 
@@ -3479,7 +3501,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     var contact_phone = contactResult.getValue('phone');
                     var contact_role_value = contactResult.getValue('contactrole');
                     var contact_role_text = contactResult.getText('contactrole');
-                    var add_as_recipient_btn = '<button style="background-color: #379E8F; border-color: #379E8F" class="btn btn-success add_as_recipient glyphicon glyphicon-envelope" type="button" data-email="' + contact_email + '" data-firstname="' + first_name + '" data-contact-id="' + contact_id + '" data-toggle="tooltip" data-placement="right" title="Add as recipient"></button>';
+                    var add_as_recipient_btn = '<button style="background-color: #095C7B; border-color: #095C7B" class="btn btn-success add_as_recipient glyphicon glyphicon-envelope" type="button" data-email="' + contact_email + '" data-firstname="' + first_name + '" data-contact-id="' + contact_id + '" data-toggle="tooltip" data-placement="right" title="Add as recipient"></button>';
 
                     inline_contacts_table_html += '<tr class="text-center">';
                     inline_contacts_table_html += '<td headers="col_name">' + contact_name + '</td>';
@@ -5679,7 +5701,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
          */
         function htmlCreditMemoTable(status_value) {
             var inline_html_credit_memo_table = '<table cellpadding="15" id="credit_memo" class="table table-responsive table-striped contacts tablesorter" cellspacing="0" style="width: 100%;border: 0">';
-            inline_html_credit_memo_table += '<thead style="color: white;background-color: #379E8F;">';
+            inline_html_credit_memo_table += '<thead style="color: white;background-color: #095C7B;">';
             inline_html_credit_memo_table += '<tr>';
             inline_html_credit_memo_table += '<th style="vertical-align: middle;text-align: center;" id="credit_memo_number">';
             inline_html_credit_memo_table += '<b>CREDIT #</b>';
@@ -5707,7 +5729,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
         }
 
         function htmlUsageReportTable(status_value) {
-            var inline_html_usage_report_table = '<table cellpadding="15" id="usage_report" class="table table-responsive table-striped contacts tablesorter" cellspacing="0" style="width: 100%;border: 0"><thead style="color: white;background-color: #379E8F;">';
+            var inline_html_usage_report_table = '<table cellpadding="15" id="usage_report" class="table table-responsive table-striped contacts tablesorter" cellspacing="0" style="width: 100%;border: 0"><thead style="color: white;background-color: #095C7B;">';
             inline_html_usage_report_table += '<tr>';
             inline_html_usage_report_table += '<th style="vertical-align: middle;text-align: center;" id="usage_report_filename">';
             inline_html_usage_report_table += '<b>FILE NAME</b>';

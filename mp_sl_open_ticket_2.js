@@ -762,7 +762,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineHtml += '<div class="form-group container test_section">';
             //inlineHtml += '<button type="button" class="btn btn-sm btn-info instruction_button" data-toggle="collapse" data-target="#demo">Click for Instructions</button>';
             //inlineHtml += '<div id="demo" style="background-color: #cfeefc !important;border: 1px solid #417ed9;padding: 20px 30px 30px 30px;width:96%;position:absolute" class="collapse"><b><u>IMPORTANT INSTRUCTIONS:</u></b>';
-            inlineHtml += '<div style=\"background-color: #e3e8e5 !important;border: 2px solid #379E8F;padding: 20px 30px 30px 30px; text-align: left\"><b><u>Mandatory Fields:</u></b>';
+            inlineHtml += '<div style=\"background-color: #e3e8e5 !important;border: 2px solid #095C7B;padding: 20px 30px 30px 30px; text-align: left\"><b><u>Mandatory Fields:</u></b>';
             inlineHtml += '<ul>';
             inlineHtml += '<li><b><u>Ticket Details</u></b>: Total Enquiry Count must be at least 1 i.e. Chat/Email/Phone must have at least 1 incremented and Receiver Details should be filled in if blank</li>';
             inlineHtml += '<li><b><u>Issues</u></b>: Owner and Toll Emails must have at least one selected</li>';
@@ -849,7 +849,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                         inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #FBEA51; color: #103D39; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closeunallocatedbutton" onclick="">Close Unallocated Ticket</button>';
 
                     }
-                } else if (!isNullorEmpty(ticket_id) && !isNullorEmpty(escalated_to_it)) {
+                } else if (!isNullorEmpty(ticket_id) && (userRole == 1032 || userRole == 3) && selector_type == "customer_issue") {
                     inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #f4524d; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closeresolvedbutton" onclick="">Close - Resolved Ticket</button>';
                     inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #f4524d; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="closeunresolvedbutton" onclick="">Close - Unresolved Ticket</button>';
                 } else {
@@ -878,10 +878,10 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 title: "userId",
                 details: userId
             });
-            if (selector_type == "customer_issue" && isTicketNotClosed(status_value) && !isNullorEmpty(ticket_id) && isNullorEmpty(escalated_to_it)) {
+            if (selector_type == "customer_issue" && isTicketNotClosed(status_value) && !isNullorEmpty(ticket_id) && isNullorEmpty(escalated_to_it) && (userRole == 1005)) {
                 inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #fc9003; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalaterianne" onclick="">Escalate To IT</button>';
-            } else if (selector_type == "customer_issue" && isTicketNotClosed(status_value) && !isNullorEmpty(ticket_id) && !isNullorEmpty(escalated_to_it) && status_value != 10 && status_value != 17) {
-                inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #fc9003; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalateankith" onclick="">Escalate To Ankith</button>';
+            } else if (selector_type == "customer_issue" && isTicketNotClosed(status_value) && !isNullorEmpty(ticket_id) && status_value != 10 && status_value != 17) {
+                inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #095C7B; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="inprogress" onclick="">In Progress</button> <button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #fc9003; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalateankith" onclick="">Escalate To Ankith</button> ';
 
             } else if (selector_type == "customer_issue" && isTicketNotClosed(status_value) && !isNullorEmpty(ticket_id) && status_value == 10) {
                 inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #fc9003; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalateunderdev" onclick="">Set Status to Under Development</button>';
@@ -890,7 +890,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #fc9003; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalateremoveunderdev" onclick="">Remove Under Development Status</button>';
 
             } else if (isTicketNotClosed(status_value) && !isNullorEmpty(ticket_id) && selector_type != "customer_issue") {
-                inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #379E8F; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalatebutton" onclick="">' + escalateButton(status_value) + '</button>';
+                inlineQty += '<button style="float: left; margin-left: 5px; margin-right: 5px; background-color: #095C7B; color: #fff; font-weight: 700; border-color: transparent; border-width: 2px; border-radius: 15px; height: 30px" type="button" id="escalatebutton" onclick="">' + escalateButton(status_value) + '</button>';
             }
 
             if (!isNullorEmpty(ticket_id) && !isTicketNotClosed(status_value)) {
@@ -913,8 +913,8 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += instructionsBox();
 
             // Tabs headers
-            inlineQty += '<style>.nav > li.active > a, .nav > li.active > a:focus, .nav > li.active > a:hover { background-color: #379E8F; color: #fff }';
-            inlineQty += '.nav > li > a, .nav > li > a:focus, .nav > li > a:hover { margin-left: 5px; margin-right: 5px; border: 2px solid #379E8F; color: #379E8F; }';
+            inlineQty += '<style>.nav > li.active > a, .nav > li.active > a:focus, .nav > li.active > a:hover { background-color: #095C7B; color: #fff }';
+            inlineQty += '.nav > li > a, .nav > li > a:focus, .nav > li > a:hover { margin-left: 5px; margin-right: 5px; border: 2px solid #095C7B; color: #095C7B; }';
             inlineQty += '</style>';
 
             // Ticket details header
@@ -941,7 +941,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#prevemails"><b>PREVIOUS EMAILS</b></a></li>';
             }
 
-            //style="background-color: #379E8F"
+            //style="background-color: #095C7B"
             inlineQty += '</ul>';
             inlineQty += '</span>';
             inlineQty += '</div></div></div>';
@@ -1080,7 +1080,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             var inlineQty = '<div class="form-group container tickets_details_header_section">';
             inlineQty += '<div class="row">';
             inlineQty += '<div class="col-xs-12 heading2"  >';
-            inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">TICKET DETAILS</span></h4>';
+            inlineQty += '<h4><span style="background-color: #095C7B" class="label label-default col-xs-12">TICKET DETAILS</span></h4>';
             inlineQty += '</div></div></div>';
 
             // Customer number section
@@ -1107,7 +1107,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += '<div class="form-group container customer_number_tickets">';
             inlineQty += '<style> table {font-size: 12px;text-align: center;border: none;} {font-size: 14px;} table th{text-align: center;} .dataTables_wrapper{width:78%; margin-bottom:40px; margin-left: auto; margin-right: auto; margin-top: auto;} </style>';
             inlineQty += '<table cellpadding="15" id="customer_number_tickets_preview" class="table table-responsive table-striped customer tablesorter" cellspacing="0" style="width: 100%;">';
-            inlineQty += '<thead style="color: white;background-color: #379E8F;">';
+            inlineQty += '<thead style="color: white;background-color: #095C7B;">';
             inlineQty += '<tr class="text-center">';
             inlineQty += '</tr>';
             inlineQty += '</thead></table>';
@@ -1166,7 +1166,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
 
                     // Attach Invoice to email
                     if (isTicketNotClosed(status_value)) {
-                        inlineQty += '<div class="input-group-btn"><button style="background-color: #379E8F" id="add_inv" type="button" class="btn btn-success add_inv" data-inv-id="' + selector_id + '" data-toggle="tooltip" data-placement="right" title="Attach to email">';
+                        inlineQty += '<div class="input-group-btn"><button style="background-color: #095C7B" id="add_inv" type="button" class="btn btn-success add_inv" data-inv-id="' + selector_id + '" data-toggle="tooltip" data-placement="right" title="Attach to email">';
                         inlineQty += '<span class="glyphicon glyphicon-plus"></span>';
                         inlineQty += '</button></div>';
                     }
@@ -1340,7 +1340,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += '<span class="input-group-addon" id="daytodayemail_text">DAY-TO-DAY EMAIL</span>';
             inlineQty += '<input id="daytodayemail" type="email" value="' + daytodayemail + '" class="form-control daytodayemail" ' + disabled + ' />';
             inlineQty += '<div class="input-group-btn">';
-            inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success add_as_recipient" data-email="' + daytodayemail + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
+            inlineQty += '<button type="button" style="background-color: #095C7B" class="btn btn-success add_as_recipient" data-email="' + daytodayemail + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
             inlineQty += '<span class="glyphicon glyphicon-envelope"></span>';
             inlineQty += '</button>';
             inlineQty += '</div>';
@@ -1351,7 +1351,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += '<div class="input-group">';
             inlineQty += '<span class="input-group-addon" id="daytodayphone_text">DAY-TO-DAY PHONE</span>';
             inlineQty += '<input id="daytodayphone" type="tel" value="' + daytodayphone + '" class="form-control daytodayphone" ' + disabled + ' />';
-            inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #379E8F" class="btn btn-success" id="call_daytoday_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
+            inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #095C7B" class="btn btn-success" id="call_daytoday_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
             inlineQty += '</div></div></div></div>';
 
             return inlineQty;
@@ -1382,7 +1382,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 var inlineQty = '<div class="form-group container tickets_details_header_section">';
                 inlineQty += '<div class="row">';
                 inlineQty += '<div class="col-xs-12 heading2"  >';
-                inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">SENDER DETAILS</span></h4>';
+                inlineQty += '<h4><span style="background-color: #095C7B" class="label label-default col-xs-12">SENDER DETAILS</span></h4>';
                 inlineQty += '</div></div></div>';
 
                 //First Row
@@ -1401,7 +1401,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 inlineQty += '<div class="input-group">';
                 inlineQty += '<span class="input-group-addon" id="senderphone_text">PHONE</span>';
                 inlineQty += '<input id="senderphone" type="tel" value="' + senderPhone + '" class="form-control senderphone" ' + disabled + ' />';
-                inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #379E8F" class="btn btn-success" id="call_sender_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
+                inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #095C7B" class="btn btn-success" id="call_sender_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
                 inlineQty += '</div></div>';
 
                 // Day to day email field
@@ -1410,7 +1410,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 inlineQty += '<span class="input-group-addon" id="senderemail_text">EMAIL</span>';
                 inlineQty += '<input id="senderemail" type="email" value="' + senderEmail + '" class="form-control senderemail" ' + disabled + ' />';
                 inlineQty += '<div class="input-group-btn">';
-                inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success add_as_recipient" data-email="' + senderEmail + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
+                inlineQty += '<button type="button" style="background-color: #095C7B" class="btn btn-success add_as_recipient" data-email="' + senderEmail + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
                 inlineQty += '<span class="glyphicon glyphicon-envelope"></span>';
                 inlineQty += '</button>';
                 inlineQty += '</div>';
@@ -1465,7 +1465,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 var inlineQty = '<div class="form-group container tickets_details_header_section">';
                 inlineQty += '<div class="row">';
                 inlineQty += '<div class="col-xs-12 heading2"  >';
-                inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">RECEIVER DETAILS</span></h4>';
+                inlineQty += '<h4><span style="background-color: #095C7B" class="label label-default col-xs-12">RECEIVER DETAILS</span></h4>';
                 inlineQty += '</div></div></div>';
 
                 //First Row
@@ -1484,7 +1484,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 inlineQty += '<div class="input-group">';
                 inlineQty += '<span class="input-group-addon" id="receiverphone_text">PHONE</span>';
                 inlineQty += '<input id="receiverphone" type="tel" value="' + receiverphone + '" class="form-control receiverphone" ' + disabled + ' />';
-                inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #379E8F" class="btn btn-success" id="call_receiver_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
+                inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #095C7B" class="btn btn-success" id="call_receiver_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
                 inlineQty += '</div></div>';
 
                 // Day to day email field
@@ -1493,7 +1493,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 inlineQty += '<span class="input-group-addon" id="receiveremail_text">EMAIL</span>';
                 inlineQty += '<input id="receiveremail" type="email" value="' + receiveremail + '" class="form-control receiveremail" ' + disabled + ' />';
                 inlineQty += '<div class="input-group-btn">';
-                inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success add_as_recipient" data-email="' + receiveremail + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
+                inlineQty += '<button type="button" style="background-color: #095C7B" class="btn btn-success add_as_recipient" data-email="' + receiveremail + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
                 inlineQty += '<span class="glyphicon glyphicon-envelope"></span>';
                 inlineQty += '</button>';
                 inlineQty += '</div>';
@@ -1593,7 +1593,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += '<span class="input-group-addon" id="accountsemail_text">ACCOUNTS EMAIL</span>';
             inlineQty += '<input id="accountsemail" type="email" value="' + accountsemail + '" class="form-control accountsemail" ' + disabled + ' />';
             inlineQty += '<div class="input-group-btn">';
-            inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success add_as_recipient" data-email="' + accountsemail + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
+            inlineQty += '<button type="button" style="background-color: #095C7B" class="btn btn-success add_as_recipient" data-email="' + accountsemail + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
             inlineQty += '<span class="glyphicon glyphicon-envelope"></span>';
             inlineQty += '</button>';
             inlineQty += '</div>';
@@ -1604,7 +1604,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += '<div class="input-group">';
             inlineQty += '<span class="input-group-addon" id="accountsphone_text">ACCOUNTS PHONE</span>';
             inlineQty += '<input id="accountsphone" type="tel" value="' + accountsphone + '" class="form-control accountsphone" ' + disabled + ' />';
-            inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #379E8F" class="btn btn-success" id="call_accounts_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
+            inlineQty += '<div class="input-group-btn"><button type="button" style="background-color: #095C7B" class="btn btn-success" id="call_accounts_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
             inlineQty += '</div></div></div></div>';
 
             return inlineQty;
@@ -1701,7 +1701,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += '<input id="zee_email" type="email" value="' + zee_email + '" class="form-control accountsemail" disabled />';
             inlineQty += '<div class="input-group-btn">';
             var zee_contact_id = '0';
-            inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success add_as_recipient" data-email="' + zee_email + '" data-contact-id="' + zee_contact_id + '" data-firstname="' + franchisee_name + '" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
+            inlineQty += '<button type="button" style="background-color: #095C7B" class="btn btn-success add_as_recipient" data-email="' + zee_email + '" data-contact-id="' + zee_contact_id + '" data-firstname="' + franchisee_name + '" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
             inlineQty += '<span class="glyphicon glyphicon-envelope"></span>';
             inlineQty += '</button>';
             inlineQty += '</div>';
@@ -1715,7 +1715,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += '<div class="input-group">'
             inlineQty += '<span class="input-group-addon" id="zee_main_contact_phone_text">FRANCHISEE PHONE</span>';
             inlineQty += '<input id="zee_main_contact_phone" type="tel" value="' + zee_main_contact_phone + '" class="form-control zee_main_contact_phone" disabled />';
-            inlineQty += '<div class="input-group-btn"><button style="background-color: #379E8F" type="button" class="btn btn-success" id="call_zee_main_contact_phone"><span class="glyphicon glyphicon-earphone"></span></button>';
+            inlineQty += '<div class="input-group-btn"><button style="background-color: #095C7B" type="button" class="btn btn-success" id="call_zee_main_contact_phone"><span class="glyphicon glyphicon-earphone"></span></button>';
             inlineQty += '</div>';
             inlineQty += '</div></div>';
 
@@ -1885,7 +1885,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             // var inlineQty = '<div class="form-group container ticket_enquiry_header_section">';
             // inlineQty += '<div class="row">';
             // inlineQty += '<div class="col-xs-12 heading2">';
-            // inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">TICKET ENQUIRY DETAILS</span></h4>';
+            // inlineQty += '<h4><span style="background-color: #095C7B" class="label label-default col-xs-12">TICKET ENQUIRY DETAILS</span></h4>';
             // inlineQty += '</div></div></div>';
 
             //Enquiry Medium HTML
@@ -1985,7 +1985,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += '<span class="input-group-addon" id="enquiry_count_by_chat_text"> WEBSITE ENQUIRY </span>';
             inlineQty += '<input id="enquiry_count_by_chat" value="' + chat_enquiry_count + '" class="form-control enquiry_count_by_chat" disabled>';
             inlineQty += '<div class="input-group-btn">';
-            inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success increment_enquiry_count_by_chat" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Chat Enquiry Count">';
+            inlineQty += '<button type="button" style="background-color: #095C7B" class="btn btn-success increment_enquiry_count_by_chat" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Chat Enquiry Count">';
             inlineQty += '<span class="glyphicon glyphicon-plus"></span>';
             inlineQty += '</button>';
             inlineQty += '<button type="button" class="btn btn-danger decrement_enquiry_count_by_chat" data-firstname="" data-toggle="tooltip" data-placement="right" title="Decrement Chat Enquiry Count">';
@@ -1998,7 +1998,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += '<span class="input-group-addon" id="enquiry_count_by_phone_text"> PHONE ENQUIRY </span>';
             inlineQty += '<input id="enquiry_count_by_phone" value="' + phone_enquiry_count + '" class="form-control enquiry_count_by_phone" disabled>';
             inlineQty += '<div class="input-group-btn">';
-            inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success increment_enquiry_count_by_phone" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Phone Enquiry Count">';
+            inlineQty += '<button type="button" style="background-color: #095C7B" class="btn btn-success increment_enquiry_count_by_phone" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Phone Enquiry Count">';
             inlineQty += '<span class="glyphicon glyphicon-plus"></span>';
             inlineQty += '</button>';
             inlineQty += '<button type="button" class="btn btn-danger decrement_enquiry_count_by_phone" data-firstname="" data-toggle="tooltip" data-placement="right" title="Decrement Phone Enquiry Count">';
@@ -2011,7 +2011,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += '<span class="input-group-addon" id="enquiry_count_by_email_text"> EMAIL ENQUIRY </span>';
             inlineQty += '<input id="enquiry_count_by_email" value="' + email_enquiry_count + '" class="form-control enquiry_count_by_email" disabled>';
             inlineQty += '<div class="input-group-btn">';
-            inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success increment_enquiry_count_by_email" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Email Enquiry Count">';
+            inlineQty += '<button type="button" style="background-color: #095C7B" class="btn btn-success increment_enquiry_count_by_email" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Email Enquiry Count">';
             inlineQty += '<span class="glyphicon glyphicon-plus"></span>';
             inlineQty += '</button>';
             inlineQty += '<button type="button" class="btn btn-danger decrement_enquiry_count_by_email" data-firstname="" data-toggle="tooltip" data-placement="right" title="Decrement Email Enquiry Count">';
@@ -2027,7 +2027,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 inlineQty += '<span class="input-group-addon" id="interaction_count_by_phone_text"> PHONE INTERACTION </span>';
                 inlineQty += '<input id="interaction_count_by_phone" value="' + phone_interaction_count + '" class="form-control interaction_count_by_phone" disabled>';
                 inlineQty += '<div class="input-group-btn">';
-                inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success increment_interaction_count_by_phone" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Phone Interaction Count">';
+                inlineQty += '<button type="button" style="background-color: #095C7B" class="btn btn-success increment_interaction_count_by_phone" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Phone Interaction Count">';
                 inlineQty += '<span class="glyphicon glyphicon-plus"></span>';
                 inlineQty += '</button>';
                 inlineQty += '<button type="button" class="btn btn-danger decrement_interaction_count_by_phone" data-firstname="" data-toggle="tooltip" data-placement="right" title="Decrement Phone interaction Count">';
@@ -2040,7 +2040,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 inlineQty += '<span class="input-group-addon" id="interaction_count_by_email_text"> EMAIL INTERACTION </span>';
                 inlineQty += '<input id="interaction_count_by_email" value="' + email_interaction_count + '" class="form-control interaction_count_by_email" disabled>';
                 inlineQty += '<div class="input-group-btn">';
-                inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success increment_interaction_count_by_email" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Email Interaction Count">';
+                inlineQty += '<button type="button" style="background-color: #095C7B" class="btn btn-success increment_interaction_count_by_email" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Email Interaction Count">';
                 inlineQty += '<span class="glyphicon glyphicon-plus"></span>';
                 inlineQty += '</button>';
                 inlineQty += '<button type="button" class="btn btn-danger decrement_interaction_count_by_email" data-firstname="" data-toggle="tooltip" data-placement="right" title="Decrement Email Interaction Count">';
@@ -2131,7 +2131,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += '<span class="input-group-addon" id="accounts_cc_email_text">ACCOUNTS CC EMAIL</span>';
             inlineQty += '<input id="accounts_cc_email" type="email" value="' + accounts_cc_email + '" class="form-control accounts_cc_email"  ' + disabled + '/>';
             inlineQty += '<div class="input-group-btn">';
-            inlineQty += '<button type="button" style="background-color: #379E8F" class="btn btn-success add_as_recipient" data-email="' + accounts_cc_email + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
+            inlineQty += '<button type="button" style="background-color: #095C7B" class="btn btn-success add_as_recipient" data-email="' + accounts_cc_email + '" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
             inlineQty += '<span class="glyphicon glyphicon-envelope"></span>';
             inlineQty += '</button>';
             inlineQty += '</div>';
@@ -2297,7 +2297,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             var inlineQty = '<div class="form-group container mpex_contact_section">';
             inlineQty += '<div class="row">';
             inlineQty += '<div class="col-xs-12 heading2">';
-            inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">CONTACT DETAILS</span></h4>';
+            inlineQty += '<h4><span style="background-color: #095C7B" class="label label-default col-xs-12">CONTACT DETAILS</span></h4>';
             inlineQty += '</div>';
             inlineQty += '</div></div>';
 
@@ -2315,7 +2315,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += '<div class="form-group container reviewcontacts_section">';
             inlineQty += '<div class="row">';
             inlineQty += '<div class="col-xs-4 col-xs-offset-4 reviewcontacts">';
-            inlineQty += '<input type="button" style="background-color: #379E8F; border-color: #379E8F; font-weight: 700" value="ADD/EDIT CONTACTS" class="form-control btn btn-primary" id="reviewcontacts" />';
+            inlineQty += '<input type="button" style="background-color: #095C7B; border-color: #095C7B; font-weight: 700" value="ADD/EDIT CONTACTS" class="form-control btn btn-primary" id="reviewcontacts" />';
             inlineQty += '</div></div></div>';
 
             return inlineQty;
@@ -2338,7 +2338,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             var inlineQty = '<div class="form-group container open_invoices open_invoices_header ' + hide_class_section + '">';
             inlineQty += '<div class="row">';
             inlineQty += '<div class="col-xs-12 heading2">';
-            inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">OPEN INVOICES</span></h4>';
+            inlineQty += '<h4><span style="background-color: #095C7B" class="label label-default col-xs-12">OPEN INVOICES</span></h4>';
             inlineQty += '</div></div></div>';
 
             // Open invoices dropdown field
@@ -2369,7 +2369,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
         function dataTable() {
             var inlineQty = '<style>table#invoices-preview {font-size: 12px;text-align: center;border: none;}.dataTables_wrapper {font-size: 14px;}table#invoices-preview th{text-align: center;} .bolded{font-weight: bold;}</style>';
             inlineQty += '<table id="invoices-preview" class="table table-responsive table-striped customer tablesorter" style="width: 100%; table-layout: fixed">';
-            inlineQty += '<thead style="color: white;background-color: #379E8F;">';
+            inlineQty += '<thead style="color: white;background-color: #095C7B;">';
             inlineQty += '<tr class="text-center">';
             inlineQty += '</tr>';
             inlineQty += '</thead>';
@@ -2394,7 +2394,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 inlineQty += '<div class="form-group container credit_memo credit_memo_header">';
                 inlineQty += '<div class="row">';
                 inlineQty += '<div class="col-xs-12 heading2">';
-                inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">CREDIT MEMO</span></h4>';
+                inlineQty += '<h4><span style="background-color: #095C7B" class="label label-default col-xs-12">CREDIT MEMO</span></h4>';
                 inlineQty += '</div></div></div>';
                 // Credit Memo table
                 inlineQty += '<div class="form-group container credit_memo credit_memo_section" style="font-size: small;">';
@@ -2415,7 +2415,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 inlineQty += '<div class="form-group container usage_report usage_report_header">';
                 inlineQty += '<div class="row">';
                 inlineQty += '<div class="col-xs-12 heading2">';
-                inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">USAGE REPORT</span></h4>';
+                inlineQty += '<h4><span style="background-color: #095C7B" class="label label-default col-xs-12">USAGE REPORT</span></h4>';
                 inlineQty += '</div></div></div>';
                 // Usage Report table
                 inlineQty += '<div class="form-group container usage_report usage_report_section" style="font-size: small;">';
@@ -2452,7 +2452,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             // // Send email header
             // inlineQty += '<div class="row">';
             // inlineQty += '<div class="col-xs-12 heading2">';
-            // inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">SEND EMAILS</span></h4>';
+            // inlineQty += '<h4><span style="background-color: #095C7B" class="label label-default col-xs-12">SEND EMAILS</span></h4>';
             // inlineQty += '</div></div></div>';
 
             inlineQty += '<br></br>'
@@ -2534,7 +2534,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 inlineQty += '<input id="acc_manager" class="form-control" data-email="' + account_manager.email.email + '" value="' + account_manager.name + ' - ' + account_manager.email.email + '" disabled/>';
                 inlineQty += '</div></div>';
                 inlineQty += '<div class="col-xs-2 acc_manager_button_section">';
-                inlineQty += '<button id="acc_manager_button" style="background-color: #379E8F; border-color: #379E8F" type="button" class="btn btn-success btn-block">ADD TO CC</button>';
+                inlineQty += '<button id="acc_manager_button" style="background-color: #095C7B; border-color: #095C7B" type="button" class="btn btn-success btn-block">ADD TO CC</button>';
                 inlineQty += '</div></div></div>';
             }
 
@@ -2586,7 +2586,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += '<div class="form-group container send_email button_section">';
             inlineQty += '<div class="row">';
             inlineQty += '<div class="col-xs-4 col-xs-offset-4 send_email_btn">';
-            inlineQty += '<input type="button" style="background-color: #379E8F; border-color: #379E8F; font-weight: 700" value="SEND EMAIL" class="form-control btn btn-primary" id="send_email" />';
+            inlineQty += '<input type="button" style="background-color: #095C7B; border-color: #095C7B; font-weight: 700" value="SEND EMAIL" class="form-control btn btn-primary" id="send_email" />';
             inlineQty += '</div></div></div></div>';
 
             return inlineQty;
@@ -2609,7 +2609,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             var inlineQty = '<div class="form-group container previous_emails_header">';
             inlineQty += '<div class="row">';
             inlineQty += '<div class="col-xs-12 heading2">';
-            inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">PREVIOUS EMAILS</span></h4>';
+            inlineQty += '<h4><span style="background-color: #095C7B" class="label label-default col-xs-12">PREVIOUS EMAILS</span></h4>';
             inlineQty += '</div></div></div>';
 
 
@@ -2635,9 +2635,9 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             // inlineQty += '</thead>';
             // inlineQty += '<tbody>';
 
-            inlineQty += '<style>table#emails-preview {font-size: 12px;text-align: center;border: none; background-color: #379E8F}.dataTables_wrapper {font-size: 12px;}table#emails-preview th{background-color: #379E8F; text-align: center;}</style>';
+            inlineQty += '<style>table#emails-preview {font-size: 12px;text-align: center;border: none; background-color: #095C7B}.dataTables_wrapper {font-size: 12px;}table#emails-preview th{background-color: #095C7B; text-align: center;}</style>';
             inlineQty += '<table cellpadding="15" id="emails-preview" class="table table-responsive table-striped customer tablesorter" cellspacing="0" style="width: 100%;">';
-            inlineQty += '<thead style="color: white;background-color: #379E8F;">';
+            inlineQty += '<thead style="color: white;background-color: #095C7B;">';
             inlineQty += '<tr class="text-center">';
             inlineQty += '<th scope="col">Message Date</th>';
             inlineQty += '<th scope="col">Author</th>';
@@ -2682,7 +2682,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             var inlineQty = '<div class="form-group container toll_issues_header_section">';
             inlineQty += '<div class="row">';
             inlineQty += '<div class="col-xs-12 heading1">';
-            inlineQty += '<h4><span style="background-color: #379E8F" class="form-group label label-default col-xs-12">ISSUES</span></h4>';
+            inlineQty += '<h4><span style="background-color: #095C7B" class="form-group label label-default col-xs-12">ISSUES</span></h4>';
             inlineQty += '</div></div></div>';
             return inlineQty;
         }
@@ -3273,11 +3273,11 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             var inlineQty = '<div class="form-group container tickets_datatable_section">';
             inlineQty += '<div class="row">';
             inlineQty += '<div class="col-xs-12 heading2">';
-            inlineQty += '<h4><span style="background-color: #379E8F" class="label label-default col-xs-12">PREVIOUS TICKETS</span></h4>';
+            inlineQty += '<h4><span style="background-color: #095C7B" class="label label-default col-xs-12">PREVIOUS TICKETS</span></h4>';
             inlineQty += '</div></div></div>';
-            inlineQty += '<style>table#tickets-preview {font-size: 12px;text-align: center;border: none; background-color: #379E8F}.dataTables_wrapper {font-size: 12px;}table#tickets-preview th{background-color: #379E8F; text-align: center;}</style>';
+            inlineQty += '<style>table#tickets-preview {font-size: 12px;text-align: center;border: none; background-color: #095C7B}.dataTables_wrapper {font-size: 12px;}table#tickets-preview th{background-color: #095C7B; text-align: center;}</style>';
             inlineQty += '<table cellpadding="15" id="tickets-preview" class="table table-responsive table-striped customer tablesorter" cellspacing="0" style="width: 100%;">';
-            inlineQty += '<thead style="color: white;background-color: #379E8F;">';
+            inlineQty += '<thead style="color: white;background-color: #095C7B;">';
             inlineQty += '<tr class="text-center">';
             inlineQty += '</tr>';
             inlineQty += '</thead>';
@@ -3313,41 +3313,41 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             if (isTicketNotClosed(status_value)) {
                 if (!isNullorEmpty(ticket_id)) {
                     inlineQty += '<div class="col-xs-2 close_ticket">';
-                    inlineQty += '<input type="button" value="CLOSE TICKET" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" class="form-control btn btn-default" id="close_ticket" onclick="closeTicket()"/>';
+                    inlineQty += '<input type="button" value="CLOSE TICKET" style="background-color: #FBEA51; border: 3px solid #095C7B; color: #095C7B; font-weight: 700" class="form-control btn btn-default" id="close_ticket" onclick="closeTicket()"/>';
                     inlineQty += '</div>';
                     inlineQty += '<div class="col-xs-3 close_ticket_lost">';
-                    inlineQty += '<input type="button" value="CLOSE TICKET - LOST ITEM" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" class="form-control btn btn-default" id="close_ticket_lost" onclick="closeTicketLost()"/>';
+                    inlineQty += '<input type="button" value="CLOSE TICKET - LOST ITEM" style="background-color: #FBEA51; border: 3px solid #095C7B; color: #095C7B; font-weight: 700" class="form-control btn btn-default" id="close_ticket_lost" onclick="closeTicketLost()"/>';
                     inlineQty += '</div>';
                     if (userId == 409635 || userId == 696992 || userId == 766498) {
                         inlineQty += '<div class="col-xs-3 close_unallocated_ticket hide">';
-                        inlineQty += '<input type="button" value="CLOSE UNALLOCATED TICKET" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" class="form-control btn btn-default" id="close_unallocated_ticket" onclick="closeUnallocatedTicket()" />';
+                        inlineQty += '<input type="button" value="CLOSE UNALLOCATED TICKET" style="background-color: #FBEA51; border: 3px solid #095C7B; color: #095C7B; font-weight: 700" class="form-control btn btn-default" id="close_unallocated_ticket" onclick="closeUnallocatedTicket()" />';
                         inlineQty += '</div>';
                     }
                 }
 
                 inlineQty += '<div class="col-xs-2 submitter">';
-                inlineQty += '<input type="button" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" value="UPDATE TICKET" class="form-control btn btn-primary" id="submit_ticket" />';
+                inlineQty += '<input type="button" style="background-color: #FBEA51; border: 3px solid #095C7B; color: #095C7B; font-weight: 700" value="UPDATE TICKET" class="form-control btn btn-primary" id="submit_ticket" />';
                 inlineQty += '</div>';
 
                 if (isNullorEmpty(ticket_id)) {
                     inlineQty += '<div class="col-xs-3 open_and_new_ticket_btn">';
-                    inlineQty += '<input type="button" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" value="OPEN AND NEW TICKET" class="form-control btn btn-primary" id="open_and_new_ticket_btn" />';
+                    inlineQty += '<input type="button" style="background-color: #FBEA51; border: 3px solid #095C7B; color: #095C7B; font-weight: 700" value="OPEN AND NEW TICKET" class="form-control btn btn-primary" id="open_and_new_ticket_btn" />';
                     inlineQty += '</div>';
                 }
                 inlineQty += '<style>.escalate:hover {box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19)}</style>';
                 inlineQty += '<div class="col-xs-2 escalate">';
-                inlineQty += '<input type="button" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" value="ESCALATE" class="form-control btn btn-default" id="escalate" onclick="onEscalate()"/>';
+                inlineQty += '<input type="button" style="background-color: #FBEA51; border: 3px solid #095C7B; color: #095C7B; font-weight: 700" value="ESCALATE" class="form-control btn btn-default" id="escalate" onclick="onEscalate()"/>';
                 inlineQty += '</div>';
 
 
 
             } else {
                 inlineQty += '<div class="col-xs-2 col-xs-offset-2 reopen_ticket">';
-                inlineQty += '<input type="button" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" value="REOPEN TICKET" class="form-control btn btn-primary" id="reopen_ticket" />';
+                inlineQty += '<input type="button" style="background-color: #FBEA51; border: 3px solid #095C7B; color: #095C7B; font-weight: 700" value="REOPEN TICKET" class="form-control btn btn-primary" id="reopen_ticket" />';
                 inlineQty += '</div>';
             }
             inlineQty += '<div class="col-xs-2 cancel">';
-            inlineQty += '<input type="button" style="background-color: #FBEA51; border: 3px solid #379E8F; color: #379E8F; font-weight: 700" value="CANCEL" class="form-control btn btn-default" id="cancel" onclick="onCancel()"/>';
+            inlineQty += '<input type="button" style="background-color: #FBEA51; border: 3px solid #095C7B; color: #095C7B; font-weight: 700" value="CANCEL" class="form-control btn btn-default" id="cancel" onclick="onCancel()"/>';
             inlineQty += '</div>';
 
             inlineQty += '</div></div>';

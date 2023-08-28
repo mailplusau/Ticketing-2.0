@@ -10,9 +10,9 @@
 
 
 define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
-    'N/https', 'N/log', 'N/redirect', 'N/format', 'N/url'
-  ],
-  function(ui, email, runtime, search, record, https, log, redirect, format,
+  'N/https', 'N/log', 'N/redirect', 'N/format', 'N/url'
+],
+  function (ui, email, runtime, search, record, https, log, redirect, format,
     url) {
     var baseURL = 'https://1048144.app.netsuite.com';
     if (runtime.envType == "SANDBOX") {
@@ -248,7 +248,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
           var activeSelectorResult;
           var selector_id;
           //Load Barcode Record
-          activeBarcodeResults.run().each(function(search_val) {
+          activeBarcodeResults.run().each(function (search_val) {
             selector_id = search_val.id;
             activeSelectorResult = search_val;
           });
@@ -535,30 +535,30 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
             //acknowledgement - sender template: 116
             sendCustomerTicketEmail('MailPlus [MPSD' + ticket_id +
               '] - Your enquiry has been received - ' + tracking_number, [
-                form_email
-              ], 116, customer_id);
+              form_email
+            ], 116, customer_id);
 
           } else {
             // acknoledgement - receiver template: 117
             sendCustomerTicketEmail('MailPlus [MPSD' + ticket_id +
               '] - Your enquiry has been received - ' + tracking_number, [
-                form_email
-              ], 117, customer_id);
+              form_email
+            ], 117, customer_id);
           }
         } else {
           if (sender_or_receiver == 1) {
             //acknowledgement - sender template: 116
             sendCustomerTicketEmail('MailPlus [MPSD' + ticket_id +
               '] - Your enquiry has been received - ' + tracking_number, [
-                form_email
-              ], 116, '');
+              form_email
+            ], 116, '');
 
           } else {
             // acknoledgement - receiver template: 117
             sendCustomerTicketEmail('MailPlus [MPSD' + ticket_id +
               '] - Your enquiry has been received - ' + tracking_number, [
-                form_email
-              ], 117, '');
+              form_email
+            ], 117, '');
           }
         }
 
@@ -715,7 +715,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
     function customerLinkedToBarcode(activeBarcodeResults) {
 
       var customer_id;
-      activeBarcodeResults.run().each(function(search_val) {
+      activeBarcodeResults.run().each(function (search_val) {
         customer_id = search_val.getValue({
           name: 'custrecord_cust_prod_stock_customer'
         });
@@ -850,10 +850,47 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
         columns: activeBarcodeColumns
       });
       var connoteFormat = /^MPXL\d{6}$/;
+        var connoteFormat2 = /^MPX\d{9}$/;
+        var connoteFormat3 = /^CBBZL$/;
+        var connoteFormat4 = /^CPBX2QT\d{7}$/;
+        var connoteFormat5 = /^CPBX2QC\d{7}$/;
+        var connoteFormat6 = /^CPBZL5C\d{7}$/;
 
-      if (connoteFormat.test(selector_number)) {
+      log.audit({
+        title: 'selector_number',
+        details: selector_number
+      })
+      log.audit({
+        title: 'connoteFormat',
+        details: connoteFormat.test(selector_number)
+      })
+      log.audit({
+        title: 'connoteFormat2',
+        details: connoteFormat2.test(selector_number)
+      })
+      log.audit({
+        title: 'connoteFormat3',
+        details: connoteFormat3.test(selector_number)
+      })
+      log.audit({
+        title: 'connoteFormat4',
+        details: connoteFormat4.test(selector_number)
+      })
+      log.audit({
+        title: 'connoteFormat5',
+        details: connoteFormat5.test(selector_number)
+      })
+
+      if (connoteFormat.test(selector_number) || connoteFormat3.test(selector_number) || connoteFormat5.test(selector_number) || connoteFormat6.test(selector_number)) {
         activeSelectorResults.filters.push(search.createFilter({
           name: 'custrecord_connote_number',
+          operator: search.Operator.IS,
+          values: selector_number,
+        }));
+
+      } else if (connoteFormat2.test(selector_number)) {
+        activeSelectorResults.filters.push(search.createFilter({
+          name: 'custrecord_order_number',
           operator: search.Operator.IS,
           values: selector_number,
         }));
@@ -875,7 +912,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
 
       if (!isNullorEmpty(activeSelectorResults)) {
         var selector_id;
-        activeSelectorResults.run().each(function(search_res) {
+        activeSelectorResults.run().each(function (search_res) {
           selector_id = search_res.id;
 
           return true;
@@ -894,7 +931,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
     function zeeLinkedToBarcode(activeBarcodeResults) {
       //var activeBarcodeResult = activeBarcodeResults[0];
       var zee_id;
-      activeBarcodeResults.run().each(function(search_val) {
+      activeBarcodeResults.run().each(function (search_val) {
         zee_id = search_val.getValue({
           name: 'custrecord_cust_prod_stock_zee'
         });
@@ -936,7 +973,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
       var ticketsCnt = ticketSearch.runPaged().count;
       if (ticketsCnt > 0) {
         var ticketSearchResults = ticketSearch.run();
-        ticketSearchResults.each(function(ticket) {
+        ticketSearchResults.each(function (ticket) {
           ticketIdIfExists = ticket.getValue('internalid');
         });
       }
@@ -969,10 +1006,47 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
           columns: activeBarcodeColumns
         });
         var connoteFormat = /^MPXL\d{6}$/;
+        var connoteFormat2 = /^MPX\d{9}$/;
+        var connoteFormat3 = /^CBBZL$/;
+        var connoteFormat4 = /^CPBX2QT\d{7}$/;
+        var connoteFormat5 = /^CPBX2QC\d{7}$/;
+        var connoteFormat6 = /^CPBZL5C\d{7}$/;
 
-        if (connoteFormat.test(selector_number)) {
+        log.audit({
+          title: 'selector_number',
+          details: selector_number
+        })
+        log.audit({
+          title: 'connoteFormat',
+          details: connoteFormat.test(selector_number)
+        })
+        log.audit({
+          title: 'connoteFormat2',
+          details: connoteFormat2.test(selector_number)
+        })
+        log.audit({
+          title: 'connoteFormat3',
+          details: connoteFormat3.test(selector_number)
+        })
+        log.audit({
+          title: 'connoteFormat4',
+          details: connoteFormat4.test(selector_number)
+        })
+        log.audit({
+          title: 'connoteFormat5',
+          details: connoteFormat5.test(selector_number)
+        })
+
+        if (connoteFormat.test(selector_number) || connoteFormat3.test(selector_number) || connoteFormat5.test(selector_number) || connoteFormat6.test(selector_number)) {
           activeSelectorResults.filters.push(search.createFilter({
             name: 'custrecord_connote_number',
+            operator: search.Operator.IS,
+            values: selector_number,
+          }));
+
+        } else if (connoteFormat2.test(selector_number)) {
+          activeSelectorResults.filters.push(search.createFilter({
+            name: 'custrecord_order_number',
             operator: search.Operator.IS,
             values: selector_number,
           }));
@@ -985,6 +1059,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
           }));
         }
 
+
         activeSelectorResults.filters.push(search.createFilter({
           name: 'isinactive',
           operator: search.Operator.IS,
@@ -992,7 +1067,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
         }));
 
         if (!isNullorEmpty(activeSelectorResults)) {
-          activeSelectorResults.run().each(function(search_res) {
+          activeSelectorResults.run().each(function (search_res) {
             ticketIdIfExists = search_res.getValue({
               name: 'custrecord_mp_ticket'
             });
