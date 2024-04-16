@@ -166,9 +166,8 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             email.send({
                 author: 112209,
                 body: note,
-                recipients: ["laura.busse@mailplus.com.au"],
-                subject: 'MPSD' + ticket_id + ' - New Customer Issue Ticket',
-                cc: ["ankith.ravindran@mailplus.com.au"]
+                recipients: ["portalsupport@mailplus.com.au"],
+                subject: 'MPSD' + ticket_id + ' - New Customer Issue Ticket'
             });
             log.debug({
                 title: 'Sent acknowledgement email && email to IT'

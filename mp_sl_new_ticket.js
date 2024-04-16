@@ -850,11 +850,12 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
         columns: activeBarcodeColumns
       });
       var connoteFormat = /^MPXL\d{6}$/;
-        var connoteFormat2 = /^MPX\d{9}$/;
-        var connoteFormat3 = /^CBBZL$/;
-        var connoteFormat4 = /^CPBX2QT\d{7}$/;
-        var connoteFormat5 = /^CPBX2QC\d{7}$/;
-        var connoteFormat6 = /^CPBZL5C\d{7}$/;
+      var connoteFormat2 = /^MPX\d{9}$/;
+      var connoteFormat3 = /^CBBZL$/;
+      var connoteFormat4 = /^CPBX2QT\d{7}$/;
+      var connoteFormat5 = /^CPBX2QC\d{7}$/;
+      var connoteFormat6 = /^CPBZL5C\d{7}$/;
+      var connoteFormat7 = /^2QQZ$/;
 
       log.audit({
         title: 'selector_number',
@@ -879,6 +880,10 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
       log.audit({
         title: 'connoteFormat5',
         details: connoteFormat5.test(selector_number)
+      })
+      log.audit({
+        title: 'connoteFormat7',
+        details: connoteFormat7.test(selector_number)
       })
 
       if (connoteFormat.test(selector_number) || connoteFormat3.test(selector_number) || connoteFormat5.test(selector_number) || connoteFormat6.test(selector_number)) {
