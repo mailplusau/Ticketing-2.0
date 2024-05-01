@@ -645,10 +645,8 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
         email.send({
           author: 112209,
           body: note + "\nTicket URL: " + ticket_url + "\nDate: " + new Date(),
-          recipients: ['ankith.ravindran@mailplus.com.au',
+          recipients: ['mailplusit@mailplus.com.au',
             'customerservice@mailplus.com.au',
-            'gabrielle.bathman@mailplus.com.au',
-            'aleyna.harnett@mailplus.com.au'
           ],
           subject: 'New Ticket Creation MPSD' + ticket_id,
         })
@@ -658,9 +656,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
           email.send({
             author: 112209,
             body: note + "\nTicket URL: " + ticket_url + "\nDate: " + new Date(),
-            recipients: ['ankith.ravindran@mailplus.com.au',
-              'raine.giderson@mailplus.com.au',
-              'rianne.mansell@mailplus.com.au'
+            recipients: ['mailplusit@mailplus.com.au'
             ],
             subject: 'Barcode not allocated - ' + tracking_number,
           })
