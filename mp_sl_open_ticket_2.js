@@ -86,6 +86,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 var total_enquiry_count = 0;
                 var chat_enquiry_count = 0;
                 var phone_enquiry_count = 0;
+                var portal_enquiry_count = 0;
                 var email_enquiry_count = 0;
                 var phone_interaction_count = 0;
                 var email_interaction_count = 0;
@@ -191,6 +192,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                             phone_interaction_count = ticketRecord.getValue({ fieldId: 'custrecord_phone_interaction_count' });
                             email_interaction_count = ticketRecord.getValue({ fieldId: 'custrecord_email_interaction_count' });
                             email_enquiry_count = ticketRecord.getValue({ fieldId: 'custrecord_email_enquiry_count' });
+                            portal_enquiry_count = ticketRecord.getValue({ fieldId: 'custrecord_portal_enquiry_count' });
                             customer_issue = ticketRecord.getValue({ fieldId: 'custrecord_customer_issue' });
                             screenshot_file = ticketRecord.getValue({ fieldId: 'custrecord_screenshot' });
                             browser = ticketRecord.getValue({ fieldId: 'custrecord_browser' });
@@ -446,7 +448,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 // Define information window.
                 inlineHtml += '<div class="container" hidden><p id="info" class="alert alert-info"></p></div>';
 
-                inlineHtml += tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, connote_number, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2, prod_stock_invoice, barcodempdl, barcodesource, list_mp_ticket_issues, list_resolved_mp_ticket_issues, list_invoice_issues, list_resolved_invoice_issues, selected_invoice_method_id, accounts_cc_email, mpex_po_number, customer_po_number, selected_invoice_cycle_id, terms, customer_terms, screenshot_file, browser, login_email_used, operating_system, phone_used, old_sender_name, old_sender_phone, phone_interaction_count, email_interaction_count, escalated_to_it, senderName, senderAddress, senderEmail, senderPhone, productName, barcodeintegration);
+                inlineHtml += tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, connote_number, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2, prod_stock_invoice, barcodempdl, barcodesource, list_mp_ticket_issues, list_resolved_mp_ticket_issues, list_invoice_issues, list_resolved_invoice_issues, selected_invoice_method_id, accounts_cc_email, mpex_po_number, customer_po_number, selected_invoice_cycle_id, terms, customer_terms, screenshot_file, browser, login_email_used, operating_system, phone_used, old_sender_name, old_sender_phone, phone_interaction_count, email_interaction_count, escalated_to_it, senderName, senderAddress, senderEmail, senderPhone, productName, barcodeintegration, portal_enquiry_count);
 
                 // inlineHtml += customerNumberSection(customer_number, ticket_id);
                 // inlineHtml += selectorSection(ticket_id, selector_number, selector_id, selector_type, status_value);
@@ -821,7 +823,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             return inlineQty;
         }
 
-        function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, connote_number, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2, prod_stock_invoice, barcodempdl, barcodesource, list_mp_ticket_issues, list_resolved_mp_ticket_issues, list_invoice_issues, list_resolved_invoice_issues, selected_invoice_method_id, accounts_cc_email, mpex_po_number, customer_po_number, selected_invoice_cycle_id, terms, customer_terms, screenshot_file, browser, login_email_used, operating_system, phone_used, old_sender_name, old_sender_phone, phone_interaction_count, email_interaction_count, escalated_to_it, senderName, senderAddress, senderEmail, senderPhone, productName, barcodeintegration) {
+        function tabsSection(customer_number, ticket_id, selector_number, selector_id, selector_type, status_value, customer_name, daytodayphone, daytodayemail, franchisee_name, zee_main_contact_name, zee_email, zee_main_contact_phone, zee_abn, date_stock_used, time_stock_used, final_delivery_text, selected_enquiry_status_id, attachments_hyperlink, owner_list, list_toll_issues, list_resolved_toll_issues, comment, date_created, creator_id, creator_name, status, customer_id, accountsphone, accountsemail, zee_id, list_enquiry_mediums, total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selected_label_id, maap_bank_account_number, maap_parent_bank_account_number, account_manager, list_toll_emails, customer_barcode_number, connote_number, receiveremail, receiverphone, receivername, receiverstate, receiverzip, receiversuburb, receiveraddr1, receiveraddr2, prod_stock_invoice, barcodempdl, barcodesource, list_mp_ticket_issues, list_resolved_mp_ticket_issues, list_invoice_issues, list_resolved_invoice_issues, selected_invoice_method_id, accounts_cc_email, mpex_po_number, customer_po_number, selected_invoice_cycle_id, terms, customer_terms, screenshot_file, browser, login_email_used, operating_system, phone_used, old_sender_name, old_sender_phone, phone_interaction_count, email_interaction_count, escalated_to_it, senderName, senderAddress, senderEmail, senderPhone, productName, barcodeintegration, portal_enquiry_count) {
 
             var inlineQty = '<div style="margin-top: -10px"><br/>';
             // BUTTONS
@@ -992,7 +994,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             }
 
             inlineQty += enquiryMediumSection(list_enquiry_mediums, selected_enquiry_status_id, selector_type);
-            inlineQty += enquiryCountSection(total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selector_type, phone_interaction_count, email_interaction_count);
+            inlineQty += enquiryCountSection(total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selector_type, phone_interaction_count, email_interaction_count, portal_enquiry_count);
 
 
             if (!isNullorEmpty(ticket_id)) {
@@ -1958,11 +1960,12 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
          * @param selector_type
          * @returns {string}
          */
-        function enquiryCountSection(total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selector_type, phone_interaction_count, email_interaction_count) {
+        function enquiryCountSection(total_enquiry_count, chat_enquiry_count, phone_enquiry_count, email_enquiry_count, selector_type, phone_interaction_count, email_interaction_count, portal_enquiry_count) {
             if (isNullorEmpty(total_enquiry_count)) { total_enquiry_count = 0; }
             if (isNullorEmpty(chat_enquiry_count)) { chat_enquiry_count = 0; }
             if (isNullorEmpty(phone_enquiry_count)) { phone_enquiry_count = 0; }
             if (isNullorEmpty(email_enquiry_count)) { email_enquiry_count = 0; }
+            if (isNullorEmpty(portal_enquiry_count)) { portal_enquiry_count = 0; }
             if (isNullorEmpty(phone_interaction_count)) { phone_interaction_count = 0; }
             if (isNullorEmpty(email_interaction_count)) { email_interaction_count = 0; }
 
@@ -1980,7 +1983,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             var inlineQty = '<div class="form-group container enquiry_count_breakdown_section">';
             inlineQty += '<div class="row">';
 
-            inlineQty += '<div class="col-xs-4 enquiry_count_by_chat">';
+            inlineQty += '<div class="col-xs-3 enquiry_count_by_chat">';
             inlineQty += '<div class="input-group">';
             inlineQty += '<span class="input-group-addon" id="enquiry_count_by_chat_text"> WEBSITE ENQUIRY </span>';
             inlineQty += '<input id="enquiry_count_by_chat" value="' + chat_enquiry_count + '" class="form-control enquiry_count_by_chat" disabled>';
@@ -1993,7 +1996,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += '</button>';
             inlineQty += '</div></div></div>';
 
-            inlineQty += '<div class="col-xs-4 enquiry_count_by_phone">';
+            inlineQty += '<div class="col-xs-3 enquiry_count_by_phone">';
             inlineQty += '<div class="input-group">';
             inlineQty += '<span class="input-group-addon" id="enquiry_count_by_phone_text"> PHONE ENQUIRY </span>';
             inlineQty += '<input id="enquiry_count_by_phone" value="' + phone_enquiry_count + '" class="form-control enquiry_count_by_phone" disabled>';
@@ -2006,7 +2009,20 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             inlineQty += '</button>';
             inlineQty += '</div></div></div>';
 
-            inlineQty += '<div class="col-xs-4 enquiry_count_by_email">';
+            inlineQty += '<div class="col-xs-3 enquiry_count_by_portal">';
+            inlineQty += '<div class="input-group">';
+            inlineQty += '<span class="input-group-addon" id="enquiry_count_by_portal_text"> PORTAL ENQUIRY </span>';
+            inlineQty += '<input id="enquiry_count_by_portal" value="' + portal_enquiry_count + '" class="form-control enquiry_count_by_portal" disabled>';
+            inlineQty += '<div class="input-group-btn">';
+            inlineQty += '<button type="button" style="background-color: #095C7B" class="btn btn-success increment_enquiry_count_by_portal" data-firstname="" data-toggle="tooltip" data-placement="right" title="Increment Portal Enquiry Count">';
+            inlineQty += '<span class="glyphicon glyphicon-plus"></span>';
+            inlineQty += '</button>';
+            inlineQty += '<button type="button" class="btn btn-danger decrement_enquiry_count_by_portal" data-firstname="" data-toggle="tooltip" data-placement="right" title="Decrement Portal Enquiry Count">';
+            inlineQty += '<span class="glyphicon glyphicon-minus"></span>';
+            inlineQty += '</button>';
+            inlineQty += '</div></div></div>';
+
+            inlineQty += '<div class="col-xs-3 enquiry_count_by_email">';
             inlineQty += '<div class="input-group">';
             inlineQty += '<span class="input-group-addon" id="enquiry_count_by_email_text"> EMAIL ENQUIRY </span>';
             inlineQty += '<input id="enquiry_count_by_email" value="' + email_enquiry_count + '" class="form-control enquiry_count_by_email" disabled>';

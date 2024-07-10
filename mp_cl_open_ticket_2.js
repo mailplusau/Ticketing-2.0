@@ -713,7 +713,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     type: 'customrecord_mp_ticket',
                     id: parseInt(ticket_id),
                 });
-               
+
                 ticketRecord.setValue({ fieldId: 'custrecord_ticket_status', value: 4 });
                 ticketRecord.save({
                     enableSourcing: true,
@@ -1221,6 +1221,11 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             var enquiry_count_by_email = $('#enquiry_count_by_email').val();
             if (!isNullorEmpty(enquiry_count_by_email)) {
                 ticketRecord.setValue({ fieldId: 'custrecord_email_enquiry_count', value: enquiry_count_by_email });
+            }
+
+            var enquiry_count_by_portal = $('#enquiry_count_by_portal').val();
+            if (!isNullorEmpty(enquiry_count_by_portal)) {
+                ticketRecord.setValue({ fieldId: 'custrecord_portal_enquiry_count', value: enquiry_count_by_portal });
             }
 
             var interaction_count_by_phone = $('#interaction_count_by_phone').val();
@@ -4323,6 +4328,11 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
             var enquiry_count_by_email = $('#enquiry_count_by_email').val();
             if (!isNullorEmpty(enquiry_count_by_email)) {
                 ticketRecord.setValue({ fieldId: 'custrecord_email_enquiry_count', value: enquiry_count_by_email });
+            }
+
+            var enquiry_count_by_portal = $('#enquiry_count_by_portal').val();
+            if (!isNullorEmpty(enquiry_count_by_portal)) {
+                ticketRecord.setValue({ fieldId: 'custrecord_portal_enquiry_count', value: enquiry_count_by_portal });
             }
 
             var interaction_count_by_phone = $('#interaction_count_by_phone').val();
