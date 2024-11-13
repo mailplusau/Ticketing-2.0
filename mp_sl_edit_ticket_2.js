@@ -330,10 +330,12 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             } else if (isDataAdminRole(userRole)) {
                 inlineQty += '<li role="presentation" class="active"><a data-toggle="tab" href="#barcodes"><b>BARCODES</b></a></li>';
                 inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#customers"><b>CUSTOMERS</b></a></li>';
+                inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#operations"><b>OPERATIONS</b></a></li>';
                 // inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#invoices"><b>INVOICES</b></a></li>';
             } else {
                 inlineQty += '<li role="presentation" class="active"><a data-toggle="tab" href="#barcodes"><b>BARCODES</b></a></li>';
                 inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#customers"><b>CUSTOMERS</b></a></li>';
+                inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#operations"><b>OPERATIONS</b></a></li>';
             }
 
             inlineQty += '</ul></div>';
@@ -347,6 +349,10 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
 
                 inlineQty += '<div role="tabpanel" class="tab-pane" id="customers">';
                 inlineQty += dataTablePreview('customers');
+                inlineQty += '</div>';
+
+                inlineQty += '<div role="tabpanel" class="tab-pane" id="operations">';
+                inlineQty += dataTablePreview('operations');
                 inlineQty += '</div>';
             }
 

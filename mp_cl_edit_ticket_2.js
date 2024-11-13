@@ -17,7 +17,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
         var role = runtime.getCurrentUser().role;
         var userRole = runtime.getCurrentUser().role;
 
-        var selector_list = ['barcodes', 'invoices', 'customers'];
+        var selector_list = ['barcodes', 'invoices', 'customers', 'operations'];
 
         /**
          * On page initialisation
@@ -168,6 +168,47 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                                 style: 'multi',
                             };
 
+                            break;
+                        
+                        case 'operations':
+                            var columns = [{
+                                title: "Ticket ID",
+                                type: "num-fmt"
+                            }, {
+                                title: "Date created",
+                                type: "date"
+                            }, {
+                                title: "Customer"
+                            }, {
+                                title: "Franchise"
+                            }, {
+                                title: "Owner"
+                            }, {
+                                title: "Status"
+                            }, {
+                                title: "Operation Issues"
+                            },{
+                                title: "Action"
+                            },
+
+                            ];
+                            var columnDefs = [{
+                                targets: -1,
+                                data: null,
+                                render: function (data, type, row, meta) {
+                                    var icon = 'glyphicon-pencil';
+                                    var title = 'Edit';
+                                    if (data[5] == "Open") {
+                                        var button_style = 'btn-primary';
+                                    } else if (data[5] == "In Progress - Customer Service") {
+                                        var button_style = 'btn-warning';
+                                    } else {
+                                        var button_style = 'btn-danger';
+                                    }
+                                    return '<button class="btn ' + button_style + ' btn - sm edit_class glyphicon ' + icon + '" type="button" data-toggle="tooltip" data-placement="right" title="' + title + '"></button>';
+                                }
+                            }];
+                            var order = [[1, "desc"]];
                             break;
 
                         case 'invoices':
@@ -363,6 +404,13 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                             var selector_number = $(this).parent().siblings().eq(4).text();
                             var selector_type = 'barcode_number';
                             break;
+                        
+                        case 'operations':
+                            var ticket_id = $(this).parent().siblings().eq(0).text().split('MPSD')[1];
+                            var selector_number = $(this).parent().siblings().eq(2).text();
+                            var selector_type = 'operations';
+                            console.log(ticket_id + "," + selector_number + "," + selector_type);
+                            break;
 
                         case 'invoices':
                             var ticket_id = $(this).parent().siblings().eq(0).text().split('MPSD')[1];
@@ -416,6 +464,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     switch (settings.nTable.id) {
                         case 'tickets-preview-barcodes':
                             var date_created_column_nb = 3;
+                            break;
+                        case 'tickets-preview-operations':
+                            var date_created_column_nb = 1;
                             break;
                         case 'tickets-preview-invoices':
                             var date_created_column_nb = 1;
@@ -721,6 +772,33 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                                     has_mpex_contact = true;
                                 }
                                 break;
+                            
+                            case 'operations':
+                                var issue_type = ticketResult.getValue('altname');
+                                issue_type = '<b>' + issue_type + '</b>';
+
+                                // TOLL Issues
+                                var operation_issues = ticketResult.getText('custrecord_mp_ticket_mp_ops_issue');
+                                operation_issues = operation_issues.split(',').join('<br>');
+                                
+                                // Resolved TOLL Issues
+                                var resolved_operation_issues = ticketResult.getText('custrecord_resolved_mp_ops_issues');
+                                if (!isNullorEmpty(resolved_operation_issues)) {
+                                    resolved_operation_issues = 'Resolved : <br>' + resolved_operation_issues.split(',').join('<br>');
+                                }
+
+                                if (status_val == 3) {
+                                    operation_issues = resolved_operation_issues;
+                                }
+
+                                // Has MPEX Contact
+                                var has_mpex_contact = false;
+                                var customer_id = ticketResult.getValue('custrecord_customer1');
+                                if (customer_has_mpex_contact_set.has(customer_id)) {
+                                    console.log(customer_id)
+                                    has_mpex_contact = true;
+                                }
+                                break;
 
                             case 'invoice':
                                 // Invoice number
@@ -779,6 +857,13 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                                     //Push tickets that do not have status Closed-Lost
 
                                     ticketsDataSetArrays[0].push(['', '', ticket_id, date_created, barcode_number, connote_number, customer_name, franchise_name, owners, status, toll_issues, mp_ticket_issues, has_mpex_contact]);
+                                }
+                                break;
+                            
+                            case 'operations':
+                                if (ticketsDataSetArrays[3] != undefined) {
+                                    //Push tickets that do not have status Closed-Lost
+                                    ticketsDataSetArrays[3].push([ticket_id, date_created, customer_name, franchise_name, owners, status, operation_issues]);
                                 }
                                 break;
 
@@ -905,7 +990,9 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                     return 'invoice';
                 } else if (ticket_name == "Customer App" || ticket_name == "Customer Portal" || ticket_name == "Update Label") {
                     return 'customer';
-                } else {
+                } else if (ticket_name == "Operations") {
+                    return 'operations';
+                }else {
                     return 'barcode';
                 }
             }
