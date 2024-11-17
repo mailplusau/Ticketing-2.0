@@ -408,7 +408,7 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                         case 'operations':
                             var ticket_id = $(this).parent().siblings().eq(0).text().split('MPSD')[1];
                             var selector_number = $(this).parent().siblings().eq(2).text();
-                            var selector_type = 'operations';
+                            var selector_type = 'operations_issue';
                             console.log(ticket_id + "," + selector_number + "," + selector_type);
                             break;
 

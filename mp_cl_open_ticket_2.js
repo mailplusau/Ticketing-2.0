@@ -7180,7 +7180,7 @@ define([
 								list_resolved_operation_issues.push(old_operation_issue);
 							}
 						});
-						ticketRecord.setValues({
+						ticketRecord.setValue({
 							fieldId: "custrecord_resolved_mp_ops_issues",
 							value: list_resolved_operation_issues,
 						});
