@@ -277,6 +277,13 @@ define([
 					setReminderDate();
 					hideCloseTicketButton();
 					updateTicketsDatatable();
+				} else if (selector_type == "operations_issue") {
+					selectEnquiryMedium();
+					selectTollEmails();
+					selectOwner();
+					setReminderDate();
+					hideCloseTicketButton();
+					updateTicketsDatatable();
 				} else {
 					//selector_type == 'customer_issue'
 					selectEnquiryMedium();

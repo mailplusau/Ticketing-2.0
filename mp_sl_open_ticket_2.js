@@ -513,11 +513,8 @@ define([
 								list_toll_issues = ticketRecord.getValue({
 									fieldId: "custrecord_toll_issues",
 								});
-								list_operation_issues = ticketRecord.getValue({
-									fieldId: "custrecord_mp_ticket_mp_ops_issue",
-								});
+
 								list_toll_issues = java2jsArray(list_toll_issues);
-								list_operation_issues = java2jsArray(list_operation_issues);
 
 								list_resolved_toll_issues = ticketRecord.getValue({
 									fieldId: "custrecord_resolved_toll_issues",
@@ -525,6 +522,62 @@ define([
 								list_resolved_toll_issues = java2jsArray(
 									list_resolved_toll_issues
 								);
+								list_toll_emails = ticketRecord.getValue({
+									fieldId: "custrecord_toll_emails",
+								});
+								list_toll_emails = java2jsArray(list_toll_emails);
+
+								break;
+							case "operations_issue":
+								// selector_id = ticketRecord.getValue({
+								// 	fieldId: "custrecord_barcode_number",
+								// });
+								// var stock_used = "";
+								// if (!isNullorEmpty(selector_id)) {
+								// 	//Come in here only if selector_id is not null
+								// 	stock_used = search.lookupFields({
+								// 		type: "customrecord_customer_product_stock",
+								// 		id: selector_id,
+								// 		columns: [
+								// 			"custrecord_cust_date_stock_used",
+								// 			"custrecord_cust_time_stock_used",
+								// 		],
+								// 	});
+								// 	log.debug({
+								// 		title: "stock_used",
+								// 		details: stock_used,
+								// 	});
+
+								// 	log.debug({
+								// 		title: "finalDel",
+								// 		details: search.lookupFields({
+								// 			type: "customrecord_customer_product_stock",
+								// 			id: selector_id,
+								// 			columns: "custrecord_cust_prod_stock_final_del",
+								// 		}),
+								// 	});
+
+								// 	var finalDelCheck = search.lookupFields({
+								// 		type: "customrecord_customer_product_stock",
+								// 		id: selector_id,
+								// 		columns: "custrecord_cust_prod_stock_final_del",
+								// 	}).custrecord_cust_prod_stock_final_del;
+								// 	if (!isNullorEmpty(finalDelCheck)) {
+								// 		final_delivery_text = search.lookupFields({
+								// 			type: "customrecord_customer_product_stock",
+								// 			id: selector_id,
+								// 			columns: "custrecord_cust_prod_stock_final_del",
+								// 		})["custrecord_cust_prod_stock_final_del"][0]["text"];
+								// 	}
+
+								// 	date_stock_used = stock_used.custrecord_cust_date_stock_used;
+								// 	time_stock_used = stock_used.custrecord_cust_time_stock_used;
+								// }
+
+								list_operation_issues = ticketRecord.getValue({
+									fieldId: "custrecord_mp_ticket_mp_ops_issue",
+								});
+								list_operation_issues = java2jsArray(list_operation_issues);
 
 								list_resolved_operation_issues = ticketRecord.getValue({
 									fieldId: "custrecord_resolved_mp_ops_issues",
@@ -532,11 +585,6 @@ define([
 								list_resolved_operation_issues = java2jsArray(
 									list_resolved_operation_issues
 								);
-
-								list_toll_emails = ticketRecord.getValue({
-									fieldId: "custrecord_toll_emails",
-								});
-								list_toll_emails = java2jsArray(list_toll_emails);
 
 								break;
 
@@ -1734,32 +1782,60 @@ define([
 		) {
 			inlineQty += reminderSection(status_value);
 		}
+		log.debug({
+			title: "before calling ownerSection()",
+			details: "before calling ownerSection()",
+		});
 		inlineQty += ownerSection(ticket_id, owner_list, status_value);
+		log.debug({
+			title: "before calling tollIssuesSection()",
+			details: "before calling tollIssuesSection()",
+		});
 		inlineQty += tollIssuesSection(
 			list_toll_issues,
 			list_resolved_toll_issues,
 			status_value,
 			selector_type
 		);
+		log.debug({
+			title: "before calling operationsIssuesSection()",
+			details: "before calling operationsIssuesSection()",
+		});
 		inlineQty += operationsIssuesSection(
 			list_operation_issues,
 			list_resolved_operation_issues,
 			status_value,
 			selector_type
 		);
+		log.debug({
+			title: "before calling mpTicketIssuesSection()",
+			details: "before calling mpTicketIssuesSection()",
+		});
 		inlineQty += mpTicketIssuesSection(
 			list_mp_ticket_issues,
 			list_resolved_mp_ticket_issues,
 			status_value,
 			selector_type
 		);
+		log.debug({
+			title: "before calling invoiceIssuesSection()",
+			details: "before calling invoiceIssuesSection()",
+		});
 		inlineQty += invoiceIssuesSection(
 			list_invoice_issues,
 			list_resolved_invoice_issues,
 			status_value,
 			selector_type
 		);
+		log.debug({
+			title: "before calling usernoteSection()",
+			details: "before calling usernoteSection()",
+		});
 		inlineQty += usernoteSection(selector_type, status_value);
+		log.debug({
+			title: "before calling commentSection()",
+			details: "before calling commentSection()",
+		});
 		inlineQty += commentSection(comment, selector_type, status_value);
 
 		inlineQty += "</div>";
@@ -2026,7 +2102,7 @@ define([
 					inlineQty +=
 						'<input id="selector_value" class="form-control selector_value" placeholder="Update Label" disabled value="Update Label">';
 					break;
-				case "operations":
+				case "operations_issue":
 					inlineQty +=
 						'<input id="selector_value" class="form-control selector_value" placeholder="Operations" disabled value="Operations">';
 					break;
@@ -4550,7 +4626,11 @@ define([
 		status_value,
 		selector_type
 	) {
-		// TOLL Issues
+		log.debug({
+			title: "Inside operationsIssuesSection()",
+			details: "Inside operationsIssuesSection()",
+		});
+		// Operational Issues
 		var has_operation_issues = !isNullorEmpty(list_operation_issues);
 		var operation_issues_columns = new Array();
 		operation_issues_columns[0] = search.createColumn({ name: "name" });
@@ -4560,7 +4640,23 @@ define([
 			columns: operation_issues_columns,
 		});
 
-		if (!isTicketNotClosed(status_value) || selector_type != "operations") {
+		log.debug({
+			title: "status_value",
+			details: status_value,
+		});
+		log.debug({
+			title: "selector_type",
+			details: selector_type,
+		});
+		log.debug({
+			title: "isTicketNotClosed(status_value)",
+			details: isTicketNotClosed(status_value),
+		});
+
+		if (
+			!isTicketNotClosed(status_value) ||
+			selector_type != "operations_issue"
+		) {
 			var inlineQty =
 				'<div class="form-group container operation_issues_section hide">';
 		} else {
@@ -4601,7 +4697,7 @@ define([
 		inlineQty += "</select>";
 		inlineQty += "</div></div></div></div>";
 
-		// Resolved TOLL Issues
+		// Resolved Operational Issues
 		log.debug({
 			title: "list_resolved_operation_issues : ",
 			details: list_resolved_operation_issues,
@@ -4977,6 +5073,9 @@ define([
 
 		switch (selector_type) {
 			case "barcode_number":
+				var inlineQty = '<div class="form-group container comment_section">';
+				break;
+			case "operations_issue":
 				var inlineQty = '<div class="form-group container comment_section">';
 				break;
 			case "invoice_number":
