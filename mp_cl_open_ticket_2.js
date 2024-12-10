@@ -3063,6 +3063,16 @@ define([
 		var usernote_textarea = $("#user_note_textarea").val();
 		var date = new Date();
 
+		var ticket_id = currRec.getValue({ fieldId: "custpage_ticket_id" });
+
+		var custparam_params = new Object();
+		custparam_params["ticket_id"] = parseInt(ticket_id);
+		custparam_params["selector_number"] = selector_number;
+		custparam_params["selector_type"] = selector_type;
+
+		var ticketLink =
+			"https://1048144.app.netsuite.com/app/site/hosting/scriptlet.nl?script=1243&deploy=1&compid=1048144&custparam_params=";
+
 		var email_subject = "MP Ticket issue - " + selector_number;
 		var email_body = "";
 		email_body += "Environment : " + runtime.envType + "\n";
@@ -3097,6 +3107,7 @@ define([
 					email_body += $(this).text() + "\n";
 				});
 				email_body += "\n";
+				email_body += "MP Ticket Link : " + ticketLink + "\n";
 				break;
 
 			case "invoice_number":
