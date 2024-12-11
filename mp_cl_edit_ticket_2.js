@@ -425,15 +425,24 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
                             break;
                     }
 
+                    var ticketRecord = record.load({
+                        type: 'customrecord_mp_ticket',
+                        id: ticket_id
+                    });
+
                     if (isNullorEmpty(selector_number.trim())) {
-                        var ticketRecord = record.load({
-                            type: 'customrecord_mp_ticket',
-                            id: ticket_id
-                        });
+                        
 
                         selector_number = ticketRecord.getValue({ fieldId: 'altname' });
+                        
                     }
-                    editTicket(ticket_id, selector_number, selector_type);
+                    var customerInternal = ticketRecord.getValue({ fieldId: 'custrecord_customer1' });
+                    if (selector == 'operations') { 
+                        editTicket(ticket_id, customerInternal, selector_type);
+                    } else {
+                        editTicket(ticket_id, selector_number, selector_type);
+                    }
+                    
                 });
             });
 

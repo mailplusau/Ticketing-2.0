@@ -418,8 +418,9 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
             // 1001, 1031 and 1023 are finance roles
             // 1032 is the Data Systems Co-ordinator role (to be deleted in prod)
             // 1006 is the Mail Plus Administration role.
+            // 1007 is the Mail Plus Operations role.
             // 3 is the Administrator role.
-            return ((userRole == 1001 || userRole == 1031 || userRole == 1023));
+            return ((userRole == 1001 || userRole == 1031 || userRole == 1023)|| (userRole == 1007));
         }
 
         /**
@@ -429,7 +430,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
          * @returns {Boolean}
          */
         function isDataAdminRole(userRole) {
-            return ((userRole == 1032) || (userRole == 3) || (userRole == 1006));
+            return ((userRole == 1032) || (userRole == 3) || (userRole == 1006) );
         }
 
         function isNullorEmpty(strVal) {
