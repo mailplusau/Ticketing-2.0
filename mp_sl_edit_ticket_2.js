@@ -320,9 +320,9 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
 
             inlineQty += '<div style="width: 95%; margin:auto; margin-bottom: 30px"><ul class="nav nav-pills nav-justified" style="margin:0%; ">';
             if (isFinanceRole(userRole)) {
-                //inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#barcodes"><b>BARCODES</b></a></li>';
-                //inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#customers"><b>CUSTOMERS</b></a></li>';
-                // inlineQty += '<li role="presentation" class="active"><a data-toggle="tab" href="#invoices"><b>INVOICES</b></a></li>';
+                inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#barcodes"><b>BARCODES</b></a></li>';
+                inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#customers"><b>CUSTOMERS</b></a></li>';
+                inlineQty += '<li role="presentation" class="active"><a data-toggle="tab" href="#operations"><b>OPERATIONS</b></a></li>';
             } else if (runtime.getCurrentUser().id == 1706027) {
                 // inlineQty += '<li role="presentation" class="active"><a data-toggle="tab" href="#barcodes"><b>BARCODES</b></a></li>';
                 inlineQty += '<li role="presentation" class=""><a data-toggle="tab" href="#customers"><b>CUSTOMERS</b></a></li>';
@@ -352,6 +352,18 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record', 'N/
                 inlineQty += '</div>';
 
                 inlineQty += '<div role="tabpanel" class="tab-pane" id="operations">';
+                inlineQty += dataTablePreview('operations');
+                inlineQty += '</div>';
+            } else {
+                inlineQty += '<div role="tabpanel" class="tab-pane " id="barcodes">';
+                inlineQty += dataTablePreview('barcodes');
+                inlineQty += '</div>';
+
+                inlineQty += '<div role="tabpanel" class="tab-pane" id="customers">';
+                inlineQty += dataTablePreview('customers');
+                inlineQty += '</div>';
+
+                inlineQty += '<div role="tabpanel" class="tab-pane active" id="operations">';
                 inlineQty += dataTablePreview('operations');
                 inlineQty += '</div>';
             }
