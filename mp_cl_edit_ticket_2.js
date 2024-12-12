@@ -432,12 +432,12 @@ define(['N/error', 'N/runtime', 'N/search', 'N/url', 'N/record', 'N/format', 'N/
 
                     if (isNullorEmpty(selector_number.trim())) {
                         
-
                         selector_number = ticketRecord.getValue({ fieldId: 'altname' });
                         
                     }
                     var customerInternal = ticketRecord.getValue({ fieldId: 'custrecord_customer1' });
-                    if (selector == 'operations') { 
+
+                    if (selector == 'operations' && !isNullorEmpty(customerInternal)) { 
                         editTicket(ticket_id, customerInternal, selector_type);
                     } else {
                         editTicket(ticket_id, selector_number, selector_type);
