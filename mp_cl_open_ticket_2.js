@@ -280,7 +280,7 @@ define([
 				} else if (selector_type == "operations_issue") {
 					selectEnquiryMedium();
 					selectTollEmails();
-					selectOwner();
+					selectOwnerOperationIssues();
 					setReminderDate();
 					hideCloseTicketButton();
 					updateTicketsDatatable();
@@ -802,6 +802,9 @@ define([
 		$("#mp_issues").change(function () {
 			selectOwner();
 			hideCloseTicketButton();
+		});
+		$("#operation_issues").change(function () {
+			selectOwnerOperationIssues();
 		});
 
 		$("#cancelbutton").click(function () {
@@ -4871,6 +4874,52 @@ define([
 						owner_list = [1132504]; // Select Rianne Mansell
 						break;
 				}
+			}
+		}
+		$("#owner").selectpicker("val", owner_list);
+	}
+
+	function selectOwnerOperationIssues() {
+		var owner_list = $("#owner option:selected").map(function () {
+			return $(this).val();
+		});
+
+		console.log("owner_list", owner_list);
+		owner_list = $.makeArray(owner_list);
+
+		var list_mp_operation_issues = $("#operation_issues option:selected").map(
+			function () {
+				return $(this).val();
+			}
+		);
+		list_mp_operation_issues = $.makeArray(list_mp_operation_issues);
+
+		console.log(list_mp_operation_issues);
+		if (list_mp_operation_issues.length != 0) {
+			var assign_to_fiona_issue = false;
+			var other_issue = "0";
+			list_mp_operation_issues.forEach(function (
+				list_mp_operation_issues_value
+			) {
+				if (
+					list_mp_operation_issues_value == 3 ||
+					list_mp_operation_issues_value == 4 ||
+					list_mp_operation_issues_value == 5 ||
+					list_mp_operation_issues_value == 21 ||
+					list_mp_operation_issues_value == 22 ||
+					list_mp_operation_issues_value == 20
+				) {
+					assign_to_fiona_issue = true;
+				} else {
+					other_issue = list_mp_operation_issues_value;
+				}
+			});
+
+			if (assign_to_fiona_issue) {
+				// Missed Sweep Issue
+				owner_list = [1552795]; // Select Fiona
+			} else {
+				owner_list.push([25537, 1841968]); // Select Michael & Greg
 			}
 		}
 		$("#owner").selectpicker("val", owner_list);
