@@ -392,6 +392,7 @@ define([
 					$(".resolved_toll_issues_section").removeClass("hide");
 
 					$(".operation_issues_section").addClass("hide");
+					$(".hub_location_section").addClass("hide");
 					$("#zee_dropdown").attr("disabled", "disabled");
 					$(".resolved_operation_issues_section").addClass("hide");
 
@@ -467,6 +468,7 @@ define([
 					$(".resolved_toll_issues_section").addClass("hide");
 
 					$(".operation_issues_section").addClass("hide");
+					$(".hub_location_section").addClass("hide");
 					$("#zee_dropdown").attr("disabled", "disabled");
 					$(".resolved_operation_issues_section").addClass("hide");
 
@@ -515,6 +517,7 @@ define([
 					$(".reminder_section").addClass("hide");
 					$(".toll_issues_section").addClass("hide");
 					$(".operation_issues_section").addClass("hide");
+					$(".hub_location_section").addClass("hide");
 					$("#zee_dropdown").attr("disabled", "disabled");
 					$(".login_email_used_section").removeClass("hide");
 
@@ -630,6 +633,7 @@ define([
 					$(".resolved_toll_issues_section").addClass("hide");
 
 					$(".operation_issues_section").removeClass("hide");
+					$(".hub_location_section").removeClass("hide");
 					// Remove the disabled attribute from an element with the ID 'exampleButton'
 					$("#zee_dropdown").removeAttr("disabled");
 					$(".resolved_operation_issues_section").removeClass("hide");
@@ -1747,6 +1751,14 @@ define([
 						ticketRecord.setValue({
 							fieldId: "custrecord_customer1",
 							value: customer_id,
+						});
+					}
+
+					var hub_location = $("#hub_location option:selected").val();
+					if (!isNullorEmpty(hub_location)) {
+						ticketRecord.setValue({
+							fieldId: "custrecord_mp_ticket_hub_location",
+							value: hub_location,
 						});
 					}
 
@@ -6235,6 +6247,10 @@ define([
 		// Save Comment
 		switch (selector_type) {
 			case "barcode_number":
+				var comment = $("#comment").val();
+				break;
+
+			case "operations_issue":
 				var comment = $("#comment").val();
 				break;
 

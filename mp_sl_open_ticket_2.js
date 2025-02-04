@@ -72,6 +72,7 @@ define([
 			var zee_email = "";
 			var zee_main_contact_phone = "";
 			var zee_abn = "";
+			var zee_location = null;
 			var date_stock_used = "";
 			var time_stock_used = "";
 			var final_delivery_text = "";
@@ -94,6 +95,7 @@ define([
 			var usage_report_array = [];
 			var list_toll_issues = "";
 			var list_operation_issues = "";
+			var hub_location = null;
 			var list_resolved_toll_issues = "";
 			var list_resolved_operation_issues = "";
 			var list_mp_ticket_issues = "";
@@ -457,6 +459,9 @@ define([
 							zee_abn = zeeRecord.getValue({
 								fieldId: "custentity_abn_franchiserecord",
 							});
+							zee_location = zeeRecord.getValue({
+								fieldId: "location",
+							});
 						} else {
 							franchisee_name = ticketRecord.getText({
 								fieldId: "custrecord_zee",
@@ -575,6 +580,9 @@ define([
 								// }
 
 								list_operation_issues = ticketRecord.getValue({
+									fieldId: "custrecord_mp_ticket_mp_ops_issue",
+								});
+								hub_location = ticketRecord.getValue({
 									fieldId: "custrecord_mp_ticket_mp_ops_issue",
 								});
 								list_operation_issues = java2jsArray(list_operation_issues);
@@ -833,7 +841,9 @@ define([
 				senderPhone,
 				productName,
 				barcodeintegration,
-				portal_enquiry_count
+				portal_enquiry_count,
+				hub_location,
+				zee_location
 			);
 
 			// inlineHtml += customerNumberSection(customer_number, ticket_id);
@@ -1402,7 +1412,9 @@ define([
 		senderPhone,
 		productName,
 		barcodeintegration,
-		portal_enquiry_count
+		portal_enquiry_count,
+		hub_location,
+		zee_location
 	) {
 		var inlineQty = '<div style="margin-top: -10px"><br/>';
 		// BUTTONS
@@ -1677,7 +1689,8 @@ define([
 				zee_main_contact_name,
 				zee_email,
 				zee_main_contact_phone,
-				zee_abn
+				zee_abn,
+				zee_id
 			);
 		}
 
@@ -1805,7 +1818,9 @@ define([
 			list_operation_issues,
 			list_resolved_operation_issues,
 			status_value,
-			selector_type
+			selector_type,
+			hub_location,
+			zee_location
 		);
 		log.debug({
 			title: "before calling mpTicketIssuesSection()",
@@ -2743,7 +2758,8 @@ define([
 		zee_main_contact_name,
 		zee_email,
 		zee_main_contact_phone,
-		zee_abn
+		zee_abn,
+		zee_id
 	) {
 		if (isNullorEmpty(franchisee_name)) {
 			franchisee_name = "";
@@ -2781,40 +2797,40 @@ define([
 			'<select id="zee_dropdown" class="js-example-basic-multiple js-states form-control" style="width: 100%" disabled>';
 		inlineQty += '<option value=""></option>';
 		resultSetZees.each(function (searchResult_zee) {
-			zee_id = searchResult_zee.getValue("internalid");
-			zee_name = searchResult_zee.getValue("companyname");
+			var zee_search_id = searchResult_zee.getValue("internalid");
+			var zee_name = searchResult_zee.getValue("companyname");
 
 			if (role == 1000) {
-				if (zee == zee_id) {
+				if (zee_search_id == zee_id) {
 					inlineQty +=
 						'<option value="' +
-						zee_id +
+						zee_search_id +
 						'" selected="selected">' +
 						zee_name +
 						"</option>";
 				}
 			} else {
-				if (isNullorEmpty(zee)) {
+				if (isNullorEmpty(zee_id)) {
 					inlineQty +=
-						'<option value="' + zee_id + '">' + zee_name + "</option>";
+						'<option value="' + zee_search_id + '">' + zee_name + "</option>";
 				} else {
-					if (zee.indexOf(",") != -1) {
-						var zeeArray = zee.split(",");
+					if (zee_id.indexOf(",") != -1) {
+						var zeeArray = zee_id.split(",");
 					} else {
 						var zeeArray = [];
-						zeeArray.push(zee);
+						zeeArray.push(zee_id);
 					}
 
-					if (zeeArray.indexOf(zee_id) != -1) {
+					if (zeeArray.indexOf(zee_search_id) != -1) {
 						inlineQty +=
 							'<option value="' +
-							zee_id +
+							zee_search_id +
 							'" selected="selected">' +
 							zee_name +
 							"</option>";
 					} else {
 						inlineQty +=
-							'<option value="' + zee_id + '">' + zee_name + "</option>";
+							'<option value="' + zee_search_id + '">' + zee_name + "</option>";
 					}
 				}
 				// if (zee == zee_id) {
@@ -4624,7 +4640,9 @@ define([
 		list_operation_issues,
 		list_resolved_operation_issues,
 		status_value,
-		selector_type
+		selector_type,
+		hub_location,
+		zee_location
 	) {
 		log.debug({
 			title: "Inside operationsIssuesSection()",
@@ -4734,6 +4752,62 @@ define([
 				"</textarea>";
 			inlineQty += "</div></div></div></div>";
 		}
+
+		// Operational Issues
+		var hubLocationSearch = search.load({
+			id: "customsearch_mp_tickets_hub",
+			type: "customrecord_ap_lodgment_location",
+		});
+
+		if (!isNullorEmpty(zee_location)) {
+			hubLocationSearch.filters.push(
+				search.createFilter({
+					name: "custrecord_ap_lodgement_site_state",
+					join: null,
+					operator: search.Operator.ANYOF,
+					values: zee_location,
+				})
+			);
+		}
+
+		if (
+			!isTicketNotClosed(status_value) ||
+			selector_type != "operations_issue"
+		) {
+			var inlineQty =
+				'<div class="form-group container hub_location_section hide">';
+		} else {
+			var inlineQty = '<div class="form-group container hub_location_section">';
+		}
+		inlineQty += '<div class="row">';
+		inlineQty += '<div class="col-xs-12 hub_location_section">';
+		inlineQty +=
+			'<div class="input-group"><span class="input-group-addon" id="hub_location_section_text">HUB LOCATION</span>';
+		inlineQty +=
+			'<select id="hub_location" class="form-control hub_location" size="' +
+			operationIssuesResultSet.length +
+			'"><option value="" selected></option>';
+
+		hubLocationSearch.run().each(function (hubLocationSearchResult) {
+			var hubName = hubLocationSearchResult.getValue("name");
+			var hubInternalId = hubLocationSearchResult.getValue("internalid");
+
+			if (hubInternalId == hub_location) {
+				inlineQty +=
+					'<option value="' +
+					hubInternalId +
+					'" selected>' +
+					hubName +
+					"</option>";
+			} else {
+				inlineQty +=
+					'<option value="' + hubInternalId + '">' + hubName + "</option>";
+			}
+			return true;
+		});
+
+		inlineQty += "</select>";
+		inlineQty += "</div></div></div></div>";
 
 		return inlineQty;
 	}
