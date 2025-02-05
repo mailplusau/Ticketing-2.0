@@ -4774,10 +4774,10 @@ define([
 			!isTicketNotClosed(status_value) ||
 			selector_type != "operations_issue"
 		) {
-			var inlineQty =
+			inlineQty +=
 				'<div class="form-group container hub_location_section hide">';
 		} else {
-			var inlineQty = '<div class="form-group container hub_location_section">';
+			inlineQty += '<div class="form-group container hub_location_section">';
 		}
 		inlineQty += '<div class="row">';
 		inlineQty += '<div class="col-xs-12 hub_location_section">';
