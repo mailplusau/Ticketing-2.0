@@ -4914,12 +4914,13 @@ define([
 				list_mp_operation_issues_value
 			) {
 				if (
-					list_mp_operation_issues_value == 3 ||
-					list_mp_operation_issues_value == 4 ||
-					list_mp_operation_issues_value == 5 ||
-					list_mp_operation_issues_value == 21 ||
-					list_mp_operation_issues_value == 22 ||
-					list_mp_operation_issues_value == 20
+					(list_mp_operation_issues_value == 3 ||
+						list_mp_operation_issues_value == 4 ||
+						list_mp_operation_issues_value == 5 ||
+						list_mp_operation_issues_value == 21 ||
+						list_mp_operation_issues_value == 22 ||
+						list_mp_operation_issues_value == 20) &&
+					isNullorEmpty(owner_list)
 				) {
 					assign_to_fiona_issue = true;
 				} else {
