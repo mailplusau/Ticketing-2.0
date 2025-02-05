@@ -5842,6 +5842,14 @@ define([
 						fieldId: "custpage_customer_id",
 					});
 
+					var hub_location = $("#hub_location option:selected").val();
+					if (!isNullorEmpty(hub_location)) {
+						ticketRecord.setValue({
+							fieldId: "custrecord_mp_ticket_hub_location",
+							value: hub_location,
+						});
+					}
+
 					if (!isNullorEmpty(customer_id)) {
 						ticketRecord.setValue({
 							fieldId: "custrecord_customer1",
