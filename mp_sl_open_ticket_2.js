@@ -4548,6 +4548,7 @@ define([
 		var tollIssuesResultSet = search.create({
 			type: "customlist_cust_prod_stock_toll_issues",
 			columns: toll_issues_columns,
+			filters: ["isinactive", "is", "false"],
 		});
 
 		if (!isTicketNotClosed(status_value) || selector_type != "barcode_number") {
@@ -4656,6 +4657,7 @@ define([
 		var operationIssuesResultSet = search.create({
 			type: "customlist_mp_operation_issues",
 			columns: operation_issues_columns,
+			filters: ["isinactive", "is", "false"],
 		});
 
 		log.debug({
