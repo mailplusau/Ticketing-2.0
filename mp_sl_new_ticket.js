@@ -640,13 +640,13 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
 
         var ticket_url = baseURL + output + '&custparam_params=' + params;
 
-        //3. send email to Gab and Jess and customerservice@mailplus.com.au with new ticket info
+        //3. send email Tracking@mailplus.com.au with new ticket info
         //add ticket id in subject
         email.send({
           author: 112209,
           body: note + "\nTicket URL: " + ticket_url + "\nDate: " + new Date(),
           recipients: ['mailplusit@mailplus.com.au',
-            'customerservice@mailplus.com.au',
+            'Tracking@mailplus.com.au',
           ],
           subject: 'New Ticket Creation MPSD' + ticket_id,
         })
@@ -763,7 +763,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
 
       if (!isNullorEmpty(customer_id)) {
         email.send({
-          author: 112209,
+          author: 1888914,
           body: emailHtml,
           recipients: recipients,
           subject: subject,
@@ -773,7 +773,7 @@ define(['N/ui/serverWidget', 'N/email', 'N/runtime', 'N/search', 'N/record',
         });
       } else {
         email.send({
-          author: 112209,
+          author: 1888914,
           body: emailHtml,
           recipients: recipients,
           subject: subject,

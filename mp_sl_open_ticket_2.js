@@ -148,7 +148,9 @@ define([
 			var barcodempdl = "";
 			var barcodesource = "";
 			var barcodeintegration = "";
-
+			var enquireremail = "";
+			var enquirerphone = "";
+			var enquirername = "";
 			var senderName = "";
 			var senderEmail = "";
 			var senderPhone = "";
@@ -291,6 +293,16 @@ define([
 						});
 						customer_ticket_status = ticketRecord.getText({
 							fieldId: "custrecord_mp_ticket_customer_status",
+						});
+						//Enquirer Details
+						enquireremail = ticketRecord.getValue({
+							fieldId: "custrecord_ticket_enquirer_email",
+						});
+						enquirerphone = ticketRecord.getValue({
+							fieldId: "custrecord_ticket_enquirer_phone",
+						});
+						enquirername = ticketRecord.getValue({
+							fieldId: "custrecord_ticket_enquirer_name",
 						});
 
 						if (!isNullorEmpty(customer_barcode_number)) {
@@ -843,7 +855,10 @@ define([
 				barcodeintegration,
 				portal_enquiry_count,
 				hub_location,
-				zee_location
+				zee_location,
+				enquireremail,
+				enquirerphone,
+				enquirername
 			);
 
 			// inlineHtml += customerNumberSection(customer_number, ticket_id);
@@ -1192,7 +1207,7 @@ define([
 				if (!isNullorEmpty(attachement_files)) {
 					try {
 						email.send({
-							author: 112209,
+							author: 1888914,
 							body: email_body,
 							recipients: to,
 							subject: email_subject,
@@ -1414,7 +1429,9 @@ define([
 		barcodeintegration,
 		portal_enquiry_count,
 		hub_location,
-		zee_location
+		zee_location, enquireremail,
+		enquirerphone,
+		enquirername
 	) {
 		var inlineQty = '<div style="margin-top: -10px"><br/>';
 		// BUTTONS
@@ -1746,6 +1763,13 @@ define([
 			phone_interaction_count,
 			email_interaction_count,
 			portal_enquiry_count
+		);
+
+		inlineQty += enquirerSection(
+			selector_type,
+			enquireremail,
+			enquirerphone,
+			enquirername
 		);
 
 		if (!isNullorEmpty(ticket_id)) {
@@ -2201,7 +2225,7 @@ define([
 		inlineQty +=
 			'<span class="input-group-addon" id="status_text">CONNOTE NUMBER</span>';
 		inlineQty +=
-			'<input id="status" value="' +
+			'<input id="connote_no" value="' +
 			connote_number +
 			'" class="form-control status" disabled />';
 
@@ -5353,6 +5377,79 @@ define([
 		} else {
 			return "Escalate";
 		}
+	}
+
+	function enquirerSection(selector_type,
+		enquireremail,
+		enquirerphone,
+		enquirername
+	) {
+		// var disabled = "disabled";
+
+		var inlineQty = "";
+
+		if (selector_type == "barcode_number") {
+			// Receiver details header
+			inlineQty +=
+				'<div class="form-group container tickets_details_header_section">';
+			inlineQty += '<div class="row">';
+			inlineQty += '<div class="col-xs-12 heading2"  >';
+			inlineQty +=
+				'<h4><span style="background-color: #095C7B" class="label label-default col-xs-12">ENQUIRER DETAILS</span></h4>';
+			inlineQty += "</div></div></div>";
+
+			//First Row
+			inlineQty += '<div class="form-group container enquirercontact_section">';
+			inlineQty += '<div class="row">';
+
+			// name field
+			inlineQty += '<div class="col-xs-4 enquirername_div">';
+			inlineQty += '<div class="input-group">';
+			inlineQty +=
+				'<span class="input-group-addon" id="enquirername_text">NAME</span>';
+			inlineQty +=
+				'<input id="enquirername" value="' +
+				enquirername +
+				'" class="form-control enquirername" />';
+			inlineQty += "</div></div>";
+
+			// Day to day phone field
+			inlineQty += '<div class="col-xs-4 enquirerphone_div">';
+			inlineQty += '<div class="input-group">';
+			inlineQty +=
+				'<span class="input-group-addon" id="enquirerphone_text">PHONE</span>';
+			inlineQty +=
+				'<input id="enquirerphone" type="tel" value="' +
+				enquirerphone +
+				'" class="form-control enquirerphone" />';
+			inlineQty +=
+				'<div class="input-group-btn"><button type="button" style="background-color: #095C7B" class="btn btn-success" id="call_enquirer_phone"><span class="glyphicon glyphicon-earphone"></span></button></div>';
+			inlineQty += "</div></div>";
+
+			// Day to day email field
+			inlineQty += '<div class="col-xs-4 enquireremail_div">';
+			inlineQty += '<div class="input-group">';
+			inlineQty +=
+				'<span class="input-group-addon" id="enquireremail_text">EMAIL</span>';
+			inlineQty +=
+				'<input id="enquireremail" type="email" value="' +
+				enquireremail +
+				'" class="form-control enquireremail" />';
+			inlineQty += '<div class="input-group-btn">';
+			inlineQty +=
+				'<button type="button" style="background-color: #095C7B" class="btn btn-success add_as_recipient" data-email="' +
+				enquireremail +
+				'" data-contact-id="" data-firstname="" data-toggle="tooltip" data-placement="right" title="Add as recipient">';
+			inlineQty += '<span class="glyphicon glyphicon-envelope"></span>';
+			inlineQty += "</button>";
+			inlineQty += "</div>";
+			inlineQty += "</div></div>";
+
+			inlineQty += "</div></div>";
+
+		}
+
+		return inlineQty;
 	}
 
 	/**

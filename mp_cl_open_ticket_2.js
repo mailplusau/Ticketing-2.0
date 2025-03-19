@@ -166,8 +166,8 @@ define([
 				var title = $(this).text();
 				$(this).html(
 					'<input style="width: 80%" type="text" placeholder="Search ' +
-						title +
-						'" />'
+					title +
+					'" />'
 				);
 
 				$("input", this).on("keyup change", function () {
@@ -188,9 +188,9 @@ define([
 		if (
 			window.location.search.substr(1) == "script=1243&deploy=1" ||
 			window.location.search.substr(1) ==
-				"script=976&deploy=1&compid=1048144_SB3" ||
+			"script=976&deploy=1&compid=1048144_SB3" ||
 			window.location.search.substr(1) ==
-				"script=1243&deploy=1&compid=1048144_SB3&whence="
+			"script=1243&deploy=1&compid=1048144_SB3&whence="
 		) {
 			currRec.setValue({ fieldId: "custpage_selector_number", value: "" });
 			currRec.setValue({
@@ -1021,8 +1021,8 @@ define([
 			if (!isNullorEmpty(login_email)) {
 				sendCustomerEscalateEmail(
 					"MailPlus [MPSD" +
-						parseInt(ticket_id) +
-						"] - Your IT ticket has been escalated - Customer Portal",
+					parseInt(ticket_id) +
+					"] - Your IT ticket has been escalated - Customer Portal",
 					[login_email],
 					120,
 					customer_id
@@ -1240,9 +1240,9 @@ define([
 				if (ticketstatus == 11) {
 					sendCustomerEscalateEmail(
 						"MailPlus [" +
-							ticket_name +
-							"] - Support enquiry | Stage 1 - " +
-							barcodeName,
+						ticket_name +
+						"] - Support enquiry | Stage 1 - " +
+						barcodeName,
 						[receiveremail],
 						109,
 						customer_id
@@ -1250,9 +1250,9 @@ define([
 				} else if (ticketstatus == 12) {
 					sendCustomerEscalateEmail(
 						"MailPlus [" +
-							ticket_name +
-							"] - Support enquiry | Stage 2 - " +
-							barcodeName,
+						ticket_name +
+						"] - Support enquiry | Stage 2 - " +
+						barcodeName,
 						[receiveremail],
 						110,
 						customer_id
@@ -1260,9 +1260,9 @@ define([
 				} else if (ticketstatus == 13) {
 					sendCustomerEscalateEmail(
 						"MailPlus [" +
-							ticket_name +
-							"] - Support enquiry | Stage 3 - " +
-							barcodeName,
+						ticket_name +
+						"] - Support enquiry | Stage 3 - " +
+						barcodeName,
 						[receiveremail],
 						111,
 						customer_id
@@ -1363,7 +1363,7 @@ define([
 
 		if (!isNullorEmpty(customer_id)) {
 			email.send({
-				author: 112209,
+				author: 1888914,
 				body: emailHtml,
 				recipients: recipients,
 				subject: subject,
@@ -1371,7 +1371,7 @@ define([
 			});
 		} else {
 			email.send({
-				author: 112209,
+				author: 1888914,
 				body: emailHtml,
 				recipients: recipients,
 				subject: subject,
@@ -2409,9 +2409,9 @@ define([
 			ticket_records = searchTicketRecords(customer_number);
 			console.log(
 				"Current tickets on customer number " +
-					customer_number +
-					": " +
-					ticket_records
+				customer_number +
+				": " +
+				ticket_records
 			);
 
 			var customer_record = customerLinkedToCustomerNum(customer_number);
@@ -3167,7 +3167,7 @@ define([
 
 		console.log("emailsend");
 		email.send({
-			author: 112209,
+			author: 1888914,
 			body: email_body,
 			recipients: to,
 			subject: email_subject,
@@ -3263,8 +3263,8 @@ define([
 					//Customer does not exist in record
 					showAlert(
 						"Enter a valid customer number. Customer " +
-							customer_number +
-							" does not exist"
+						customer_number +
+						" does not exist"
 					);
 					return false;
 				}
@@ -3474,7 +3474,7 @@ define([
 	function showAlert(message) {
 		$("#danger-alert").html(
 			'<button type="button" class="close" id="close-alert"  data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
-				message
+			message
 		);
 		$("#danger-alert").parent().show();
 
@@ -4036,7 +4036,7 @@ define([
 				if (error.name == "SSS_MISSING_REQD_ARGUMENT") {
 					console.log(
 						"Error to load the customer record with customer_id : " +
-							customer_id
+						customer_id
 					);
 				}
 			}
@@ -4173,7 +4173,7 @@ define([
 						if (error.name == "SSS_MISSING_REQD_ARGUMENT") {
 							console.log(
 								"Error to load the customer record with customer_id : " +
-									customer_id
+								customer_id
 							);
 						}
 					}
@@ -4343,7 +4343,7 @@ define([
 						if (e.name == "SSS_MISSING_REQD_ARGUMENT") {
 							console.log(
 								"Error to load the customer record with customer_id : " +
-									customer_id
+								customer_id
 							);
 						}
 					}
@@ -5064,13 +5064,14 @@ define([
 		var selector_number = currRec.getValue({
 			fieldId: "custpage_selector_number",
 		});
+		var connote_no = $('#connote_no').val()
 		var subject =
 			"MailPlus [MPSD" +
 			ticket_id +
 			"] - " +
 			template_subject +
 			" - " +
-			selector_number;
+			connote_no;
 
 		$("#subject").val(subject);
 	}
@@ -5440,7 +5441,7 @@ define([
 			if (e.name == "SSS_MISSING_REQD_ARGUMENT") {
 				console.log(
 					"Error to Set record status to In Progress with ticket_id : " +
-						ticket_id
+					ticket_id
 				);
 			}
 			//}
@@ -5708,6 +5709,10 @@ define([
 
 		var enquiry_count_by_chat = $("#enquiry_count_by_chat").val();
 
+		var enquirername = $("#enquirername").val();
+		var call_enquirer_phone = $("#call_enquirer_phone").val();
+		var enquireremail = $("#enquireremail").val();
+
 		if (!isNullorEmpty(enquiry_count_by_chat)) {
 			ticketRecord.setValue({
 				fieldId: "custrecord_chat_enquiry_count",
@@ -5721,6 +5726,25 @@ define([
 			ticketRecord.setValue({
 				fieldId: "custrecord_phone_enquiry_count",
 				value: enquiry_count_by_phone,
+			});
+		}
+		if (!isNullorEmpty(enquirername)) {
+			ticketRecord.setValue({
+				fieldId: "custrecord_ticket_enquirer_name",
+				value: enquirername,
+			});
+		}
+		if (!isNullorEmpty(call_enquirer_phone)) {
+			ticketRecord.setValue({
+				fieldId: "custrecord_ticket_enquirer_phone",
+				value: call_enquirer_phone,
+			});
+		}
+
+		if (!isNullorEmpty(enquireremail)) {
+			ticketRecord.setValue({
+				fieldId: "custrecord_ticket_enquirer_email",
+				value: enquireremail,
 			});
 		}
 
@@ -6683,8 +6707,8 @@ define([
 				});
 				sendCustomerEscalateEmail(
 					"MailPlus [MPSD" +
-						ticket_id +
-						"] - Your IT ticket has been resolved - Customer Portal",
+					ticket_id +
+					"] - Your IT ticket has been resolved - Customer Portal",
 					[login_email],
 					121,
 					customer_id
@@ -6693,8 +6717,8 @@ define([
 				if (status_num == 15) {
 					sendCustomerEscalateEmail(
 						"MailPlus [MPSD" +
-							ticket_id +
-							"] - Your IT ticket has been resolved - Customer Portal",
+						ticket_id +
+						"] - Your IT ticket has been resolved - Customer Portal",
 						[login_email],
 						121,
 						customer_id
@@ -6921,7 +6945,7 @@ define([
 					ticket_url;
 
 				email.send({
-					author: 112209,
+					author: 1888914,
 					body: body,
 					recipients: [
 						"sruti.desai@mailplus.com.au",
@@ -6945,7 +6969,7 @@ define([
 					ticket_url;
 
 				email.send({
-					author: 112209,
+					author: 1888914,
 					body: body,
 					recipients: [
 						"sruti.desai@mailplus.com.au",
@@ -6968,7 +6992,7 @@ define([
 					"\nTicket URL: " +
 					ticket_url;
 				email.send({
-					author: 112209,
+					author: 1888914,
 					body: body,
 					recipients: [
 						"sruti.desai@mailplus.com.au",
