@@ -2263,6 +2263,30 @@ define([
 			});
 		}
 
+		var enquirername = $("#enquirername").val();
+		var enquirerphone = $("#enquirerphone").val();
+		var enquireremail = $("#enquireremail").val();
+
+		if (!isNullorEmpty(enquirername)) {
+			ticketRecord.setValue({
+				fieldId: "custrecord_ticket_enquirer_name",
+				value: enquirername,
+			});
+		}
+		if (!isNullorEmpty(enquirerphone)) {
+			ticketRecord.setValue({
+				fieldId: "custrecord_ticket_enquirer_phone",
+				value: enquirerphone,
+			});
+		}
+
+		if (!isNullorEmpty(enquireremail)) {
+			ticketRecord.setValue({
+				fieldId: "custrecord_ticket_enquirer_email",
+				value: enquireremail,
+			});
+		}
+
 		var ticket_id = ticketRecord.save({
 			enableSourcing: true,
 		});
@@ -5709,10 +5733,6 @@ define([
 
 		var enquiry_count_by_chat = $("#enquiry_count_by_chat").val();
 
-		var enquirername = $("#enquirername").val();
-		var call_enquirer_phone = $("#call_enquirer_phone").val();
-		var enquireremail = $("#enquireremail").val();
-
 		if (!isNullorEmpty(enquiry_count_by_chat)) {
 			ticketRecord.setValue({
 				fieldId: "custrecord_chat_enquiry_count",
@@ -5728,16 +5748,20 @@ define([
 				value: enquiry_count_by_phone,
 			});
 		}
+		var enquirername = $("#enquirername").val();
+		var enquirerphone = $("#enquirerphone").val();
+		var enquireremail = $("#enquireremail").val();
+
 		if (!isNullorEmpty(enquirername)) {
 			ticketRecord.setValue({
 				fieldId: "custrecord_ticket_enquirer_name",
 				value: enquirername,
 			});
 		}
-		if (!isNullorEmpty(call_enquirer_phone)) {
+		if (!isNullorEmpty(enquirerphone)) {
 			ticketRecord.setValue({
 				fieldId: "custrecord_ticket_enquirer_phone",
-				value: call_enquirer_phone,
+				value: enquirerphone,
 			});
 		}
 

@@ -4073,6 +4073,20 @@ define([
 		inlineQty += '<input id="subject" class="form-control" />';
 		inlineQty += "</div></div></div></div>";
 
+		if (role == 3) {
+			// Row Upload
+			inlineQty +=
+				'<div class="form-group container send_email upload_section">';
+			inlineQty += '<div class="row">';
+			inlineQty += '<div class="col-xs-12 upload_section">';
+			inlineQty += '<div class="input-group">';
+			inlineQty +=
+				'<span class="input-group-addon">UPLOAD DOCS</span>';
+			inlineQty +=
+				'<input class="form-control form-control-sm" accept="image/*" id="upload_doc" type="file" name="ticket_doc">';
+			inlineQty += "</div></div></div></div>";
+		}
+
 		// Row Body
 		inlineQty += '<div class="form-group container send_email body_section">';
 		inlineQty += '<div class="row">';
