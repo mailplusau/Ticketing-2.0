@@ -5037,6 +5037,23 @@ define([
 
 		var emailAttach = new Object();
 		emailAttach["entity"] = customer_id;
+		var connote_no = $('#connote_no').val();
+		var ticket_id = currRec.getValue({ fieldId: "custpage_ticket_id" });
+		ticket_id = parseInt(ticket_id);
+
+		var ticketRecord = record.load({
+			type: "customrecord_mp_ticket",
+			id: ticket_id,
+		});
+
+		var selector_number = currRec.getValue({
+			fieldId: "custpage_selector_number",
+		});
+
+		var customer_barcode_number = ticketRecord.getValue({
+			fieldId: "custrecord_barcode_number",
+		});
+
 
 		//https://1048144-sb3.extforms.netsuite.com/app/site/hosting/scriptlet.nl?script=395&deploy=1&compid=1048144_SB3&h=9c35dc467fbdfafcfeaa&rectype=customer&template=91&recid=780069&salesrep=Sruti%20Desai&dear=&contactid=&userid=1115209
 		suiteletUrl +=
@@ -5050,7 +5067,11 @@ define([
 			"&contactid=" +
 			null +
 			"&userid=" +
-			userid;
+			userid +
+			"&trackingid=" +
+			connote_no +
+			"&barcode=" +
+			customer_barcode_number;
 		// var headerObj = {
 		//     name: 'Accept-Language',
 		//     value: 'en-us'
@@ -5083,12 +5104,6 @@ define([
 
 		$("#email_body").summernote("code", emailHtml);
 
-		var ticket_id = currRec.getValue({ fieldId: "custpage_ticket_id" });
-		ticket_id = parseInt(ticket_id);
-		var selector_number = currRec.getValue({
-			fieldId: "custpage_selector_number",
-		});
-		var connote_no = $('#connote_no').val()
 		var subject =
 			"MailPlus [MPSD" +
 			ticket_id +
